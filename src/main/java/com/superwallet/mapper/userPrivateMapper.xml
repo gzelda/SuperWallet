@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.dao.userPrivateMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.model.userPrivate" >
+    <id column="UID" property="uid" jdbcType="CHAR" />
+    <result column="realName" property="realName" jdbcType="VARCHAR" />
+    <result column="IDCardNumber" property="idCardNumber" jdbcType="CHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.superwallet.model.userPrivateWithBLOBs" extends="BaseResultMap" >
+    <result column="IDCardFront" property="idCardFront" jdbcType="LONGVARBINARY" />
+    <result column="IDCardBack" property="idCardBack" jdbcType="LONGVARBINARY" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    UID, realName, IDCardNumber
+  </sql>
+  <sql id="Blob_Column_List" >
+    IDCardFront, IDCardBack
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from userPrivate
+    where UID = #{uid,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from userPrivate
+    where UID = #{uid,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.model.userPrivateWithBLOBs" >
+    insert into userPrivate (UID, realName, IDCardNumber, 
+      IDCardFront, IDCardBack)
+    values (#{uid,jdbcType=CHAR}, #{realName,jdbcType=VARCHAR}, #{idCardNumber,jdbcType=CHAR},
+      #{idCardFront,jdbcType=LONGVARBINARY}, #{idCardBack,jdbcType=LONGVARBINARY})
+  </insert>
+  <insert id="insertSelective" parameterType="com.superwallet.model.userPrivateWithBLOBs" >
+    insert into userPrivate
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        UID,
+      </if>
+      <if test="realName != null" >
+        realName,
+      </if>
+      <if test="idCardNumber != null" >
+        IDCardNumber,
+      </if>
+      <if test="idCardFront != null" >
+        IDCardFront,
+      </if>
+      <if test="idCardBack != null" >
+        IDCardBack,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        #{uid,jdbcType=CHAR},
+      </if>
+      <if test="realName != null" >
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="idCardNumber != null" >
+        #{idCardNumber,jdbcType=CHAR},
+      </if>
+      <if test="idCardFront != null" >
+        #{idCardFront,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="idCardBack != null" >
+        #{idCardBack,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.model.userPrivateWithBLOBs" >
+    update userPrivate
+    <set >
+      <if test="realName != null" >
+        realName = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="idCardNumber != null" >
+        IDCardNumber = #{idCardNumber,jdbcType=CHAR},
+      </if>
+      <if test="idCardFront != null" >
+        IDCardFront = #{idCardFront,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="idCardBack != null" >
+        IDCardBack = #{idCardBack,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.model.userPrivateWithBLOBs" >
+    update userPrivate
+    set realName = #{realName,jdbcType=VARCHAR},
+      IDCardNumber = #{idCardNumber,jdbcType=CHAR},
+      IDCardFront = #{idCardFront,jdbcType=LONGVARBINARY},
+      IDCardBack = #{idCardBack,jdbcType=LONGVARBINARY}
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.model.userPrivate" >
+    update userPrivate
+    set realName = #{realName,jdbcType=VARCHAR},
+      IDCardNumber = #{idCardNumber,jdbcType=CHAR}
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+</mapper>

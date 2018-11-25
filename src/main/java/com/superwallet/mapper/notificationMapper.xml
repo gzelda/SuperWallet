@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.dao.notificationMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.model.notification" >
+    <id column="nid" property="nid" jdbcType="BIGINT" />
+    <result column="protocol" property="protocol" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.superwallet.model.notification" extends="BaseResultMap" >
+    <result column="notice" property="notice" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    nid, protocol
+  </sql>
+  <sql id="Blob_Column_List" >
+    notice
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from notification
+    where nid = #{nid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from notification
+    where nid = #{nid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.model.notification" >
+    insert into notification (nid, protocol, notice
+      )
+    values (#{nid,jdbcType=BIGINT}, #{protocol,jdbcType=VARCHAR}, #{notice,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.superwallet.model.notification" >
+    insert into notification
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="nid != null" >
+        nid,
+      </if>
+      <if test="protocol != null" >
+        protocol,
+      </if>
+      <if test="notice != null" >
+        notice,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="nid != null" >
+        #{nid,jdbcType=BIGINT},
+      </if>
+      <if test="protocol != null" >
+        #{protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="notice != null" >
+        #{notice,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.model.notification" >
+    update notification
+    <set >
+      <if test="protocol != null" >
+        protocol = #{protocol,jdbcType=VARCHAR},
+      </if>
+      <if test="notice != null" >
+        notice = #{notice,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where nid = #{nid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.model.notification" >
+    update notification
+    set protocol = #{protocol,jdbcType=VARCHAR},
+      notice = #{notice,jdbcType=LONGVARCHAR}
+    where nid = #{nid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.model.notification" >
+    update notification
+    set protocol = #{protocol,jdbcType=VARCHAR}
+    where nid = #{nid,jdbcType=BIGINT}
+  </update>
+</mapper>

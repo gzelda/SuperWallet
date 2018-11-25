@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.dao.lockWarehouseMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.model.lockWarehouse" >
+    <id column="lockWarehouseId" property="lockWarehouseId" jdbcType="BIGINT" />
+    <id column="UID" property="uid" jdbcType="CHAR" />
+    <result column="amount" property="amount" jdbcType="INTEGER" />
+    <result column="period" property="period" jdbcType="INTEGER" />
+    <result column="createdTime" property="createdTime" jdbcType="TIMESTAMP" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    lockWarehouseId, UID, amount, period, createdTime, status
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.model.lockWarehouseKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from lockWarehouse
+    where lockWarehouseId = #{lockwarehouseid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.superwallet.model.lockWarehouseKey" >
+    delete from lockWarehouse
+    where lockWarehouseId = #{lockWarehouseId,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.model.lockWarehouse" >
+    insert into lockWarehouse (lockWarehouseId, UID, amount, 
+      period, createdTime, status
+      )
+    values (#{lockWarehouseId,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{amount,jdbcType=INTEGER},
+      #{period,jdbcType=INTEGER}, #{createdTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.superwallet.model.lockWarehouse" >
+    insert into lockWarehouse
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="lockWarehouseId != null" >
+        lockWarehouseId,
+      </if>
+      <if test="uid != null" >
+        UID,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="period != null" >
+        period,
+      </if>
+      <if test="createdTime != null" >
+        createdTime,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="lockWarehouseId != null" >
+        #{lockWarehouseId,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=CHAR},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=INTEGER},
+      </if>
+      <if test="period != null" >
+        #{period,jdbcType=INTEGER},
+      </if>
+      <if test="createdTime != null" >
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.model.lockWarehouse" >
+    update lockWarehouse
+    <set >
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=INTEGER},
+      </if>
+      <if test="period != null" >
+        period = #{period,jdbcType=INTEGER},
+      </if>
+      <if test="createdTime != null" >
+        createdTime = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+    </set>
+    where lockWarehouseId = #{lockWarehouseId,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.model.lockWarehouse" >
+    update lockWarehouse
+    set amount = #{amount,jdbcType=INTEGER},
+      period = #{period,jdbcType=INTEGER},
+      createdTime = #{createdTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=TINYINT}
+    where lockWarehouseId = #{lockWarehouseId,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </update>
+</mapper>

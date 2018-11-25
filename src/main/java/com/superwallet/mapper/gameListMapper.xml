@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.dao.gameListMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.model.gameList" >
+    <id column="gid" property="gid" jdbcType="BIGINT" />
+    <result column="link" property="link" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.superwallet.model.gameListWithBLOBs" extends="BaseResultMap" >
+    <result column="photo" property="photo" jdbcType="LONGVARBINARY" />
+    <result column="text" property="text" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    gid, link
+  </sql>
+  <sql id="Blob_Column_List" >
+    photo, text
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from gameList
+    where gid = #{gid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from gameList
+    where gid = #{gid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.model.gameListWithBLOBs" >
+    insert into gameList (gid, link, photo, 
+      text)
+    values (#{gid,jdbcType=BIGINT}, #{link,jdbcType=VARCHAR}, #{photo,jdbcType=LONGVARBINARY}, 
+      #{text,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.superwallet.model.gameListWithBLOBs" >
+    insert into gameList
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="gid != null" >
+        gid,
+      </if>
+      <if test="link != null" >
+        link,
+      </if>
+      <if test="photo != null" >
+        photo,
+      </if>
+      <if test="text != null" >
+        text,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="gid != null" >
+        #{gid,jdbcType=BIGINT},
+      </if>
+      <if test="link != null" >
+        #{link,jdbcType=VARCHAR},
+      </if>
+      <if test="photo != null" >
+        #{photo,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="text != null" >
+        #{text,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.model.gameListWithBLOBs" >
+    update gameList
+    <set >
+      <if test="link != null" >
+        link = #{link,jdbcType=VARCHAR},
+      </if>
+      <if test="photo != null" >
+        photo = #{photo,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="text != null" >
+        text = #{text,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where gid = #{gid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.model.gameListWithBLOBs" >
+    update gameList
+    set link = #{link,jdbcType=VARCHAR},
+      photo = #{photo,jdbcType=LONGVARBINARY},
+      text = #{text,jdbcType=LONGVARCHAR}
+    where gid = #{gid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.model.gameList" >
+    update gameList
+    set link = #{link,jdbcType=VARCHAR}
+    where gid = #{gid,jdbcType=BIGINT}
+  </update>
+</mapper>

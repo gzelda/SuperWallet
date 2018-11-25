@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.dao.transferMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.model.transfer" >
+    <id column="transferId" property="transferId" jdbcType="BIGINT" />
+    <id column="UID" property="uid" jdbcType="CHAR" />
+    <result column="sourceAddress" property="sourceAddress" jdbcType="VARCHAR" />
+    <result column="destAddress" property="destAddress" jdbcType="VARCHAR" />
+    <result column="amount" property="amount" jdbcType="INTEGER" />
+    <result column="transferType" property="transferType" jdbcType="INTEGER" />
+    <result column="tokenType" property="tokenType" jdbcType="TINYINT" />
+    <result column="createdTime" property="createdTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    transferId, UID, sourceAddress, destAddress, amount, transferType, tokenType, createdTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.model.transferKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from transfer
+    where transferId = #{transferId,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.superwallet.model.transferKey" >
+    delete from transfer
+    where transferId = #{transferId,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.model.transfer" >
+    insert into transfer (transferId, UID, sourceAddress, 
+      destAddress, amount, transferType, 
+      tokenType, createdTime)
+    values (#{transferId,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{sourceAddress,jdbcType=VARCHAR},
+      #{destAddress,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{transferType,jdbcType=INTEGER},
+      #{tokenType,jdbcType=TINYINT}, #{createdTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.superwallet.model.transfer" >
+    insert into transfer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="transferId != null" >
+        transferId,
+      </if>
+      <if test="uid != null" >
+        UID,
+      </if>
+      <if test="sourceAddress != null" >
+        sourceAddress,
+      </if>
+      <if test="destAddress != null" >
+        destAddress,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="transferType != null" >
+        transferType,
+      </if>
+      <if test="tokenType != null" >
+        tokenType,
+      </if>
+      <if test="createdTime != null" >
+        createdTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="transferId != null" >
+        #{transferId,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=CHAR},
+      </if>
+      <if test="sourceAddress != null" >
+        #{sourceAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="destAddress != null" >
+        #{destAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=INTEGER},
+      </if>
+      <if test="transferType != null" >
+        #{transferType,jdbcType=INTEGER},
+      </if>
+      <if test="tokenType != null" >
+        #{tokenType,jdbcType=TINYINT},
+      </if>
+      <if test="createdTime != null" >
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.model.transfer" >
+    update transfer
+    <set >
+      <if test="sourceAddress != null" >
+        sourceAddress = #{sourceAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="destAddress != null" >
+        destAddress = #{destAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=INTEGER},
+      </if>
+      <if test="transferType != null" >
+        transferType = #{transferType,jdbcType=INTEGER},
+      </if>
+      <if test="tokenType != null" >
+        tokenType = #{tokenType,jdbcType=TINYINT},
+      </if>
+      <if test="createdTime != null" >
+        createdTime = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where transferId = #{transferId,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.model.transfer" >
+    update transfer
+    set sourceAddress = #{sourceAddress,jdbcType=VARCHAR},
+      destAddress = #{destAddress,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=INTEGER},
+      transferType = #{transferType,jdbcType=INTEGER},
+      tokenType = #{tokenType,jdbcType=TINYINT},
+      createdTime = #{createdTime,jdbcType=TIMESTAMP}
+    where transferId = #{transferId,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </update>
+</mapper>

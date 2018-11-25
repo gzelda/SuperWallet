@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.dao.bannerMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.model.banner" >
+    <id column="bid" property="bid" jdbcType="BIGINT" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.superwallet.model.banner" extends="BaseResultMap" >
+    <result column="photo" property="photo" jdbcType="LONGVARBINARY" />
+    <result column="textOfAd" property="textOfAd" jdbcType="LONGVARCHAR" />
+    <result column="linkOfAd" property="linkOfAd" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    bid
+  </sql>
+  <sql id="Blob_Column_List" >
+    photo, textOfAd, linkOfAd
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from banner
+    where bid = #{bid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from banner
+    where bid = #{bid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.model.banner" >
+    insert into banner (bid, photo, textOfAd, 
+      linkOfAd)
+    values (#{bid,jdbcType=BIGINT}, #{photo,jdbcType=LONGVARBINARY}, #{textOfAd,jdbcType=LONGVARCHAR},
+      #{linkOfAd,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.superwallet.model.banner" >
+    insert into banner
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="bid != null" >
+        bid,
+      </if>
+      <if test="photo != null" >
+        photo,
+      </if>
+      <if test="textOfAd != null" >
+        textOfAd,
+      </if>
+      <if test="linkOfAd != null" >
+        linkOfAd,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="bid != null" >
+        #{bid,jdbcType=BIGINT},
+      </if>
+      <if test="photo != null" >
+        #{photo,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="textOfAd != null" >
+        #{textOfAd,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="linkOfAd != null" >
+        #{linkOfAd,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.model.banner" >
+    update banner
+    <set >
+      <if test="photo != null" >
+        photo = #{photo,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="textOfAd != null" >
+        textOfAd = #{textOfAd,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="linkOfAd != null" >
+        linkOfAd = #{linkOfAd,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where bid = #{bid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.model.banner" >
+    update banner
+    set photo = #{photo,jdbcType=LONGVARBINARY},
+      textOfAd = #{textOfAd,jdbcType=LONGVARCHAR},
+      linkOfAd = #{linkOfAd,jdbcType=LONGVARCHAR}
+    where bid = #{bid,jdbcType=BIGINT}
+  </update>
+</mapper>
