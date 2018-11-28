@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.mapper.TransferMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Transfer">
+        <id column="transferId" property="transferid" jdbcType="BIGINT"/>
+    <id column="UID" property="uid" jdbcType="CHAR" />
+        <result column="sourceAddress" property="sourceaddress" jdbcType="VARCHAR"/>
+        <result column="destAddress" property="destaddress" jdbcType="VARCHAR"/>
+    <result column="amount" property="amount" jdbcType="INTEGER" />
+        <result column="transferType" property="transfertype" jdbcType="INTEGER"/>
+        <result column="tokenType" property="tokentype" jdbcType="TINYINT"/>
+        <result column="createdTime" property="createdtime" jdbcType="TIMESTAMP"/>
+  </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+  <sql id="Base_Column_List" >
+    transferId, UID, sourceAddress, destAddress, amount, transferType, tokenType, createdTime
+  </sql>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.TransferExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+    <include refid="Base_Column_List" />
+    from transfer
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.TransferKey">
+        select
+        <include refid="Base_Column_List"/>
+        from transfer
+        where transferId = #{transferid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </select>
+    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.TransferKey">
+    delete from transfer
+    where transferId = #{transferid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.TransferExample">
+        delete from transfer
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.superwallet.pojo.Transfer">
+    insert into transfer (transferId, UID, sourceAddress, 
+      destAddress, amount, transferType, 
+      tokenType, createdTime)
+    values (#{transferid,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{sourceaddress,jdbcType=VARCHAR}, 
+      #{destaddress,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{transfertype,jdbcType=INTEGER}, 
+      #{tokentype,jdbcType=TINYINT}, #{createdtime,jdbcType=TIMESTAMP})
+  </insert>
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Transfer">
+    insert into transfer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="transferid != null">
+        transferId,
+      </if>
+      <if test="uid != null" >
+        UID,
+      </if>
+        <if test="sourceaddress != null">
+        sourceAddress,
+      </if>
+        <if test="destaddress != null">
+        destAddress,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+        <if test="transfertype != null">
+        transferType,
+      </if>
+        <if test="tokentype != null">
+        tokenType,
+      </if>
+        <if test="createdtime != null">
+        createdTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="transferid != null">
+            #{transferid,jdbcType=BIGINT},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=CHAR},
+      </if>
+        <if test="sourceaddress != null">
+            #{sourceaddress,jdbcType=VARCHAR},
+      </if>
+        <if test="destaddress != null">
+            #{destaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=INTEGER},
+      </if>
+        <if test="transfertype != null">
+            #{transfertype,jdbcType=INTEGER},
+      </if>
+        <if test="tokentype != null">
+            #{tokentype,jdbcType=TINYINT},
+      </if>
+        <if test="createdtime != null">
+            #{createdtime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+    <select id="countByExample" parameterType="com.superwallet.pojo.TransferExample" resultType="java.lang.Integer">
+        select count(*) from transfer
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+    update transfer
+    <set >
+        <if test="record.transferid != null">
+            transferId = #{record.transferid,jdbcType=BIGINT},
+      </if>
+        <if test="record.uid != null">
+            UID = #{record.uid,jdbcType=CHAR},
+        </if>
+        <if test="record.sourceaddress != null">
+            sourceAddress = #{record.sourceaddress,jdbcType=VARCHAR},
+        </if>
+        <if test="record.destaddress != null">
+            destAddress = #{record.destaddress,jdbcType=VARCHAR},
+        </if>
+        <if test="record.amount != null">
+            amount = #{record.amount,jdbcType=INTEGER},
+        </if>
+        <if test="record.transfertype != null">
+            transferType = #{record.transfertype,jdbcType=INTEGER},
+        </if>
+        <if test="record.tokentype != null">
+            tokenType = #{record.tokentype,jdbcType=TINYINT},
+        </if>
+        <if test="record.createdtime != null">
+            createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
+        </if>
+    </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update transfer
+        set transferId = #{record.transferid,jdbcType=BIGINT},
+        UID = #{record.uid,jdbcType=CHAR},
+        sourceAddress = #{record.sourceaddress,jdbcType=VARCHAR},
+        destAddress = #{record.destaddress,jdbcType=VARCHAR},
+        amount = #{record.amount,jdbcType=INTEGER},
+        transferType = #{record.transfertype,jdbcType=INTEGER},
+        tokenType = #{record.tokentype,jdbcType=TINYINT},
+        createdTime = #{record.createdtime,jdbcType=TIMESTAMP}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Transfer">
+        update transfer
+        <set>
+            <if test="sourceaddress != null">
+                sourceAddress = #{sourceaddress,jdbcType=VARCHAR},
+            </if>
+            <if test="destaddress != null">
+                destAddress = #{destaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=INTEGER},
+      </if>
+            <if test="transfertype != null">
+                transferType = #{transfertype,jdbcType=INTEGER},
+      </if>
+            <if test="tokentype != null">
+                tokenType = #{tokentype,jdbcType=TINYINT},
+      </if>
+            <if test="createdtime != null">
+                createdTime = #{createdtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+        where transferId = #{transferid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Transfer">
+    update transfer
+    set sourceAddress = #{sourceaddress,jdbcType=VARCHAR},
+      destAddress = #{destaddress,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=INTEGER},
+      transferType = #{transfertype,jdbcType=INTEGER},
+      tokenType = #{tokentype,jdbcType=TINYINT},
+      createdTime = #{createdtime,jdbcType=TIMESTAMP}
+    where transferId = #{transferid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
+  </update>
+</mapper>

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.mapper.BannerMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Banner">
+        <id column="bid" property="bid" jdbcType="BIGINT"/>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Banner" extends="BaseResultMap">
+        <result column="photo" property="photo" jdbcType="LONGVARBINARY"/>
+        <result column="textOfAd" property="textofad" jdbcType="LONGVARCHAR"/>
+        <result column="linkOfAd" property="linkofad" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+    bid
+  </sql>
+    <sql id="Blob_Column_List">
+    photo, textOfAd, linkOfAd
+  </sql>
+    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
+            parameterType="com.superwallet.pojo.BannerExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from banner
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.BannerExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from banner
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from banner
+        where bid = #{bid,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from banner
+    where bid = #{bid,jdbcType=BIGINT}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.BannerExample">
+        delete from banner
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.superwallet.pojo.Banner">
+    insert into banner (bid, photo, textOfAd, 
+      linkOfAd)
+    values (#{bid,jdbcType=BIGINT}, #{photo,jdbcType=LONGVARBINARY}, #{textofad,jdbcType=LONGVARCHAR}, 
+      #{linkofad,jdbcType=LONGVARCHAR})
+  </insert>
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Banner">
+        insert into banner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bid != null">
+                bid,
+            </if>
+            <if test="photo != null">
+                photo,
+            </if>
+            <if test="textofad != null">
+                textOfAd,
+            </if>
+            <if test="linkofad != null">
+                linkOfAd,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bid != null">
+                #{bid,jdbcType=BIGINT},
+            </if>
+            <if test="photo != null">
+                #{photo,jdbcType=LONGVARBINARY},
+            </if>
+            <if test="textofad != null">
+                #{textofad,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="linkofad != null">
+                #{linkofad,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.superwallet.pojo.BannerExample" resultType="java.lang.Integer">
+        select count(*) from banner
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update banner
+        <set>
+            <if test="record.bid != null">
+                bid = #{record.bid,jdbcType=BIGINT},
+            </if>
+            <if test="record.photo != null">
+                photo = #{record.photo,jdbcType=LONGVARBINARY},
+            </if>
+            <if test="record.textofad != null">
+                textOfAd = #{record.textofad,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="record.linkofad != null">
+                linkOfAd = #{record.linkofad,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExampleWithBLOBs" parameterType="map">
+        update banner
+        set bid = #{record.bid,jdbcType=BIGINT},
+        photo = #{record.photo,jdbcType=LONGVARBINARY},
+        textOfAd = #{record.textofad,jdbcType=LONGVARCHAR},
+        linkOfAd = #{record.linkofad,jdbcType=LONGVARCHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update banner
+        set bid = #{record.bid,jdbcType=BIGINT}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Banner">
+        update banner
+        <set>
+            <if test="photo != null">
+                photo = #{photo,jdbcType=LONGVARBINARY},
+            </if>
+            <if test="textofad != null">
+                textOfAd = #{textofad,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="linkofad != null">
+                linkOfAd = #{linkofad,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where bid = #{bid,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.Banner">
+    update banner
+    set photo = #{photo,jdbcType=LONGVARBINARY},
+      textOfAd = #{textofad,jdbcType=LONGVARCHAR},
+      linkOfAd = #{linkofad,jdbcType=LONGVARCHAR}
+    where bid = #{bid,jdbcType=BIGINT}
+  </update>
+</mapper>

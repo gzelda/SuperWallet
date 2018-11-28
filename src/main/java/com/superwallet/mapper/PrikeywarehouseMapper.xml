@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.mapper.PrikeywarehouseMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Prikeywarehouse">
+    <id column="UID" property="uid" jdbcType="CHAR" />
+        <result column="keyType" property="keytype" jdbcType="TINYINT"/>
+        <result column="priKey" property="prikey" jdbcType="VARCHAR"/>
+  </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+  <sql id="Base_Column_List" >
+    UID, keyType, priKey
+  </sql>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.PrikeywarehouseExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from prikeywarehouse
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+      from prikeywarehouse
+    where UID = #{uid,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from prikeywarehouse
+    where UID = #{uid,jdbcType=CHAR}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.PrikeywarehouseExample">
+        delete from prikeywarehouse
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.superwallet.pojo.Prikeywarehouse">
+    insert into prikeywarehouse (UID, keyType, priKey
+      )
+    values (#{uid,jdbcType=CHAR}, #{keytype,jdbcType=TINYINT}, #{prikey,jdbcType=VARCHAR}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Prikeywarehouse">
+        insert into prikeywarehouse
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        UID,
+      </if>
+        <if test="keytype != null">
+        keyType,
+      </if>
+        <if test="prikey != null">
+        priKey,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        #{uid,jdbcType=CHAR},
+      </if>
+        <if test="keytype != null">
+            #{keytype,jdbcType=TINYINT},
+      </if>
+        <if test="prikey != null">
+            #{prikey,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+    <select id="countByExample" parameterType="com.superwallet.pojo.PrikeywarehouseExample"
+            resultType="java.lang.Integer">
+        select count(*) from prikeywarehouse
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update prikeywarehouse
+        <set>
+            <if test="record.uid != null">
+                UID = #{record.uid,jdbcType=CHAR},
+            </if>
+            <if test="record.keytype != null">
+                keyType = #{record.keytype,jdbcType=TINYINT},
+            </if>
+            <if test="record.prikey != null">
+                priKey = #{record.prikey,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update prikeywarehouse
+        set UID = #{record.uid,jdbcType=CHAR},
+        keyType = #{record.keytype,jdbcType=TINYINT},
+        priKey = #{record.prikey,jdbcType=VARCHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Prikeywarehouse">
+        update prikeywarehouse
+    <set >
+        <if test="keytype != null">
+            keyType = #{keytype,jdbcType=TINYINT},
+      </if>
+        <if test="prikey != null">
+            priKey = #{prikey,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Prikeywarehouse">
+    update prikeywarehouse
+    set keyType = #{keytype,jdbcType=TINYINT},
+      priKey = #{prikey,jdbcType=VARCHAR}
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+</mapper>

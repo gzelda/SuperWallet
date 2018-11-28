@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.mapper.UserprivateMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Userprivate">
+    <id column="UID" property="uid" jdbcType="CHAR" />
+        <result column="realName" property="realname" jdbcType="VARCHAR"/>
+        <result column="IDCardNumber" property="idcardnumber" jdbcType="CHAR"/>
+  </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.UserprivateWithBLOBs" extends="BaseResultMap">
+        <result column="IDCardFront" property="idcardfront" jdbcType="LONGVARBINARY"/>
+        <result column="IDCardBack" property="idcardback" jdbcType="LONGVARBINARY"/>
+  </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+  <sql id="Base_Column_List" >
+    UID, realName, IDCardNumber
+  </sql>
+  <sql id="Blob_Column_List" >
+    IDCardFront, IDCardBack
+  </sql>
+    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
+            parameterType="com.superwallet.pojo.UserprivateExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from userprivate
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.UserprivateExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from userprivate
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+      from userprivate
+    where UID = #{uid,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from userprivate
+    where UID = #{uid,jdbcType=CHAR}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.UserprivateExample">
+        delete from userprivate
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.superwallet.pojo.UserprivateWithBLOBs">
+    insert into userprivate (UID, realName, IDCardNumber, 
+      IDCardFront, IDCardBack)
+    values (#{uid,jdbcType=CHAR}, #{realname,jdbcType=VARCHAR}, #{idcardnumber,jdbcType=CHAR}, 
+      #{idcardfront,jdbcType=LONGVARBINARY}, #{idcardback,jdbcType=LONGVARBINARY})
+  </insert>
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.UserprivateWithBLOBs">
+        insert into userprivate
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        UID,
+      </if>
+        <if test="realname != null">
+        realName,
+      </if>
+        <if test="idcardnumber != null">
+        IDCardNumber,
+      </if>
+        <if test="idcardfront != null">
+        IDCardFront,
+      </if>
+        <if test="idcardback != null">
+        IDCardBack,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        #{uid,jdbcType=CHAR},
+      </if>
+        <if test="realname != null">
+            #{realname,jdbcType=VARCHAR},
+      </if>
+        <if test="idcardnumber != null">
+            #{idcardnumber,jdbcType=CHAR},
+      </if>
+        <if test="idcardfront != null">
+            #{idcardfront,jdbcType=LONGVARBINARY},
+      </if>
+        <if test="idcardback != null">
+            #{idcardback,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+    <select id="countByExample" parameterType="com.superwallet.pojo.UserprivateExample" resultType="java.lang.Integer">
+        select count(*) from userprivate
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update userprivate
+        <set>
+            <if test="record.uid != null">
+                UID = #{record.uid,jdbcType=CHAR},
+            </if>
+            <if test="record.realname != null">
+                realName = #{record.realname,jdbcType=VARCHAR},
+            </if>
+            <if test="record.idcardnumber != null">
+                IDCardNumber = #{record.idcardnumber,jdbcType=CHAR},
+            </if>
+            <if test="record.idcardfront != null">
+                IDCardFront = #{record.idcardfront,jdbcType=LONGVARBINARY},
+            </if>
+            <if test="record.idcardback != null">
+                IDCardBack = #{record.idcardback,jdbcType=LONGVARBINARY},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExampleWithBLOBs" parameterType="map">
+        update userprivate
+        set UID = #{record.uid,jdbcType=CHAR},
+        realName = #{record.realname,jdbcType=VARCHAR},
+        IDCardNumber = #{record.idcardnumber,jdbcType=CHAR},
+        IDCardFront = #{record.idcardfront,jdbcType=LONGVARBINARY},
+        IDCardBack = #{record.idcardback,jdbcType=LONGVARBINARY}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update userprivate
+        set UID = #{record.uid,jdbcType=CHAR},
+        realName = #{record.realname,jdbcType=VARCHAR},
+        IDCardNumber = #{record.idcardnumber,jdbcType=CHAR}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.UserprivateWithBLOBs">
+        update userprivate
+    <set >
+        <if test="realname != null">
+            realName = #{realname,jdbcType=VARCHAR},
+      </if>
+        <if test="idcardnumber != null">
+            IDCardNumber = #{idcardnumber,jdbcType=CHAR},
+      </if>
+        <if test="idcardfront != null">
+            IDCardFront = #{idcardfront,jdbcType=LONGVARBINARY},
+      </if>
+        <if test="idcardback != null">
+            IDCardBack = #{idcardback,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.UserprivateWithBLOBs">
+    update userprivate
+    set realName = #{realname,jdbcType=VARCHAR},
+      IDCardNumber = #{idcardnumber,jdbcType=CHAR},
+      IDCardFront = #{idcardfront,jdbcType=LONGVARBINARY},
+      IDCardBack = #{idcardback,jdbcType=LONGVARBINARY}
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Userprivate">
+    update userprivate
+    set realName = #{realname,jdbcType=VARCHAR},
+      IDCardNumber = #{idcardnumber,jdbcType=CHAR}
+    where UID = #{uid,jdbcType=CHAR}
+  </update>
+</mapper>
