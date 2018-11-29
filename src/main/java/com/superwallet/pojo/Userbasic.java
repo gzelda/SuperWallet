@@ -3,7 +3,7 @@ package com.superwallet.pojo;
 public class Userbasic {
     private String uid;
 
-    private String nackname;
+    private String nickname;
 
     private Byte sex;
 
@@ -14,6 +14,12 @@ public class Userbasic {
     private String inviter;
 
     private Byte status;
+
+    private String password;
+
+    private String paypassword;
+
+    private String invitedcode;
 
     private Object invitedpeople;
 
@@ -27,12 +33,12 @@ public class Userbasic {
         this.uid = uid == null ? null : uid.trim();
     }
 
-    public String getNackname() {
-        return nackname;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setNackname(String nackname) {
-        this.nackname = nackname == null ? null : nackname.trim();
+    public void setNickname(String nickname) {
+        this.nickname = nickname == null ? null : nickname.trim();
     }
 
     public Byte getSex() {
@@ -73,6 +79,30 @@ public class Userbasic {
 
     public void setStatus(Byte status) {
         this.status = status;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password == null ? null : password.trim();
+    }
+
+    public String getPaypassword() {
+        return paypassword;
+    }
+
+    public void setPaypassword(String paypassword) {
+        this.paypassword = paypassword == null ? null : paypassword.trim();
+    }
+
+    public String getInvitedcode() {
+        return invitedcode;
+    }
+
+    public void setInvitedcode(String invitedcode) {
+        this.invitedcode = invitedcode == null ? null : invitedcode.trim();
     }
 
     public Object getInvitedpeople() {

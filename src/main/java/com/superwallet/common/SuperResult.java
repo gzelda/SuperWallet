@@ -48,7 +48,7 @@ public class SuperResult implements Serializable {
 
     public SuperResult(Object data) {
         this.code = 1;
-        this.status = -1;
+        this.status = 0;
         this.data = data;
     }
 

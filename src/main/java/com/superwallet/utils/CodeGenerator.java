@@ -7,4 +7,10 @@ public class CodeGenerator {
         String random = (int) ((Math.random() * 9 + 1) * 100000) + "";
         return random;
     }
+
+    //生成用户UID
+    public static String getUID(String phoneNum) {
+        return smsCode() + phoneNum;
+    }
+
 }
