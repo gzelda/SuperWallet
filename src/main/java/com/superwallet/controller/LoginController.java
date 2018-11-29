@@ -109,6 +109,7 @@ public class LoginController {
         }
         HashMap<String, String> map = new HashMap();
         map.put("UID", uid);
+        //TODO 需要生成私钥，以及补充中心钱包信息
         return SuperResult.ok(map);
     }
 
@@ -217,5 +218,41 @@ public class LoginController {
         //其他任何失败情况不传UID
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), null);
     }
+
+    /**
+     * 用户设置支付密码
+     *
+     * @param UID
+     * @param payCode
+     * @return
+     */
+    @RequestMapping(value = "/login/setPayCode", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult setPayPassword(String UID, String payCode) {
+        //加密支付密码
+        payCode = SHA1.encode(payCode);
+        //更新userBasic表
+        loginRegisterService.setPayCode(UID, payCode);
+        return SuperResult.ok();
+    }
+
+    /**
+     * 判断旧支付密码
+     *
+     * @param UID
+     * @param payCode
+     * @return
+     */
+    @RequestMapping(value = "/login/payCodeValidation", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult payCodeValidation(String UID, String payCode) {
+        //判断旧支付密码
+        boolean res = loginRegisterService.payCodeValidation(UID, payCode);
+        if (!res) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
+        return SuperResult.ok();
+    }
+
+
+
 
 }

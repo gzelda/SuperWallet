@@ -7,6 +7,8 @@ public class Bgswallet {
 
     private Integer availableamount;
 
+    private Integer amount;
+
     public String getUid() {
         return uid;
     }
@@ -29,5 +31,13 @@ public class Bgswallet {
 
     public void setAvailableamount(Integer availableamount) {
         this.availableamount = availableamount;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 }

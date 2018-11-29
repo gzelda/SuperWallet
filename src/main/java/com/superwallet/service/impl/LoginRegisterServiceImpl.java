@@ -11,6 +11,8 @@ import com.superwallet.utils.CodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Service
@@ -183,5 +185,52 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         userbasicMapper.updateByExample(user, userbasicExample);
         //更新成功后，返回uid
         return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user.getUid());
+    }
+
+    /**
+     * 设置支付密码
+     *
+     * @param UID
+     * @param payCode
+     */
+    @Override
+    public void setPayCode(String UID, String payCode) {
+        //根据UID找到用户
+        Userbasic userbasic = userbasicMapper.selectByPrimaryKey(UID);
+        //设置支付密码
+        userbasic.setPaypassword(payCode);
+        userbasicMapper.updateByExample(userbasic, new UserbasicExample());
+    }
+
+    /**
+     * 更改支付密码模块，判断旧支付密码
+     *
+     * @param UID
+     * @param payCode
+     * @return
+     */
+    @Override
+    public boolean payCodeValidation(String UID, String payCode) {
+        Userbasic userbasic = userbasicMapper.selectByPrimaryKey(UID);
+        //旧支付密码不正确
+        if (payCode == null || payCode.equals("") || !payCode.equals(userbasic.getPaypassword())) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 判断用户是否超时
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean isTimeOut(String UID, HttpServletRequest request) {
+        //根据session看是否过期
+        HttpSession session = request.getSession();
+        String attribute = (String) session.getAttribute(UID);
+        if (attribute == null || attribute.equals("")) return true;
+        return false;
     }
 }

@@ -2,6 +2,8 @@ package com.superwallet.service;
 
 import com.superwallet.common.LoginResult;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface LoginRegisterService {
     public boolean isRegistered(String phoneNum);
 
@@ -14,4 +16,10 @@ public interface LoginRegisterService {
     public LoginResult loginByCode(String phoneNum);
 
     public LoginResult findPassword(String phoneNum, String newPassWord);
+
+    public void setPayCode(String UID, String payCode);
+
+    public boolean payCodeValidation(String UID, String payCode);
+
+    public boolean isTimeOut(String UID, HttpServletRequest request);
 }

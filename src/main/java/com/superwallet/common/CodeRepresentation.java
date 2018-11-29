@@ -17,4 +17,12 @@ public class CodeRepresentation {
     //SuperResult里的UID
     public static final String UID = "UID";
 
+    //钱包
+    public static final String ETHINFO = "ethInfo";
+    public static final String EOSINFO = "eosInfo";
+    public static final String BGSINFO = "bgsInfo";
+    //现有币种总数
+    public static final int COUNT_WALLETS = 3;
+
+
 }
