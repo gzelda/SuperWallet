@@ -3,6 +3,7 @@ package com.superwallet.controller;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.SuperResult;
 import com.superwallet.common.WalletInfo;
+import com.superwallet.pojo.Transfer;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.LoginRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,6 @@ public class CWalletController {
     @RequestMapping(value = "/cWallet/listCWalletInfo", method = RequestMethod.POST)
     @ResponseBody
     public SuperResult listCWalletInfo(String UID, HttpServletRequest request) {
-        //TODO 判断是否登录超时
         List<WalletInfo> walletInfos = cWalletService.listCWalletInfo(UID);
         //如果钱包返回总量信息不对，将返回系统异常
         if (walletInfos.size() != CodeRepresentation.COUNT_WALLETS)
@@ -45,4 +45,56 @@ public class CWalletController {
         map.put(CodeRepresentation.EOSINFO, walletInfos.get(2));
         return SuperResult.ok(map);
     }
+
+    /**
+     * 链上钱包转出，中心钱包转入
+     *
+     * @param UID
+     * @param tokenType
+     * @param tokenAmount
+     * @return
+     */
+    @RequestMapping(value = "/cWallet/transferMoney", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult transferMoney(String UID, int tokenType, int tokenAmount) {
+        boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount);
+        if (result) {
+            return SuperResult.ok();
+        }
+        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
+    }
+
+    /**
+     * 中心钱包提现
+     *
+     * @param UID
+     * @param tokenType
+     * @param tokenAmount
+     * @return
+     */
+    @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult withdraw(String UID, int tokenType, int tokenAmount, HttpServletRequest request) {
+        boolean result = cWalletService.withdraw(UID, tokenType, tokenAmount);
+        if (result) return SuperResult.ok();
+        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
+    }
+
+    /**
+     * 交易记录查询
+     *
+     * @param UID
+     * @param tokenType
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/cWallet/listHistoryBills", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult listHistoryBills(String UID, int tokenType, HttpServletRequest request) {
+        //获取历史交易
+        List<Transfer> list = cWalletService.listHistoryBills(UID, tokenType);
+        return SuperResult.ok(list);
+    }
+
+
 }

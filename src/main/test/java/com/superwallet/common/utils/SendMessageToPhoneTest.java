@@ -55,7 +55,6 @@ public class SendMessageToPhoneTest {
             System.out.println("状态码:" + code + ",状态码说明:" + error + ",消息id:" + msgid);
             logger.info("状态码:" + code + ",状态码说明:" + error + ",消息id:" + msgid);
         } catch (Exception e) {
-            // TODO: handle exception
             logger.error("请求异常：" + e);
         }
     }

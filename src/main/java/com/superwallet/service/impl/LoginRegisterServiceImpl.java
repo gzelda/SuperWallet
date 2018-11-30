@@ -2,24 +2,35 @@ package com.superwallet.service.impl;
 
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.LoginResult;
+import com.superwallet.mapper.BgswalletMapper;
+import com.superwallet.mapper.EoswalletMapper;
+import com.superwallet.mapper.EthwalletMapper;
 import com.superwallet.mapper.UserbasicMapper;
-import com.superwallet.pojo.Userbasic;
-import com.superwallet.pojo.UserbasicExample;
+import com.superwallet.pojo.*;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.utils.ByteImageConvert;
-import com.superwallet.utils.CodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LoginRegisterServiceImpl implements LoginRegisterService {
 
     @Autowired
     private UserbasicMapper userbasicMapper;
+
+    @Autowired
+    private EthwalletMapper ethwalletMapper;
+
+    @Autowired
+    private BgswalletMapper bgswalletMapper;
+
+    @Autowired
+    private EoswalletMapper eoswalletMapper;
 
     /**
      * 查看手机号是否已经被注册过
@@ -55,7 +66,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         if (registered)
             return "registered";
         //TODO 根据邀请码找到邀请人--缺字段
-        String uid = CodeGenerator.getUID(phoneNum);
+        String uid = UUID.randomUUID().toString();
         Userbasic userbasic = new Userbasic();
         //TODO 默认头像设置
         String path = rootPath + "WEB-INF\\imgs\\default.jpg";
@@ -109,17 +120,19 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         if (list == null || list.size() == 0)
             return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
         int status = (int) list.get(0).getStatus();
-        String uid = list.get(0).getUid();
+        Userbasic user = list.get(0);
+        user.setPaypassword(null);
+        user.setPaypassword(null);
         switch (status) {
             case 0:
                 //登录成功，但未做身份认证
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, uid);
+                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user);
             case 1:
                 //登录成功，但未做人脸识别
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_1, uid);
+                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_1, user);
             case 2:
                 //登录成功，返回UID
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_2, uid);
+                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_2, user);
         }
         //系统错误
         return new LoginResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
@@ -142,18 +155,20 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
         criteria.andPhonenumberEqualTo(phoneNum);
         List<Userbasic> list = userbasicMapper.selectByExample(userbasicExample);
-        String uid = list.get(0).getUid();
+        Userbasic user = list.get(0);
+        user.setPaypassword(null);
+        user.setPaypassword(null);
         int status = (int) list.get(0).getStatus();
         switch (status) {
             case 0:
                 //登录成功，但未做身份认证
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, uid);
+                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user);
             case 1:
                 //登录成功，但未做人脸识别
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_1, uid);
+                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_1, user);
             case 2:
                 //登录成功，返回UID
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_2, uid);
+                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_2, user);
         }
         //系统错误
         return new LoginResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
@@ -183,8 +198,10 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //更新密码
         user.setPassword(newPassWord);
         userbasicMapper.updateByExample(user, userbasicExample);
-        //更新成功后，返回uid
-        return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user.getUid());
+        user.setPaypassword(null);
+        user.setPassword(null);
+        //更新成功后，返回user
+        return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user);
     }
 
     /**
@@ -232,5 +249,37 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         String attribute = (String) session.getAttribute(UID);
         if (attribute == null || attribute.equals("")) return true;
         return false;
+    }
+
+    /**
+     * 当新用户注册成功时，初始化钱包信息
+     *
+     * @param UID
+     */
+    @Override
+    public void initWallet(String UID) {
+        //初始化钱包信息
+        Ethwallet ethwallet = new Ethwallet();
+        Bgswallet bgswallet = new Bgswallet();
+        Eoswallet eoswallet = new Eoswallet();
+        ethwallet.setUid(UID);
+        bgswallet.setUid(UID);
+        eoswallet.setUid(UID);
+        //TODO 中心钱包地址
+        ethwallet.setEthaddress("eth" + UID);
+        ethwallet.setAmount(0);
+        ethwallet.setAvailableamount(0);
+        ethwallet.setLockedamount(0);
+        bgswallet.setAmount(0);
+        bgswallet.setAvailableamount(0);
+        bgswallet.setLockedamount(0);
+        eoswallet.setEosaddress("eos" + UID);
+        eoswallet.setAmount(0);
+        eoswallet.setAvailableamount(0);
+        eoswallet.setLockedamount(0);
+        ethwalletMapper.insert(ethwallet);
+        bgswalletMapper.insert(bgswallet);
+        eoswalletMapper.insert(eoswallet);
+        //TODO 初始化私钥
     }
 }

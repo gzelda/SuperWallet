@@ -1,8 +1,10 @@
 package com.superwallet.controller;
 
 import com.superwallet.common.CodeRepresentation;
+import com.superwallet.common.CookieUtils;
 import com.superwallet.common.LoginResult;
 import com.superwallet.common.SuperResult;
+import com.superwallet.pojo.Userbasic;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.service.PhoneMessageService;
 import com.superwallet.utils.CodeGenerator;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 
@@ -107,6 +110,8 @@ public class LoginController {
         if (uid.equals("registered")) {
             result = new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
         }
+        //注册成功后初始化钱包信息
+        loginRegisterService.initWallet(uid);
         HashMap<String, String> map = new HashMap();
         map.put("UID", uid);
         //TODO 需要生成私钥，以及补充中心钱包信息
@@ -122,13 +127,20 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/loginByPassWord", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult loginByPassWord(String phoneNum, String passWord) {
+    public SuperResult loginByPassWord(String phoneNum, String passWord, HttpServletRequest request, HttpServletResponse response) {
         passWord = SHA1.encode(passWord);
         LoginResult loginResult = loginRegisterService.loginByPassWord(phoneNum, passWord);
         //当登录成功时传UID
         if (loginResult.getCode() == 1) {
             HashMap<String, String> map = new HashMap<String, String>();
-            map.put(CodeRepresentation.UID, loginResult.getUid());
+            Userbasic user = loginResult.getUser();
+            map.put(CodeRepresentation.UID, user.getUid());
+            //添加session
+            HttpSession session = request.getSession();
+            session.setAttribute(user.getUid(), user);
+            session.setMaxInactiveInterval(CodeRepresentation.SESSION_EXPIRE);
+            //写cookie
+            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, user.getUid());
             return new SuperResult(loginResult.getCode(), loginResult.getStatus(), map);
         }
         //其他任何失败情况不传UID
@@ -173,7 +185,7 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/loginByCode", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult loginByCode(String phoneNum, String phoneIDCode, HttpServletRequest request) {
+    public SuperResult loginByCode(String phoneNum, String phoneIDCode, HttpServletRequest request, HttpServletResponse response) {
         SuperResult result;
         //判断手机验证码是否正确
         HttpSession session = request.getSession();
@@ -187,13 +199,28 @@ public class LoginController {
         //当登录成功时传UID
         if (loginResult.getCode() == 1) {
             HashMap<String, String> map = new HashMap<String, String>();
-            map.put(CodeRepresentation.UID, loginResult.getUid());
+            //登录成功存session
+            Userbasic user = loginResult.getUser();
+            session.setAttribute(user.getUid(), user);
+            session.setMaxInactiveInterval(CodeRepresentation.SESSION_EXPIRE);
+            //写cookie
+            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, user.getUid());
+            map.put(CodeRepresentation.UID, user.getUid());
             return new SuperResult(loginResult.getCode(), loginResult.getStatus(), map);
         }
         //其他任何失败情况不传UID
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), null);
     }
 
+    /**
+     * 找回密码
+     *
+     * @param phoneNum
+     * @param phoneIDCode
+     * @param newPassWord
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/login/findPassword", method = RequestMethod.POST)
     @ResponseBody
     public SuperResult findPassWord(String phoneNum, String phoneIDCode, String newPassWord, HttpServletRequest request) {
@@ -209,13 +236,11 @@ public class LoginController {
         //对密码进行加密
         newPassWord = SHA1.encode(newPassWord);
         LoginResult loginResult = loginRegisterService.findPassword(phoneNum, newPassWord);
-        //当登录成功时传UID
+        //当修改成功时候
         if (loginResult.getCode() == 1) {
-            HashMap<String, String> map = new HashMap<String, String>();
-            map.put(CodeRepresentation.UID, loginResult.getUid());
-            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), map);
+            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), null);
         }
-        //其他任何失败情况不传UID
+        //其他任何失败情况
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), null);
     }
 
@@ -251,8 +276,6 @@ public class LoginController {
         if (!res) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
         return SuperResult.ok();
     }
-
-
 
 
 }

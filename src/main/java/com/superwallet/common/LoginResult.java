@@ -1,19 +1,21 @@
 package com.superwallet.common;
 
+import com.superwallet.pojo.Userbasic;
+
 import java.io.Serializable;
 
 public class LoginResult implements Serializable {
     private int code;
     private int status;
-    private String uid;
+    private Userbasic user;
 
     public LoginResult() {
     }
 
-    public LoginResult(int code, int status, String uid) {
+    public LoginResult(int code, int status, Userbasic user) {
         this.code = code;
         this.status = status;
-        this.uid = uid;
+        this.user = user;
     }
 
     public int getCode() {
@@ -32,11 +34,11 @@ public class LoginResult implements Serializable {
         this.status = status;
     }
 
-    public String getUid() {
-        return uid;
+    public Userbasic getUser() {
+        return user;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setUser(Userbasic user) {
+        this.user = user;
     }
 }

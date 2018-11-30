@@ -24,5 +24,11 @@ public class CodeRepresentation {
     //现有币种总数
     public static final int COUNT_WALLETS = 3;
 
+    //Session过期时间
+    public static final int SESSION_EXPIRE = 1800;
+
+    //Cookie名称
+    public static final String TOKEN_KEY = "token";
+
 
 }

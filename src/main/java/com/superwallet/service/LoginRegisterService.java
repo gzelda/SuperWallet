@@ -22,4 +22,6 @@ public interface LoginRegisterService {
     public boolean payCodeValidation(String UID, String payCode);
 
     public boolean isTimeOut(String UID, HttpServletRequest request);
+
+    public void initWallet(String UID);
 }

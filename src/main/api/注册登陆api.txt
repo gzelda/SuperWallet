@@ -1,0 +1,355 @@
+注册模块
+*************************
+获取验证码
+
+URL /register/getIDCode
+
+method:GET
+
+req:
+参数名		参数类型	参数内容		描述 	类型
+phoneNum  :  String 186***    手机号		必选
+
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":,
+	}
+}
+
+status描述：
+code/status		0
+0		该手机号已经被注册
+
+===================================
+
+验证码注册提交
+
+URL /register/registerConfirm
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"phoneNum":	String,   			手机号   	必选
+	"phoneIDcode":  String  			手机验证码  必选
+	"invitedCode":  String,			               邀请码	可选，空值传String"NULL"
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":, //success 2情况下传
+
+
+	}
+}
+
+
+
+status描述：
+			0				    	1			  2				3
+fail 	验证码错误				邀请码错误
+success	
+error	系统错误
+
+========================================================
+设置密码
+
+URL /register/register
+
+method:POST
+
+req:
+{	参数名		参数类型		参数内容		描述 	类型
+	"phoneNum":String,					手机号	必选
+	"passWord":String,					密码		必选
+	"invitedCode":String,					邀请码	可选，空值传String"NULL"
+	
+}
+
+phoneNum  :   186***       必选
+
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":, //创建成功情况下传
+	}
+}
+
+status描述：
+			0				    	1			  2				3
+fail 		
+success 创建成功
+error	系统错误
+
+
+
+===================================
+
+身份证确认
+
+URL /login/identityCofirm
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"realName":	String,   			姓名   	必选
+	"IDNumber":String  				身份证号  必选
+	"IDFrontPic":String,			身份证前面图片	必选
+	"IDBackPic":String,				身份证背面图片	必选
+}
+
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+	}
+}
+
+
+
+status描述：
+			0				    	1			  2				3
+fail 	 审核失败
+success  审核成功
+error	系统错误
+
+===================================
+
+人脸认证
+
+URL /login/faceConfirm
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"Face":		String,   				脸  		必选
+
+}
+
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":,	//success时候传
+	}
+}
+
+
+
+status描述：
+			0				    	1			  2				3
+fail 	 审核失败
+success  审核成功
+error	系统错误
+
+===================================
+
+人脸认证
+
+URL /login/faceConfirm
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"Face":		String,   				脸  		必选
+
+}
+
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+	}
+}
+
+
+
+status描述：
+			0				    	1			  2				3
+fail 	 审核失败
+success  审核成功
+error	系统错误
+
+
+
+登陆模块
+*************************
+密码登陆
+
+URL /login/loginByPassWord
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"phoneNum":	String,   			手机号   	必选
+	"passWord":String  				密码  必选
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":, 	success 情况下传
+
+
+	}
+}
+
+
+
+status描述：
+			0				    1			  2				3
+fail 	密码错误				无此手机号
+success 老用户没做身份认证		老用户没做人脸识别     老用户 		
+error	系统错误
+
+
+===================================
+
+验证码登录时获取验证码
+
+URL /login/getIDCode
+
+method:GET
+
+req:
+参数名		参数类型	参数内容		描述 	类型
+phoneNum  :  String 186***    手机号		必选
+
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":,
+	}
+}
+
+status描述：
+code/status		0		
+fail		该手机号未注册
+success		发送成功
+
+
+===================================
+
+验证码登陆 确认登陆
+
+URL /login/loginByCode
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"phoneNum":	String,   			手机号   	必选
+	"phoneIDcode":String  			手机验证码  必选
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":, //只在成功情况下传
+
+
+	}
+}
+
+
+
+status描述：
+			0				    	1			  2				3
+fail 	验证码错误				手机号码未注册
+success 老用户没做身份认证		老用户没做人脸识别     老用户
+error	系统错误
+
+
+
+
+
+========================================================
+找回密码模块
+
+1.发送验证码
+URL /login/getIDCode
+
+method:GET
+
+req:
+参数名		参数类型	参数内容		描述 	类型
+phoneNum  :  String 186***    手机号		必选
+
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"UID":,
+	}
+}
+
+status描述：
+code/status		0		
+fail		无此手机号
+success		发送成功
+
+
+2.找回密码
+URL /login/findPassword
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"phoneNum":	String,   			手机号   	必选
+	"phoneIDcode":String,  			手机验证码  必选
+	"newPassWord":String,			新设的密码	可选，空值传String"NULL"
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		
+
+
+	}
+}
+
+status描述：
+			0			 	1			  2				3
+fail 	无此手机号		验证码错误
+success 请求成功			
+error	系统错误
