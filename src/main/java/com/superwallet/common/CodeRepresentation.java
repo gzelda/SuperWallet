@@ -30,5 +30,8 @@ public class CodeRepresentation {
     //Cookie名称
     public static final String TOKEN_KEY = "token";
 
+    //爬取数字货币价格的网站
+    public static final String URL_PRICE = "https://coinmarketcap.com/zh/";
+
 
 }

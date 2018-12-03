@@ -277,5 +277,4 @@ public class LoginController {
         return SuperResult.ok();
     }
 
-
 }

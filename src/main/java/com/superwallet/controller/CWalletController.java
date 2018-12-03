@@ -8,6 +8,7 @@ import com.superwallet.service.CWalletService;
 import com.superwallet.service.LoginRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -56,6 +57,7 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/transferMoney", method = RequestMethod.POST)
     @ResponseBody
+    @Transactional
     public SuperResult transferMoney(String UID, int tokenType, int tokenAmount) {
         boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount);
         if (result) {
@@ -74,6 +76,7 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
     @ResponseBody
+    @Transactional
     public SuperResult withdraw(String UID, int tokenType, int tokenAmount, HttpServletRequest request) {
         boolean result = cWalletService.withdraw(UID, tokenType, tokenAmount);
         if (result) return SuperResult.ok();

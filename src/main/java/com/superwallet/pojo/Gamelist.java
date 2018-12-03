@@ -1,9 +1,13 @@
 package com.superwallet.pojo;
 
-public class Gamelist {
+import java.io.Serializable;
+
+public class Gamelist implements Serializable {
     private Long gid;
 
     private String link;
+
+    private Byte type;
 
     public Long getGid() {
         return gid;
@@ -19,5 +23,13 @@ public class Gamelist {
 
     public void setLink(String link) {
         this.link = link == null ? null : link.trim();
+    }
+
+    public Byte getType() {
+        return type;
+    }
+
+    public void setType(Byte type) {
+        this.type = type;
     }
 }

@@ -65,7 +65,11 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         boolean registered = isRegistered(phoneNum);
         if (registered)
             return "registered";
-        //TODO 根据邀请码找到邀请人--缺字段
+        //根据邀请码找到邀请人
+        UserbasicExample userbasicExample = new UserbasicExample();
+        UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
+        criteria.andInvitedcodeEqualTo(invitedCode);
+        Userbasic inviter = userbasicMapper.selectByExample(userbasicExample).get(0);
         String uid = UUID.randomUUID().toString();
         Userbasic userbasic = new Userbasic();
         //TODO 默认头像设置
@@ -79,7 +83,14 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         userbasic.setStatus(new Byte("0"));
         userbasic.setPhonenumber(phoneNum);
         userbasic.setPassword(passWord);
+        //设置是被谁邀请的
+        userbasic.setInviter(inviter.getInvitedcode());
         userbasicMapper.insert(userbasic);
+        //TODO 邀请人的invitedPeople JSON信息设置
+        userbasic.setPassword(null);
+        userbasic.setPaypassword(null);
+        inviter.setInvitedpeople(userbasic);
+        userbasicMapper.updateByExample(inviter, new UserbasicExample());
         return uid;
     }
 
@@ -91,11 +102,11 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      */
     @Override
     public boolean isValidInvitedCode(String invitedCode) {
-        //TODO 用来判断邀请码是否正确
         UserbasicExample example = new UserbasicExample();
         UserbasicExample.Criteria criteria = example.createCriteria();
         criteria.andInvitedcodeEqualTo(invitedCode);
         List<Userbasic> list = userbasicMapper.selectByExample(example);
+        if (list == null || list.size() == 0) return false;
         return true;
     }
 

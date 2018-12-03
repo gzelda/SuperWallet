@@ -1,7 +1,7 @@
 /*wallet项目数据库表设计*/
 
 -- 用户基本资料表--
-drop table userBasic if exists;
+drop table if exists userBasic;
 create table userBasic(
     UID char(20) not null,
     nickName varchar(20) not null,
@@ -19,7 +19,7 @@ create table userBasic(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 用户状态信息表--
-drop table userStatus if exists;
+drop table if exists userStatus;
 create table userStatus(
     UID char(20) not null,
     lastOpTime timestamp,
@@ -28,7 +28,7 @@ create table userStatus(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 用户隐私资料表--
-drop table userPrivate if exists;
+drop table if exists userPrivate;
 create table userPrivate(
     UID char(20) not null,
     realName varchar(20) not null,
@@ -40,7 +40,7 @@ create table userPrivate(
 
 -- 中心化钱包--
 -- ETH--
-drop table ETHWallet if exists;
+drop table if exists ETHWallet;
 create table ETHWallet(
     UID char(20) not null,
     ETHAddress varchar(50) not null,
@@ -51,7 +51,7 @@ create table ETHWallet(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- EOS--
-drop table EOSWallet if exists;
+drop table if exists EOSWallet;
 create table EOSWallet(
     UID char(20) not null,
     EOSAddress varchar(50) not null,
@@ -62,7 +62,7 @@ create table EOSWallet(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- BGS--
-drop table BGSWallet if exists;
+drop table if exists BGSWallet;
 create table BGSWallet(
     UID char(20) not null,
     lockedAmount int unsigned not null,
@@ -72,7 +72,7 @@ create table BGSWallet(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 私钥库--
-drop table PriKeyWarehouse if exists;
+drop table if exists PriKeyWarehouse;
 create table PriKeyWarehouse(
     UID char(20) not null,
     keyType tinyint,
@@ -81,7 +81,7 @@ create table PriKeyWarehouse(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 交易记录--
-drop table transfer if exists;
+drop table if exists transfer;
 create table transfer(
     UID char(20) not null,
     transferId bigint unsigned auto_increment not null,
@@ -95,7 +95,7 @@ create table transfer(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 锁仓记录--
-drop table lockWarehouse if exists;
+drop table if exists lockWarehouse;
 create table lockWarehouse(
     UID char(20) not null,
     lockWarehouseId bigint unsigned auto_increment not null,
@@ -107,7 +107,7 @@ create table lockWarehouse(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- banner--
-drop table banner if exists;
+drop table if exists banner;
 create table banner(
     bid bigint unsigned auto_increment not null,
     photo mediumblob,
@@ -117,12 +117,13 @@ create table banner(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- game list--
-drop table gameList if exists;
-create table gameList(
+drop table if exists gameList;
+create table if not exists gameList(
     gid bigint unsigned auto_increment not null,
     photo mediumblob,
     text text,
     link nvarchar(255),
+    type tinyint,
     primary key(gid)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

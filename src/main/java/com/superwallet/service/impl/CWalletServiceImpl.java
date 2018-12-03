@@ -1,5 +1,6 @@
 package com.superwallet.service.impl;
 
+import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.WalletInfo;
 import com.superwallet.mapper.BgswalletMapper;
 import com.superwallet.mapper.EoswalletMapper;
@@ -7,6 +8,9 @@ import com.superwallet.mapper.EthwalletMapper;
 import com.superwallet.mapper.TransferMapper;
 import com.superwallet.pojo.*;
 import com.superwallet.service.CWalletService;
+import com.superwallet.utils.HttpUtil;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,18 +44,25 @@ public class CWalletServiceImpl implements CWalletService {
     @Override
     public List<WalletInfo> listCWalletInfo(String UID) {
         List<WalletInfo> list = new ArrayList<WalletInfo>();
-        //TODO 火币接口
+        //数字货币价格--目前爬虫实现
+        String origin = HttpUtil.get(CodeRepresentation.URL_PRICE);
+        Document document = Jsoup.parse(origin);
+        String eth_price = document.getElementById("id-ethereum").getElementsByClass("price").text();
+        String eos_price = document.getElementById("id-eos").getElementsByClass("price").text();
+        //TODO 缺少BGS价格
         //以太钱包
         Ethwallet ethwallet = ethwalletMapper.selectByPrimaryKey(UID);
         double HUOBIprice = 0.0;
+        double price_eth = Double.parseDouble(eth_price.substring(1));
+        double price_eos = Double.parseDouble(eos_price.substring(1));
         WalletInfo ethInfo = new WalletInfo(ethwallet.getEthaddress(), ethwallet.getAmount(),
-                HUOBIprice, ethwallet.getLockedamount(), ethwallet.getAvailableamount());
+                price_eth, ethwallet.getLockedamount(), ethwallet.getAvailableamount());
         Bgswallet bgswallet = bgswalletMapper.selectByPrimaryKey(UID);
         WalletInfo bgsInfo = new WalletInfo(ethwallet.getEthaddress(), bgswallet.getAmount(),
                 HUOBIprice, bgswallet.getLockedamount(), bgswallet.getAvailableamount());
         Eoswallet eoswallet = eoswalletMapper.selectByPrimaryKey(UID);
         WalletInfo eosInfo = new WalletInfo(eoswallet.getEosaddress(), eoswallet.getAmount(),
-                HUOBIprice, eoswallet.getLockedamount(), eoswallet.getAvailableamount());
+                price_eos, eoswallet.getLockedamount(), eoswallet.getAvailableamount());
         list.add(ethInfo);
         list.add(bgsInfo);
         list.add(eosInfo);
@@ -67,6 +78,7 @@ public class CWalletServiceImpl implements CWalletService {
     public boolean transferMoney(String UID, Integer tokenType, Integer tokenAmount) {
         //TODO 涉及到金额的数据库事物管理问题
         //TODO 余额判断，链上钱包金额存储问题
+        //TODO 每次转账要做记录 表设计问题
         switch (tokenType) {
             //转入eth钱包
             case 0:
@@ -107,6 +119,8 @@ public class CWalletServiceImpl implements CWalletService {
      */
     @Override
     public boolean withdraw(String UID, Integer tokenType, Integer tokenAmount) {
+        //TODO 提现地址问题
+        //TODO 提现记录
         switch (tokenType) {
             //ETH
             case 0:

@@ -1,6 +1,8 @@
 package com.superwallet.pojo;
 
-public class GamelistWithBLOBs extends Gamelist {
+import java.io.Serializable;
+
+public class GamelistWithBLOBs extends Gamelist implements Serializable {
     private byte[] photo;
 
     private String text;
