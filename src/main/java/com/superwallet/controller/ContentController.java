@@ -1,7 +1,7 @@
 package com.superwallet.controller;
 
 import com.superwallet.common.SuperResult;
-import com.superwallet.pojo.Banner;
+import com.superwallet.pojo.BannerWithBLOBs;
 import com.superwallet.pojo.Gamelist;
 import com.superwallet.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class ContentController {
     @RequestMapping(value = "/content/listBanner", method = RequestMethod.GET)
     @ResponseBody
     public SuperResult listBanners() {
-        List<Banner> banners = contentService.listBanner();
+        List<BannerWithBLOBs> banners = contentService.listBanner();
         return SuperResult.ok(banners);
     }
 

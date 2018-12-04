@@ -2,8 +2,8 @@ package com.superwallet.service.impl;
 
 import com.superwallet.mapper.BannerMapper;
 import com.superwallet.mapper.GamelistMapper;
-import com.superwallet.pojo.Banner;
 import com.superwallet.pojo.BannerExample;
+import com.superwallet.pojo.BannerWithBLOBs;
 import com.superwallet.pojo.Gamelist;
 import com.superwallet.pojo.GamelistExample;
 import com.superwallet.service.ContentService;
@@ -63,9 +63,9 @@ public class ContentServiceImpl implements ContentService {
      * @return
      */
     @Override
-    public List<Banner> listBanner() {
+    public List<BannerWithBLOBs> listBanner() {
         BannerExample bannerExample = new BannerExample();
-        List<Banner> banners = bannerMapper.selectByExampleWithBLOBs(bannerExample);
+        List<BannerWithBLOBs> banners = bannerMapper.selectByExampleWithBLOBs(bannerExample);
         return banners;
     }
 }

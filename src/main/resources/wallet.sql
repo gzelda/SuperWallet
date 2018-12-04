@@ -11,10 +11,10 @@ create table userBasic(
     phoneNumber char(15) not null,
     inviter char(20),
     status tinyint,
-    passWord varchar(20),
+    passWord varchar(100),
     payPassWord varchar(100),
     invitedCode varchar(100),
-    invitedPeople json,
+    invitedPeople varchar(255),
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -43,24 +43,24 @@ create table userPrivate(
 drop table if exists ETHWALLET,ETHTOKEN;
 create table ETHTOKEN(
     UID char(100) not null,
-    ETHAddress varchar(50) not null,
+    ETHAddress varchar(50),
     lockedAmount double not null,
     availableAmount double not null,
     amount double not null,
     type int not null,
-    primary key(UID)
+    primary key(UID,type)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- EOS--
 drop table if exists EOSWallet,EOSTOKEN;
 create table EOSTOKEN(
     UID char(100) not null,
-    EOSAccountName varchar(50) not null,
+    EOSAccountName varchar(50),
     lockedAmount double not null,
     availableAmount double not null,
     amount double not null,
     type int not null,
-    primary key(UID)
+    primary key(UID,type)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 私钥库--
@@ -92,8 +92,8 @@ drop table if exists transfer;
 create table transfer(
     UID char(100) not null,
     transferId bigint unsigned auto_increment not null,
-    from varchar(50) not null,
-    to varchar(50) not null,
+    source varchar(50) not null,
+    destination varchar(50) not null,
     amount double not null,
     transferType tinyint not null,
     tokenType tinyint not null,
@@ -121,6 +121,7 @@ create table banner(
     photo mediumblob,
     textOfAd text,
     linkOfAd text,
+    type int,
     primary key(bid)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -136,7 +137,7 @@ create table if not exists gameList(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- notification--
-drop table notification if exists;
+drop table if exists notification;
 create table notification(
     nid bigint unsigned auto_increment not null,
     protocol varchar(20),

@@ -1,50 +1,51 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class Transfer extends TransferKey implements Serializable {
-    private String sourceaddress;
+public class Transfer extends TransferKey {
+    private String source;
 
-    private String destaddress;
+    private String destination;
 
-    private Integer amount;
+    private Double amount;
 
-    private Integer transfertype;
+    private Byte transfertype;
 
     private Byte tokentype;
 
     private Date createdtime;
 
-    public String getSourceaddress() {
-        return sourceaddress;
+    private Byte status;
+
+    public String getSource() {
+        return source;
     }
 
-    public void setSourceaddress(String sourceaddress) {
-        this.sourceaddress = sourceaddress == null ? null : sourceaddress.trim();
+    public void setSource(String source) {
+        this.source = source == null ? null : source.trim();
     }
 
-    public String getDestaddress() {
-        return destaddress;
+    public String getDestination() {
+        return destination;
     }
 
-    public void setDestaddress(String destaddress) {
-        this.destaddress = destaddress == null ? null : destaddress.trim();
+    public void setDestination(String destination) {
+        this.destination = destination == null ? null : destination.trim();
     }
 
-    public Integer getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 
-    public Integer getTransfertype() {
+    public Byte getTransfertype() {
         return transfertype;
     }
 
-    public void setTransfertype(Integer transfertype) {
+    public void setTransfertype(Byte transfertype) {
         this.transfertype = transfertype;
     }
 
@@ -62,5 +63,13 @@ public class Transfer extends TransferKey implements Serializable {
 
     public void setCreatedtime(Date createdtime) {
         this.createdtime = createdtime;
+    }
+
+    public Byte getStatus() {
+        return status;
+    }
+
+    public void setStatus(Byte status) {
+        this.status = status;
     }
 }

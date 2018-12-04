@@ -3,8 +3,9 @@
 <mapper namespace="com.superwallet.mapper.BannerMapper">
     <resultMap id="BaseResultMap" type="com.superwallet.pojo.Banner">
         <id column="bid" property="bid" jdbcType="BIGINT"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
     </resultMap>
-    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Banner" extends="BaseResultMap">
+    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.BannerWithBLOBs" extends="BaseResultMap">
         <result column="photo" property="photo" jdbcType="LONGVARBINARY"/>
         <result column="textOfAd" property="textofad" jdbcType="LONGVARCHAR"/>
         <result column="linkOfAd" property="linkofad" jdbcType="LONGVARCHAR"/>
@@ -70,7 +71,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    bid
+    bid, type
   </sql>
     <sql id="Blob_Column_List">
     photo, textOfAd, linkOfAd
@@ -124,17 +125,20 @@
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="com.superwallet.pojo.Banner">
-    insert into banner (bid, photo, textOfAd, 
-      linkOfAd)
-    values (#{bid,jdbcType=BIGINT}, #{photo,jdbcType=LONGVARBINARY}, #{textofad,jdbcType=LONGVARCHAR}, 
-      #{linkofad,jdbcType=LONGVARCHAR})
+    <insert id="insert" parameterType="com.superwallet.pojo.BannerWithBLOBs">
+    insert into banner (bid, type, photo, 
+      textOfAd, linkOfAd)
+    values (#{bid,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{photo,jdbcType=LONGVARBINARY}, 
+      #{textofad,jdbcType=LONGVARCHAR}, #{linkofad,jdbcType=LONGVARCHAR})
   </insert>
-    <insert id="insertSelective" parameterType="com.superwallet.pojo.Banner">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.BannerWithBLOBs">
         insert into banner
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="bid != null">
                 bid,
+            </if>
+            <if test="type != null">
+                type,
             </if>
             <if test="photo != null">
                 photo,
@@ -149,6 +153,9 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="bid != null">
                 #{bid,jdbcType=BIGINT},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
             </if>
             <if test="photo != null">
                 #{photo,jdbcType=LONGVARBINARY},
@@ -173,6 +180,9 @@
             <if test="record.bid != null">
                 bid = #{record.bid,jdbcType=BIGINT},
             </if>
+            <if test="record.type != null">
+                type = #{record.type,jdbcType=INTEGER},
+            </if>
             <if test="record.photo != null">
                 photo = #{record.photo,jdbcType=LONGVARBINARY},
             </if>
@@ -190,6 +200,7 @@
     <update id="updateByExampleWithBLOBs" parameterType="map">
         update banner
         set bid = #{record.bid,jdbcType=BIGINT},
+        type = #{record.type,jdbcType=INTEGER},
         photo = #{record.photo,jdbcType=LONGVARBINARY},
         textOfAd = #{record.textofad,jdbcType=LONGVARCHAR},
         linkOfAd = #{record.linkofad,jdbcType=LONGVARCHAR}
@@ -199,14 +210,18 @@
     </update>
     <update id="updateByExample" parameterType="map">
         update banner
-        set bid = #{record.bid,jdbcType=BIGINT}
+        set bid = #{record.bid,jdbcType=BIGINT},
+        type = #{record.type,jdbcType=INTEGER}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Banner">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.BannerWithBLOBs">
         update banner
         <set>
+            <if test="type != null">
+                type = #{type,jdbcType=INTEGER},
+            </if>
             <if test="photo != null">
                 photo = #{photo,jdbcType=LONGVARBINARY},
             </if>
@@ -219,11 +234,17 @@
         </set>
         where bid = #{bid,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.Banner">
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.BannerWithBLOBs">
     update banner
-    set photo = #{photo,jdbcType=LONGVARBINARY},
+    set type = #{type,jdbcType=INTEGER},
+      photo = #{photo,jdbcType=LONGVARBINARY},
       textOfAd = #{textofad,jdbcType=LONGVARCHAR},
       linkOfAd = #{linkofad,jdbcType=LONGVARCHAR}
+    where bid = #{bid,jdbcType=BIGINT}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Banner">
+    update banner
+    set type = #{type,jdbcType=INTEGER}
     where bid = #{bid,jdbcType=BIGINT}
   </update>
 </mapper>

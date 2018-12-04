@@ -3,7 +3,7 @@ package com.superwallet.pojo;
 import java.util.Date;
 
 public class Lockwarehouse extends LockwarehouseKey {
-    private Integer amount;
+    private Double amount;
 
     private Integer period;
 
@@ -11,11 +11,11 @@ public class Lockwarehouse extends LockwarehouseKey {
 
     private Byte status;
 
-    public Integer getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(Integer amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 

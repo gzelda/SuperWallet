@@ -4,12 +4,13 @@
     <resultMap id="BaseResultMap" type="com.superwallet.pojo.Transfer">
         <id column="transferId" property="transferid" jdbcType="BIGINT"/>
     <id column="UID" property="uid" jdbcType="CHAR" />
-        <result column="sourceAddress" property="sourceaddress" jdbcType="VARCHAR"/>
-        <result column="destAddress" property="destaddress" jdbcType="VARCHAR"/>
-    <result column="amount" property="amount" jdbcType="INTEGER" />
-        <result column="transferType" property="transfertype" jdbcType="INTEGER"/>
+        <result column="source" property="source" jdbcType="VARCHAR"/>
+        <result column="destination" property="destination" jdbcType="VARCHAR"/>
+        <result column="amount" property="amount" jdbcType="DOUBLE"/>
+        <result column="transferType" property="transfertype" jdbcType="TINYINT"/>
         <result column="tokenType" property="tokentype" jdbcType="TINYINT"/>
         <result column="createdTime" property="createdtime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
   </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -72,7 +73,8 @@
         </where>
     </sql>
   <sql id="Base_Column_List" >
-    transferId, UID, sourceAddress, destAddress, amount, transferType, tokenType, createdTime
+    transferId, UID, source, destination, amount, transferType, tokenType, createdTime, 
+    status
   </sql>
     <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.TransferExample">
         select
@@ -107,12 +109,14 @@
         </if>
     </delete>
     <insert id="insert" parameterType="com.superwallet.pojo.Transfer">
-    insert into transfer (transferId, UID, sourceAddress, 
-      destAddress, amount, transferType, 
-      tokenType, createdTime)
-    values (#{transferid,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{sourceaddress,jdbcType=VARCHAR}, 
-      #{destaddress,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{transfertype,jdbcType=INTEGER}, 
-      #{tokentype,jdbcType=TINYINT}, #{createdtime,jdbcType=TIMESTAMP})
+    insert into transfer (transferId, UID, source, 
+      destination, amount, transferType, 
+      tokenType, createdTime, status
+      )
+    values (#{transferid,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{source,jdbcType=VARCHAR}, 
+      #{destination,jdbcType=VARCHAR}, #{amount,jdbcType=DOUBLE}, #{transfertype,jdbcType=TINYINT}, 
+      #{tokentype,jdbcType=TINYINT}, #{createdtime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}
+      )
   </insert>
     <insert id="insertSelective" parameterType="com.superwallet.pojo.Transfer">
     insert into transfer
@@ -123,11 +127,11 @@
       <if test="uid != null" >
         UID,
       </if>
-        <if test="sourceaddress != null">
-        sourceAddress,
+        <if test="source != null">
+            source,
       </if>
-        <if test="destaddress != null">
-        destAddress,
+        <if test="destination != null">
+            destination,
       </if>
       <if test="amount != null" >
         amount,
@@ -140,7 +144,10 @@
       </if>
         <if test="createdtime != null">
         createdTime,
-      </if>
+        </if>
+        <if test="status != null">
+            status,
+        </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
         <if test="transferid != null">
@@ -149,17 +156,17 @@
       <if test="uid != null" >
         #{uid,jdbcType=CHAR},
       </if>
-        <if test="sourceaddress != null">
-            #{sourceaddress,jdbcType=VARCHAR},
+        <if test="source != null">
+            #{source,jdbcType=VARCHAR},
       </if>
-        <if test="destaddress != null">
-            #{destaddress,jdbcType=VARCHAR},
+        <if test="destination != null">
+            #{destination,jdbcType=VARCHAR},
       </if>
       <if test="amount != null" >
-        #{amount,jdbcType=INTEGER},
+          #{amount,jdbcType=DOUBLE},
       </if>
         <if test="transfertype != null">
-            #{transfertype,jdbcType=INTEGER},
+            #{transfertype,jdbcType=TINYINT},
       </if>
         <if test="tokentype != null">
             #{tokentype,jdbcType=TINYINT},
@@ -167,6 +174,9 @@
         <if test="createdtime != null">
             #{createdtime,jdbcType=TIMESTAMP},
       </if>
+        <if test="status != null">
+            #{status,jdbcType=TINYINT},
+        </if>
     </trim>
   </insert>
     <select id="countByExample" parameterType="com.superwallet.pojo.TransferExample" resultType="java.lang.Integer">
@@ -184,23 +194,26 @@
         <if test="record.uid != null">
             UID = #{record.uid,jdbcType=CHAR},
         </if>
-        <if test="record.sourceaddress != null">
-            sourceAddress = #{record.sourceaddress,jdbcType=VARCHAR},
+        <if test="record.source != null">
+            source = #{record.source,jdbcType=VARCHAR},
         </if>
-        <if test="record.destaddress != null">
-            destAddress = #{record.destaddress,jdbcType=VARCHAR},
+        <if test="record.destination != null">
+            destination = #{record.destination,jdbcType=VARCHAR},
         </if>
         <if test="record.amount != null">
-            amount = #{record.amount,jdbcType=INTEGER},
+            amount = #{record.amount,jdbcType=DOUBLE},
         </if>
         <if test="record.transfertype != null">
-            transferType = #{record.transfertype,jdbcType=INTEGER},
+            transferType = #{record.transfertype,jdbcType=TINYINT},
         </if>
         <if test="record.tokentype != null">
             tokenType = #{record.tokentype,jdbcType=TINYINT},
         </if>
         <if test="record.createdtime != null">
             createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="record.status != null">
+            status = #{record.status,jdbcType=TINYINT},
         </if>
     </set>
         <if test="_parameter != null">
@@ -211,12 +224,13 @@
         update transfer
         set transferId = #{record.transferid,jdbcType=BIGINT},
         UID = #{record.uid,jdbcType=CHAR},
-        sourceAddress = #{record.sourceaddress,jdbcType=VARCHAR},
-        destAddress = #{record.destaddress,jdbcType=VARCHAR},
-        amount = #{record.amount,jdbcType=INTEGER},
-        transferType = #{record.transfertype,jdbcType=INTEGER},
+        source = #{record.source,jdbcType=VARCHAR},
+        destination = #{record.destination,jdbcType=VARCHAR},
+        amount = #{record.amount,jdbcType=DOUBLE},
+        transferType = #{record.transfertype,jdbcType=TINYINT},
         tokenType = #{record.tokentype,jdbcType=TINYINT},
-        createdTime = #{record.createdtime,jdbcType=TIMESTAMP}
+        createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
+        status = #{record.status,jdbcType=TINYINT}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
@@ -224,17 +238,17 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Transfer">
         update transfer
         <set>
-            <if test="sourceaddress != null">
-                sourceAddress = #{sourceaddress,jdbcType=VARCHAR},
+            <if test="source != null">
+                source = #{source,jdbcType=VARCHAR},
             </if>
-            <if test="destaddress != null">
-                destAddress = #{destaddress,jdbcType=VARCHAR},
+            <if test="destination != null">
+                destination = #{destination,jdbcType=VARCHAR},
       </if>
       <if test="amount != null" >
-        amount = #{amount,jdbcType=INTEGER},
+          amount = #{amount,jdbcType=DOUBLE},
       </if>
             <if test="transfertype != null">
-                transferType = #{transfertype,jdbcType=INTEGER},
+                transferType = #{transfertype,jdbcType=TINYINT},
       </if>
             <if test="tokentype != null">
                 tokenType = #{tokentype,jdbcType=TINYINT},
@@ -242,18 +256,22 @@
             <if test="createdtime != null">
                 createdTime = #{createdtime,jdbcType=TIMESTAMP},
       </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
     </set>
         where transferId = #{transferid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </update>
     <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Transfer">
     update transfer
-    set sourceAddress = #{sourceaddress,jdbcType=VARCHAR},
-      destAddress = #{destaddress,jdbcType=VARCHAR},
-      amount = #{amount,jdbcType=INTEGER},
-      transferType = #{transfertype,jdbcType=INTEGER},
+    set source = #{source,jdbcType=VARCHAR},
+      destination = #{destination,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=DOUBLE},
+      transferType = #{transfertype,jdbcType=TINYINT},
       tokenType = #{tokentype,jdbcType=TINYINT},
-      createdTime = #{createdtime,jdbcType=TIMESTAMP}
+      createdTime = #{createdtime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=TINYINT}
     where transferId = #{transferid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </update>

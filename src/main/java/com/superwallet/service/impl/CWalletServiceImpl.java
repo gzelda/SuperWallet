@@ -2,9 +2,8 @@ package com.superwallet.service.impl;
 
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.WalletInfo;
-import com.superwallet.mapper.BgswalletMapper;
-import com.superwallet.mapper.EoswalletMapper;
-import com.superwallet.mapper.EthwalletMapper;
+import com.superwallet.mapper.EostokenMapper;
+import com.superwallet.mapper.EthtokenMapper;
 import com.superwallet.mapper.TransferMapper;
 import com.superwallet.pojo.*;
 import com.superwallet.service.CWalletService;
@@ -24,13 +23,10 @@ import java.util.List;
 public class CWalletServiceImpl implements CWalletService {
 
     @Autowired
-    private EthwalletMapper ethwalletMapper;
+    private EthtokenMapper ethtokenMapper;
 
     @Autowired
-    private EoswalletMapper eoswalletMapper;
-
-    @Autowired
-    private BgswalletMapper bgswalletMapper;
+    private EostokenMapper eostokenMapper;
 
     @Autowired
     private TransferMapper transferMapper;
@@ -44,25 +40,32 @@ public class CWalletServiceImpl implements CWalletService {
     @Override
     public List<WalletInfo> listCWalletInfo(String UID) {
         List<WalletInfo> list = new ArrayList<WalletInfo>();
-        //数字货币价格--目前爬虫实现
+        //TODO 数字货币价格--目前爬虫实现
         String origin = HttpUtil.get(CodeRepresentation.URL_PRICE);
         Document document = Jsoup.parse(origin);
         String eth_price = document.getElementById("id-ethereum").getElementsByClass("price").text();
         String eos_price = document.getElementById("id-eos").getElementsByClass("price").text();
         //TODO 缺少BGS价格
         //以太钱包
-        Ethwallet ethwallet = ethwalletMapper.selectByPrimaryKey(UID);
+        EthtokenKey ethtokenKey = new EthtokenKey();
+        ethtokenKey.setUid(UID);
+        ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+        Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
         double HUOBIprice = 0.0;
         double price_eth = Double.parseDouble(eth_price.substring(1));
         double price_eos = Double.parseDouble(eos_price.substring(1));
-        WalletInfo ethInfo = new WalletInfo(ethwallet.getEthaddress(), ethwallet.getAmount(),
-                price_eth, ethwallet.getLockedamount(), ethwallet.getAvailableamount());
-        Bgswallet bgswallet = bgswalletMapper.selectByPrimaryKey(UID);
-        WalletInfo bgsInfo = new WalletInfo(ethwallet.getEthaddress(), bgswallet.getAmount(),
-                HUOBIprice, bgswallet.getLockedamount(), bgswallet.getAvailableamount());
-        Eoswallet eoswallet = eoswalletMapper.selectByPrimaryKey(UID);
-        WalletInfo eosInfo = new WalletInfo(eoswallet.getEosaddress(), eoswallet.getAmount(),
-                price_eos, eoswallet.getLockedamount(), eoswallet.getAvailableamount());
+        WalletInfo ethInfo = new WalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), ethtoken.getAmount(),
+                price_eth, ethtoken.getLockedamount(), ethtoken.getAvailableamount());
+        ethtoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+        Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtoken);
+        WalletInfo bgsInfo = new WalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), bgstoken.getAmount(),
+                HUOBIprice, bgstoken.getLockedamount(), bgstoken.getAvailableamount());
+        EostokenKey eostokenKey = new EostokenKey();
+        eostokenKey.setUid(UID);
+        eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+        Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+        WalletInfo eosInfo = new WalletInfo(eostoken.getEosaccountname() == null ? "" : eostoken.getEosaccountname(), eostoken.getAmount(),
+                price_eos, eostoken.getLockedamount(), eostoken.getAvailableamount());
         list.add(ethInfo);
         list.add(bgsInfo);
         list.add(eosInfo);
@@ -75,35 +78,42 @@ public class CWalletServiceImpl implements CWalletService {
      * @return
      */
     @Override
-    public boolean transferMoney(String UID, Integer tokenType, Integer tokenAmount) {
+    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount) {
         //TODO 涉及到金额的数据库事物管理问题
         //TODO 余额判断，链上钱包金额存储问题
         //TODO 每次转账要做记录 表设计问题
+        EthtokenKey ethtokenKey = new EthtokenKey();
+        EostokenKey eostokenKey = new EostokenKey();
+        ethtokenKey.setUid(UID);
+        eostokenKey.setUid(UID);
         switch (tokenType) {
             //转入eth钱包
             case 0:
-                Ethwallet ethwallet = ethwalletMapper.selectByPrimaryKey(UID);
-                Integer amount_eth = ethwallet.getAmount();
+                ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                Double amount_eth = ethtoken.getAmount();
                 //余额转入
                 amount_eth += tokenAmount;
-                ethwallet.setAmount(amount_eth);
-                ethwalletMapper.updateByExample(ethwallet, new EthwalletExample());
+                ethtoken.setAmount(amount_eth);
+                ethtokenMapper.updateByExample(ethtoken, new EthtokenExample());
                 break;
             //转入eos钱包
             case 1:
-                Eoswallet eoswallet = eoswalletMapper.selectByPrimaryKey(UID);
-                Integer amount_eos = eoswallet.getAmount();
+                eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+                Double amount_eos = eostoken.getAmount();
                 amount_eos += tokenAmount;
-                eoswallet.setAmount(amount_eos);
-                eoswalletMapper.updateByExample(eoswallet, new EoswalletExample());
+                eostoken.setAmount(amount_eos);
+                eostokenMapper.updateByExample(eostoken, new EostokenExample());
                 break;
             //转入bgs钱包
             case 2:
-                Bgswallet bgswallet = bgswalletMapper.selectByPrimaryKey(UID);
-                Integer amount_bgs = bgswallet.getAmount();
+                ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                Double amount_bgs = bgstoken.getAmount();
                 amount_bgs += tokenAmount;
-                bgswallet.setAmount(amount_bgs);
-                bgswalletMapper.updateByExample(bgswallet, new BgswalletExample());
+                bgstoken.setAmount(amount_bgs);
+                ethtokenMapper.updateByExample(bgstoken, new EthtokenExample());
                 break;
         }
         return true;
@@ -118,39 +128,47 @@ public class CWalletServiceImpl implements CWalletService {
      * @return
      */
     @Override
-    public boolean withdraw(String UID, Integer tokenType, Integer tokenAmount) {
+    public boolean withdraw(String UID, Integer tokenType, Double tokenAmount) {
         //TODO 提现地址问题
         //TODO 提现记录
+        //TODO 提现表
+        EthtokenKey ethtokenKey = new EthtokenKey();
+        EostokenKey eostokenKey = new EostokenKey();
+        ethtokenKey.setUid(UID);
+        eostokenKey.setUid(UID);
         switch (tokenType) {
             //ETH
             case 0:
-                Ethwallet ethwallet = ethwalletMapper.selectByPrimaryKey(UID);
-                Integer amount_eth = ethwallet.getAmount();
+                ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                Double amount_eth = ethtoken.getAmount();
                 //余额不足
                 if (amount_eth < tokenAmount) return false;
                 amount_eth -= tokenAmount;
-                ethwallet.setAmount(amount_eth);
-                ethwalletMapper.updateByExample(ethwallet, new EthwalletExample());
+                ethtoken.setAmount(amount_eth);
+                ethtokenMapper.updateByExample(ethtoken, new EthtokenExample());
                 break;
             //EOS
             case 1:
-                Eoswallet eoswallet = eoswalletMapper.selectByPrimaryKey(UID);
-                Integer amount_eos = eoswallet.getAmount();
+                eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+                Double amount_eos = eostoken.getAmount();
                 //余额不足
                 if (amount_eos < tokenAmount) return false;
                 amount_eos -= tokenAmount;
-                eoswallet.setAmount(amount_eos);
-                eoswalletMapper.updateByExample(eoswallet, new EoswalletExample());
+                eostoken.setAmount(amount_eos);
+                eostokenMapper.updateByExample(eostoken, new EostokenExample());
                 break;
             //BGS
             case 2:
-                Bgswallet bgswallet = bgswalletMapper.selectByPrimaryKey(UID);
-                Integer amount_bgs = bgswallet.getAmount();
+                ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                Double amount_bgs = bgstoken.getAmount();
                 //余额不足
                 if (amount_bgs < tokenAmount) return false;
                 amount_bgs -= tokenAmount;
-                bgswallet.setAmount(amount_bgs);
-                bgswalletMapper.updateByExample(bgswallet, new BgswalletExample());
+                bgstoken.setAmount(amount_bgs);
+                ethtokenMapper.updateByExample(bgstoken, new EthtokenExample());
                 break;
         }
         //TODO 需要业务人员判断是否同意该用户提币

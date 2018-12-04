@@ -30,6 +30,11 @@ public class CodeRepresentation {
     //Cookie名称
     public static final String TOKEN_KEY = "token";
 
+    //币种分类
+    public static final int ETH_TOKEN_TYPE_ETH = 0;
+    public static final int ETH_TOKEN_TYPE_BGS = 1;
+    public static final int EOS_TOKEN_TYPE_EOS = 0;
+
     //爬取数字货币价格的网站
     public static final String URL_PRICE = "https://coinmarketcap.com/zh/";
 

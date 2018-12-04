@@ -109,12 +109,13 @@ public class LoginController {
         String uid = loginRegisterService.register(phoneNum, passWord, invitedCode, headPhotoPath);
         if (uid.equals("registered")) {
             result = new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
+            return result;
         }
         //注册成功后初始化钱包信息
         loginRegisterService.initWallet(uid);
         HashMap<String, String> map = new HashMap();
         map.put("UID", uid);
-        //TODO 需要生成私钥，以及补充中心钱包信息
+        //TODO 需要生成私钥，以及补充中心钱包信息（等人脸识别完）
         return SuperResult.ok(map);
     }
 
@@ -271,6 +272,7 @@ public class LoginController {
     @RequestMapping(value = "/login/payCodeValidation", method = RequestMethod.POST)
     @ResponseBody
     public SuperResult payCodeValidation(String UID, String payCode) {
+        payCode = SHA1.encode(payCode);
         //判断旧支付密码
         boolean res = loginRegisterService.payCodeValidation(UID, payCode);
         if (!res) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);

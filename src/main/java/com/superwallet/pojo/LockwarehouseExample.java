@@ -105,63 +105,63 @@ public class LockwarehouseExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andLockwarehouseidIsNull() {
-            addCriterion("lockWarehouseId is null");
+        public Criteria andLidIsNull() {
+            addCriterion("LID is null");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidIsNotNull() {
-            addCriterion("lockWarehouseId is not null");
+        public Criteria andLidIsNotNull() {
+            addCriterion("LID is not null");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidEqualTo(Long value) {
-            addCriterion("lockWarehouseId =", value, "lockwarehouseid");
+        public Criteria andLidEqualTo(Long value) {
+            addCriterion("LID =", value, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidNotEqualTo(Long value) {
-            addCriterion("lockWarehouseId <>", value, "lockwarehouseid");
+        public Criteria andLidNotEqualTo(Long value) {
+            addCriterion("LID <>", value, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidGreaterThan(Long value) {
-            addCriterion("lockWarehouseId >", value, "lockwarehouseid");
+        public Criteria andLidGreaterThan(Long value) {
+            addCriterion("LID >", value, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidGreaterThanOrEqualTo(Long value) {
-            addCriterion("lockWarehouseId >=", value, "lockwarehouseid");
+        public Criteria andLidGreaterThanOrEqualTo(Long value) {
+            addCriterion("LID >=", value, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidLessThan(Long value) {
-            addCriterion("lockWarehouseId <", value, "lockwarehouseid");
+        public Criteria andLidLessThan(Long value) {
+            addCriterion("LID <", value, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidLessThanOrEqualTo(Long value) {
-            addCriterion("lockWarehouseId <=", value, "lockwarehouseid");
+        public Criteria andLidLessThanOrEqualTo(Long value) {
+            addCriterion("LID <=", value, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidIn(List<Long> values) {
-            addCriterion("lockWarehouseId in", values, "lockwarehouseid");
+        public Criteria andLidIn(List<Long> values) {
+            addCriterion("LID in", values, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidNotIn(List<Long> values) {
-            addCriterion("lockWarehouseId not in", values, "lockwarehouseid");
+        public Criteria andLidNotIn(List<Long> values) {
+            addCriterion("LID not in", values, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidBetween(Long value1, Long value2) {
-            addCriterion("lockWarehouseId between", value1, value2, "lockwarehouseid");
+        public Criteria andLidBetween(Long value1, Long value2) {
+            addCriterion("LID between", value1, value2, "lid");
             return (Criteria) this;
         }
 
-        public Criteria andLockwarehouseidNotBetween(Long value1, Long value2) {
-            addCriterion("lockWarehouseId not between", value1, value2, "lockwarehouseid");
+        public Criteria andLidNotBetween(Long value1, Long value2) {
+            addCriterion("LID not between", value1, value2, "lid");
             return (Criteria) this;
         }
 
@@ -245,52 +245,52 @@ public class LockwarehouseExample {
             return (Criteria) this;
         }
 
-        public Criteria andAmountEqualTo(Integer value) {
+        public Criteria andAmountEqualTo(Double value) {
             addCriterion("amount =", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountNotEqualTo(Integer value) {
+        public Criteria andAmountNotEqualTo(Double value) {
             addCriterion("amount <>", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountGreaterThan(Integer value) {
+        public Criteria andAmountGreaterThan(Double value) {
             addCriterion("amount >", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountGreaterThanOrEqualTo(Integer value) {
+        public Criteria andAmountGreaterThanOrEqualTo(Double value) {
             addCriterion("amount >=", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountLessThan(Integer value) {
+        public Criteria andAmountLessThan(Double value) {
             addCriterion("amount <", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountLessThanOrEqualTo(Integer value) {
+        public Criteria andAmountLessThanOrEqualTo(Double value) {
             addCriterion("amount <=", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountIn(List<Integer> values) {
+        public Criteria andAmountIn(List<Double> values) {
             addCriterion("amount in", values, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountNotIn(List<Integer> values) {
+        public Criteria andAmountNotIn(List<Double> values) {
             addCriterion("amount not in", values, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountBetween(Integer value1, Integer value2) {
+        public Criteria andAmountBetween(Double value1, Double value2) {
             addCriterion("amount between", value1, value2, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountNotBetween(Integer value1, Integer value2) {
+        public Criteria andAmountNotBetween(Double value1, Double value2) {
             addCriterion("amount not between", value1, value2, "amount");
             return (Criteria) this;
         }

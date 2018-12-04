@@ -8,9 +8,9 @@ import java.util.List;
 public interface CWalletService {
     public List<WalletInfo> listCWalletInfo(String UID);
 
-    public boolean transferMoney(String UID, Integer tokenType, Integer tokenAmount);
+    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount);
 
-    public boolean withdraw(String UID, Integer tokenType, Integer tokenAmount);
+    public boolean withdraw(String UID, Integer tokenType, Double tokenAmount);
 
     public List<Transfer> listHistoryBills(String UID, Integer tokenType);
 }

@@ -1,16 +1,16 @@
 package com.superwallet.pojo;
 
 public class LockwarehouseKey {
-    private Long lockwarehouseid;
+    private Long lid;
 
     private String uid;
 
-    public Long getLockwarehouseid() {
-        return lockwarehouseid;
+    public Long getLid() {
+        return lid;
     }
 
-    public void setLockwarehouseid(Long lockwarehouseid) {
-        this.lockwarehouseid = lockwarehouseid;
+    public void setLid(Long lid) {
+        this.lid = lid;
     }
 
     public String getUid() {

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.mapper.EthtokenMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Ethtoken">
+        <id column="UID" property="uid" jdbcType="CHAR"/>
+        <id column="type" property="type" jdbcType="INTEGER"/>
+        <result column="ETHAddress" property="ethaddress" jdbcType="VARCHAR"/>
+        <result column="lockedAmount" property="lockedamount" jdbcType="DOUBLE"/>
+        <result column="availableAmount" property="availableamount" jdbcType="DOUBLE"/>
+        <result column="amount" property="amount" jdbcType="DOUBLE"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+    UID, type, ETHAddress, lockedAmount, availableAmount, amount
+  </sql>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.EthtokenExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from ethtoken
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.EthtokenKey">
+        select
+        <include refid="Base_Column_List"/>
+        from ethtoken
+        where UID = #{uid,jdbcType=CHAR}
+        and type = #{type,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.EthtokenKey">
+    delete from ethtoken
+    where UID = #{uid,jdbcType=CHAR}
+      and type = #{type,jdbcType=INTEGER}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.EthtokenExample">
+        delete from ethtoken
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.superwallet.pojo.Ethtoken">
+    insert into ethtoken (UID, type, ETHAddress, 
+      lockedAmount, availableAmount, amount
+      )
+    values (#{uid,jdbcType=CHAR}, #{type,jdbcType=INTEGER}, #{ethaddress,jdbcType=VARCHAR}, 
+      #{lockedamount,jdbcType=DOUBLE}, #{availableamount,jdbcType=DOUBLE}, #{amount,jdbcType=DOUBLE}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Ethtoken">
+        insert into ethtoken
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uid != null">
+                UID,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="ethaddress != null">
+                ETHAddress,
+            </if>
+            <if test="lockedamount != null">
+                lockedAmount,
+            </if>
+            <if test="availableamount != null">
+                availableAmount,
+            </if>
+            <if test="amount != null">
+                amount,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uid != null">
+                #{uid,jdbcType=CHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=INTEGER},
+            </if>
+            <if test="ethaddress != null">
+                #{ethaddress,jdbcType=VARCHAR},
+            </if>
+            <if test="lockedamount != null">
+                #{lockedamount,jdbcType=DOUBLE},
+            </if>
+            <if test="availableamount != null">
+                #{availableamount,jdbcType=DOUBLE},
+            </if>
+            <if test="amount != null">
+                #{amount,jdbcType=DOUBLE},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.superwallet.pojo.EthtokenExample" resultType="java.lang.Integer">
+        select count(*) from ethtoken
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update ethtoken
+        <set>
+            <if test="record.uid != null">
+                UID = #{record.uid,jdbcType=CHAR},
+            </if>
+            <if test="record.type != null">
+                type = #{record.type,jdbcType=INTEGER},
+            </if>
+            <if test="record.ethaddress != null">
+                ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
+            </if>
+            <if test="record.lockedamount != null">
+                lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
+            </if>
+            <if test="record.availableamount != null">
+                availableAmount = #{record.availableamount,jdbcType=DOUBLE},
+            </if>
+            <if test="record.amount != null">
+                amount = #{record.amount,jdbcType=DOUBLE},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update ethtoken
+        set UID = #{record.uid,jdbcType=CHAR},
+        type = #{record.type,jdbcType=INTEGER},
+        ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
+        lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
+        availableAmount = #{record.availableamount,jdbcType=DOUBLE},
+        amount = #{record.amount,jdbcType=DOUBLE}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Ethtoken">
+        update ethtoken
+        <set>
+            <if test="ethaddress != null">
+                ETHAddress = #{ethaddress,jdbcType=VARCHAR},
+            </if>
+            <if test="lockedamount != null">
+                lockedAmount = #{lockedamount,jdbcType=DOUBLE},
+            </if>
+            <if test="availableamount != null">
+                availableAmount = #{availableamount,jdbcType=DOUBLE},
+            </if>
+            <if test="amount != null">
+                amount = #{amount,jdbcType=DOUBLE},
+            </if>
+        </set>
+        where UID = #{uid,jdbcType=CHAR}
+        and type = #{type,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Ethtoken">
+    update ethtoken
+    set ETHAddress = #{ethaddress,jdbcType=VARCHAR},
+      lockedAmount = #{lockedamount,jdbcType=DOUBLE},
+      availableAmount = #{availableamount,jdbcType=DOUBLE},
+      amount = #{amount,jdbcType=DOUBLE}
+    where UID = #{uid,jdbcType=CHAR}
+      and type = #{type,jdbcType=INTEGER}
+  </update>
+</mapper>

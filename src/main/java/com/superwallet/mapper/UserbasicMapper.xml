@@ -12,7 +12,7 @@
     <result column="passWord" property="password" jdbcType="VARCHAR"/>
     <result column="payPassWord" property="paypassword" jdbcType="VARCHAR"/>
     <result column="invitedCode" property="invitedcode" jdbcType="VARCHAR"/>
-    <result column="invitedPeople" property="invitedpeople" jdbcType="OTHER"/>
+    <result column="invitedPeople" property="invitedpeople" jdbcType="VARCHAR"/>
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Userbasic" extends="BaseResultMap">
     <result column="headPhoto" property="headphoto" jdbcType="LONGVARBINARY"/>
@@ -140,7 +140,7 @@
     values (#{uid,jdbcType=CHAR}, #{nickname,jdbcType=VARCHAR}, #{sex,jdbcType=TINYINT}, 
       #{isagency,jdbcType=TINYINT}, #{phonenumber,jdbcType=CHAR}, #{inviter,jdbcType=CHAR}, 
       #{status,jdbcType=TINYINT}, #{password,jdbcType=VARCHAR}, #{paypassword,jdbcType=VARCHAR}, 
-      #{invitedcode,jdbcType=VARCHAR}, #{invitedpeople,jdbcType=OTHER}, #{headphoto,jdbcType=LONGVARBINARY}
+      #{invitedcode,jdbcType=VARCHAR}, #{invitedpeople,jdbcType=VARCHAR}, #{headphoto,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.superwallet.pojo.Userbasic">
@@ -215,7 +215,7 @@
         #{invitedcode,jdbcType=VARCHAR},
       </if>
       <if test="invitedpeople != null">
-        #{invitedpeople,jdbcType=OTHER},
+        #{invitedpeople,jdbcType=VARCHAR},
       </if>
       <if test="headphoto != null">
         #{headphoto,jdbcType=LONGVARBINARY},
@@ -262,7 +262,7 @@
         invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
       </if>
       <if test="record.invitedpeople != null">
-        invitedPeople = #{record.invitedpeople,jdbcType=OTHER},
+        invitedPeople = #{record.invitedpeople,jdbcType=VARCHAR},
       </if>
       <if test="record.headphoto != null">
         headPhoto = #{record.headphoto,jdbcType=LONGVARBINARY},
@@ -284,7 +284,7 @@
     passWord = #{record.password,jdbcType=VARCHAR},
     payPassWord = #{record.paypassword,jdbcType=VARCHAR},
     invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
-    invitedPeople = #{record.invitedpeople,jdbcType=OTHER},
+    invitedPeople = #{record.invitedpeople,jdbcType=VARCHAR},
     headPhoto = #{record.headphoto,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause"/>
@@ -302,7 +302,7 @@
     passWord = #{record.password,jdbcType=VARCHAR},
     payPassWord = #{record.paypassword,jdbcType=VARCHAR},
     invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
-    invitedPeople = #{record.invitedpeople,jdbcType=OTHER}
+    invitedPeople = #{record.invitedpeople,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause"/>
     </if>
@@ -338,7 +338,7 @@
         invitedCode = #{invitedcode,jdbcType=VARCHAR},
       </if>
       <if test="invitedpeople != null">
-        invitedPeople = #{invitedpeople,jdbcType=OTHER},
+        invitedPeople = #{invitedpeople,jdbcType=VARCHAR},
       </if>
       <if test="headphoto != null">
         headPhoto = #{headphoto,jdbcType=LONGVARBINARY},
@@ -357,7 +357,7 @@
       passWord = #{password,jdbcType=VARCHAR},
       payPassWord = #{paypassword,jdbcType=VARCHAR},
       invitedCode = #{invitedcode,jdbcType=VARCHAR},
-      invitedPeople = #{invitedpeople,jdbcType=OTHER},
+      invitedPeople = #{invitedpeople,jdbcType=VARCHAR},
       headPhoto = #{headphoto,jdbcType=LONGVARBINARY}
     where UID = #{uid,jdbcType=CHAR}
   </update>
@@ -372,7 +372,7 @@
       passWord = #{password,jdbcType=VARCHAR},
       payPassWord = #{paypassword,jdbcType=VARCHAR},
       invitedCode = #{invitedcode,jdbcType=VARCHAR},
-      invitedPeople = #{invitedpeople,jdbcType=OTHER}
+      invitedPeople = #{invitedpeople,jdbcType=VARCHAR}
     where UID = #{uid,jdbcType=CHAR}
   </update>
 </mapper>

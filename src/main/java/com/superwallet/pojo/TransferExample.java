@@ -235,143 +235,143 @@ public class TransferExample {
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressIsNull() {
-            addCriterion("sourceAddress is null");
+        public Criteria andSourceIsNull() {
+            addCriterion("source is null");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressIsNotNull() {
-            addCriterion("sourceAddress is not null");
+        public Criteria andSourceIsNotNull() {
+            addCriterion("source is not null");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressEqualTo(String value) {
-            addCriterion("sourceAddress =", value, "sourceaddress");
+        public Criteria andSourceEqualTo(String value) {
+            addCriterion("source =", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressNotEqualTo(String value) {
-            addCriterion("sourceAddress <>", value, "sourceaddress");
+        public Criteria andSourceNotEqualTo(String value) {
+            addCriterion("source <>", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressGreaterThan(String value) {
-            addCriterion("sourceAddress >", value, "sourceaddress");
+        public Criteria andSourceGreaterThan(String value) {
+            addCriterion("source >", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressGreaterThanOrEqualTo(String value) {
-            addCriterion("sourceAddress >=", value, "sourceaddress");
+        public Criteria andSourceGreaterThanOrEqualTo(String value) {
+            addCriterion("source >=", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressLessThan(String value) {
-            addCriterion("sourceAddress <", value, "sourceaddress");
+        public Criteria andSourceLessThan(String value) {
+            addCriterion("source <", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressLessThanOrEqualTo(String value) {
-            addCriterion("sourceAddress <=", value, "sourceaddress");
+        public Criteria andSourceLessThanOrEqualTo(String value) {
+            addCriterion("source <=", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressLike(String value) {
-            addCriterion("sourceAddress like", value, "sourceaddress");
+        public Criteria andSourceLike(String value) {
+            addCriterion("source like", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressNotLike(String value) {
-            addCriterion("sourceAddress not like", value, "sourceaddress");
+        public Criteria andSourceNotLike(String value) {
+            addCriterion("source not like", value, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressIn(List<String> values) {
-            addCriterion("sourceAddress in", values, "sourceaddress");
+        public Criteria andSourceIn(List<String> values) {
+            addCriterion("source in", values, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressNotIn(List<String> values) {
-            addCriterion("sourceAddress not in", values, "sourceaddress");
+        public Criteria andSourceNotIn(List<String> values) {
+            addCriterion("source not in", values, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressBetween(String value1, String value2) {
-            addCriterion("sourceAddress between", value1, value2, "sourceaddress");
+        public Criteria andSourceBetween(String value1, String value2) {
+            addCriterion("source between", value1, value2, "source");
             return (Criteria) this;
         }
 
-        public Criteria andSourceaddressNotBetween(String value1, String value2) {
-            addCriterion("sourceAddress not between", value1, value2, "sourceaddress");
+        public Criteria andSourceNotBetween(String value1, String value2) {
+            addCriterion("source not between", value1, value2, "source");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressIsNull() {
-            addCriterion("destAddress is null");
+        public Criteria andDestinationIsNull() {
+            addCriterion("destination is null");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressIsNotNull() {
-            addCriterion("destAddress is not null");
+        public Criteria andDestinationIsNotNull() {
+            addCriterion("destination is not null");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressEqualTo(String value) {
-            addCriterion("destAddress =", value, "destaddress");
+        public Criteria andDestinationEqualTo(String value) {
+            addCriterion("destination =", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressNotEqualTo(String value) {
-            addCriterion("destAddress <>", value, "destaddress");
+        public Criteria andDestinationNotEqualTo(String value) {
+            addCriterion("destination <>", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressGreaterThan(String value) {
-            addCriterion("destAddress >", value, "destaddress");
+        public Criteria andDestinationGreaterThan(String value) {
+            addCriterion("destination >", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressGreaterThanOrEqualTo(String value) {
-            addCriterion("destAddress >=", value, "destaddress");
+        public Criteria andDestinationGreaterThanOrEqualTo(String value) {
+            addCriterion("destination >=", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressLessThan(String value) {
-            addCriterion("destAddress <", value, "destaddress");
+        public Criteria andDestinationLessThan(String value) {
+            addCriterion("destination <", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressLessThanOrEqualTo(String value) {
-            addCriterion("destAddress <=", value, "destaddress");
+        public Criteria andDestinationLessThanOrEqualTo(String value) {
+            addCriterion("destination <=", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressLike(String value) {
-            addCriterion("destAddress like", value, "destaddress");
+        public Criteria andDestinationLike(String value) {
+            addCriterion("destination like", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressNotLike(String value) {
-            addCriterion("destAddress not like", value, "destaddress");
+        public Criteria andDestinationNotLike(String value) {
+            addCriterion("destination not like", value, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressIn(List<String> values) {
-            addCriterion("destAddress in", values, "destaddress");
+        public Criteria andDestinationIn(List<String> values) {
+            addCriterion("destination in", values, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressNotIn(List<String> values) {
-            addCriterion("destAddress not in", values, "destaddress");
+        public Criteria andDestinationNotIn(List<String> values) {
+            addCriterion("destination not in", values, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressBetween(String value1, String value2) {
-            addCriterion("destAddress between", value1, value2, "destaddress");
+        public Criteria andDestinationBetween(String value1, String value2) {
+            addCriterion("destination between", value1, value2, "destination");
             return (Criteria) this;
         }
 
-        public Criteria andDestaddressNotBetween(String value1, String value2) {
-            addCriterion("destAddress not between", value1, value2, "destaddress");
+        public Criteria andDestinationNotBetween(String value1, String value2) {
+            addCriterion("destination not between", value1, value2, "destination");
             return (Criteria) this;
         }
 
@@ -385,52 +385,52 @@ public class TransferExample {
             return (Criteria) this;
         }
 
-        public Criteria andAmountEqualTo(Integer value) {
+        public Criteria andAmountEqualTo(Double value) {
             addCriterion("amount =", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountNotEqualTo(Integer value) {
+        public Criteria andAmountNotEqualTo(Double value) {
             addCriterion("amount <>", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountGreaterThan(Integer value) {
+        public Criteria andAmountGreaterThan(Double value) {
             addCriterion("amount >", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountGreaterThanOrEqualTo(Integer value) {
+        public Criteria andAmountGreaterThanOrEqualTo(Double value) {
             addCriterion("amount >=", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountLessThan(Integer value) {
+        public Criteria andAmountLessThan(Double value) {
             addCriterion("amount <", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountLessThanOrEqualTo(Integer value) {
+        public Criteria andAmountLessThanOrEqualTo(Double value) {
             addCriterion("amount <=", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountIn(List<Integer> values) {
+        public Criteria andAmountIn(List<Double> values) {
             addCriterion("amount in", values, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountNotIn(List<Integer> values) {
+        public Criteria andAmountNotIn(List<Double> values) {
             addCriterion("amount not in", values, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountBetween(Integer value1, Integer value2) {
+        public Criteria andAmountBetween(Double value1, Double value2) {
             addCriterion("amount between", value1, value2, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAmountNotBetween(Integer value1, Integer value2) {
+        public Criteria andAmountNotBetween(Double value1, Double value2) {
             addCriterion("amount not between", value1, value2, "amount");
             return (Criteria) this;
         }
@@ -445,52 +445,52 @@ public class TransferExample {
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeEqualTo(Integer value) {
+        public Criteria andTransfertypeEqualTo(Byte value) {
             addCriterion("transferType =", value, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeNotEqualTo(Integer value) {
+        public Criteria andTransfertypeNotEqualTo(Byte value) {
             addCriterion("transferType <>", value, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeGreaterThan(Integer value) {
+        public Criteria andTransfertypeGreaterThan(Byte value) {
             addCriterion("transferType >", value, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeGreaterThanOrEqualTo(Integer value) {
+        public Criteria andTransfertypeGreaterThanOrEqualTo(Byte value) {
             addCriterion("transferType >=", value, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeLessThan(Integer value) {
+        public Criteria andTransfertypeLessThan(Byte value) {
             addCriterion("transferType <", value, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeLessThanOrEqualTo(Integer value) {
+        public Criteria andTransfertypeLessThanOrEqualTo(Byte value) {
             addCriterion("transferType <=", value, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeIn(List<Integer> values) {
+        public Criteria andTransfertypeIn(List<Byte> values) {
             addCriterion("transferType in", values, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeNotIn(List<Integer> values) {
+        public Criteria andTransfertypeNotIn(List<Byte> values) {
             addCriterion("transferType not in", values, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeBetween(Integer value1, Integer value2) {
+        public Criteria andTransfertypeBetween(Byte value1, Byte value2) {
             addCriterion("transferType between", value1, value2, "transfertype");
             return (Criteria) this;
         }
 
-        public Criteria andTransfertypeNotBetween(Integer value1, Integer value2) {
+        public Criteria andTransfertypeNotBetween(Byte value1, Byte value2) {
             addCriterion("transferType not between", value1, value2, "transfertype");
             return (Criteria) this;
         }
@@ -612,6 +612,66 @@ public class TransferExample {
 
         public Criteria andCreatedtimeNotBetween(Date value1, Date value2) {
             addCriterion("createdTime not between", value1, value2, "createdtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNull() {
+            addCriterion("status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNotNull() {
+            addCriterion("status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusEqualTo(Byte value) {
+            addCriterion("status =", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotEqualTo(Byte value) {
+            addCriterion("status <>", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThan(Byte value) {
+            addCriterion("status >", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThanOrEqualTo(Byte value) {
+            addCriterion("status >=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThan(Byte value) {
+            addCriterion("status <", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThanOrEqualTo(Byte value) {
+            addCriterion("status <=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIn(List<Byte> values) {
+            addCriterion("status in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotIn(List<Byte> values) {
+            addCriterion("status not in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusBetween(Byte value1, Byte value2) {
+            addCriterion("status between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotBetween(Byte value1, Byte value2) {
+            addCriterion("status not between", value1, value2, "status");
             return (Criteria) this;
         }
     }

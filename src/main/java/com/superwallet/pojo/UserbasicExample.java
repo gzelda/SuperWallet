@@ -784,52 +784,62 @@ public class UserbasicExample {
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleEqualTo(Object value) {
+        public Criteria andInvitedpeopleEqualTo(String value) {
             addCriterion("invitedPeople =", value, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleNotEqualTo(Object value) {
+        public Criteria andInvitedpeopleNotEqualTo(String value) {
             addCriterion("invitedPeople <>", value, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleGreaterThan(Object value) {
+        public Criteria andInvitedpeopleGreaterThan(String value) {
             addCriterion("invitedPeople >", value, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleGreaterThanOrEqualTo(Object value) {
+        public Criteria andInvitedpeopleGreaterThanOrEqualTo(String value) {
             addCriterion("invitedPeople >=", value, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleLessThan(Object value) {
+        public Criteria andInvitedpeopleLessThan(String value) {
             addCriterion("invitedPeople <", value, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleLessThanOrEqualTo(Object value) {
+        public Criteria andInvitedpeopleLessThanOrEqualTo(String value) {
             addCriterion("invitedPeople <=", value, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleIn(List<Object> values) {
+        public Criteria andInvitedpeopleLike(String value) {
+            addCriterion("invitedPeople like", value, "invitedpeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andInvitedpeopleNotLike(String value) {
+            addCriterion("invitedPeople not like", value, "invitedpeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andInvitedpeopleIn(List<String> values) {
             addCriterion("invitedPeople in", values, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleNotIn(List<Object> values) {
+        public Criteria andInvitedpeopleNotIn(List<String> values) {
             addCriterion("invitedPeople not in", values, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleBetween(Object value1, Object value2) {
+        public Criteria andInvitedpeopleBetween(String value1, String value2) {
             addCriterion("invitedPeople between", value1, value2, "invitedpeople");
             return (Criteria) this;
         }
 
-        public Criteria andInvitedpeopleNotBetween(Object value1, Object value2) {
+        public Criteria andInvitedpeopleNotBetween(String value1, String value2) {
             addCriterion("invitedPeople not between", value1, value2, "invitedpeople");
             return (Criteria) this;
         }

@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class Gamelist implements Serializable {
+public class Gamelist {
     private Long gid;
 
     private String link;

@@ -2,6 +2,7 @@ package com.superwallet.mapper;
 
 import com.superwallet.pojo.Banner;
 import com.superwallet.pojo.BannerExample;
+import com.superwallet.pojo.BannerWithBLOBs;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -13,23 +14,25 @@ public interface BannerMapper {
 
     int deleteByPrimaryKey(Long bid);
 
-    int insert(Banner record);
+    int insert(BannerWithBLOBs record);
 
-    int insertSelective(Banner record);
+    int insertSelective(BannerWithBLOBs record);
 
-    List<Banner> selectByExampleWithBLOBs(BannerExample example);
+    List<BannerWithBLOBs> selectByExampleWithBLOBs(BannerExample example);
 
     List<Banner> selectByExample(BannerExample example);
 
-    Banner selectByPrimaryKey(Long bid);
+    BannerWithBLOBs selectByPrimaryKey(Long bid);
 
-    int updateByExampleSelective(@Param("record") Banner record, @Param("example") BannerExample example);
+    int updateByExampleSelective(@Param("record") BannerWithBLOBs record, @Param("example") BannerExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") Banner record, @Param("example") BannerExample example);
+    int updateByExampleWithBLOBs(@Param("record") BannerWithBLOBs record, @Param("example") BannerExample example);
 
     int updateByExample(@Param("record") Banner record, @Param("example") BannerExample example);
 
-    int updateByPrimaryKeySelective(Banner record);
+    int updateByPrimaryKeySelective(BannerWithBLOBs record);
 
-    int updateByPrimaryKeyWithBLOBs(Banner record);
+    int updateByPrimaryKeyWithBLOBs(BannerWithBLOBs record);
+
+    int updateByPrimaryKey(Banner record);
 }

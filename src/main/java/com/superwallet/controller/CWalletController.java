@@ -58,7 +58,7 @@ public class CWalletController {
     @RequestMapping(value = "/cWallet/transferMoney", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
-    public SuperResult transferMoney(String UID, int tokenType, int tokenAmount) {
+    public SuperResult transferMoney(String UID, int tokenType, double tokenAmount) {
         boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount);
         if (result) {
             return SuperResult.ok();
@@ -77,7 +77,7 @@ public class CWalletController {
     @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
     @ResponseBody
     @Transactional
-    public SuperResult withdraw(String UID, int tokenType, int tokenAmount, HttpServletRequest request) {
+    public SuperResult withdraw(String UID, int tokenType, double tokenAmount, HttpServletRequest request) {
         boolean result = cWalletService.withdraw(UID, tokenType, tokenAmount);
         if (result) return SuperResult.ok();
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);

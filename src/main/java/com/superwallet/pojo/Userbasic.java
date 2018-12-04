@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class Userbasic implements Serializable {
+public class Userbasic {
     private String uid;
 
     private String nickname;
@@ -23,7 +21,7 @@ public class Userbasic implements Serializable {
 
     private String invitedcode;
 
-    private Object invitedpeople;
+    private String invitedpeople;
 
     private byte[] headphoto;
 
@@ -107,12 +105,12 @@ public class Userbasic implements Serializable {
         this.invitedcode = invitedcode == null ? null : invitedcode.trim();
     }
 
-    public Object getInvitedpeople() {
+    public String getInvitedpeople() {
         return invitedpeople;
     }
 
-    public void setInvitedpeople(Object invitedpeople) {
-        this.invitedpeople = invitedpeople;
+    public void setInvitedpeople(String invitedpeople) {
+        this.invitedpeople = invitedpeople == null ? null : invitedpeople.trim();
     }
 
     public byte[] getHeadphoto() {

@@ -2,11 +2,13 @@ package com.superwallet.service.impl;
 
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.LoginResult;
-import com.superwallet.mapper.BgswalletMapper;
-import com.superwallet.mapper.EoswalletMapper;
-import com.superwallet.mapper.EthwalletMapper;
+import com.superwallet.mapper.EostokenMapper;
+import com.superwallet.mapper.EthtokenMapper;
 import com.superwallet.mapper.UserbasicMapper;
-import com.superwallet.pojo.*;
+import com.superwallet.pojo.Eostoken;
+import com.superwallet.pojo.Ethtoken;
+import com.superwallet.pojo.Userbasic;
+import com.superwallet.pojo.UserbasicExample;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.utils.ByteImageConvert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +26,10 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     private UserbasicMapper userbasicMapper;
 
     @Autowired
-    private EthwalletMapper ethwalletMapper;
+    private EostokenMapper eostokenMapper;
 
     @Autowired
-    private BgswalletMapper bgswalletMapper;
-
-    @Autowired
-    private EoswalletMapper eoswalletMapper;
+    private EthtokenMapper ethtokenMapper;
 
     /**
      * 查看手机号是否已经被注册过
@@ -65,7 +64,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         boolean registered = isRegistered(phoneNum);
         if (registered)
             return "registered";
-        //如果邀请码不为空，根据邀请码找到邀请人
+        //如果邀请码不为空并且合法，根据邀请码找到邀请人
         String uid = UUID.randomUUID().toString();
         Userbasic userbasic = new Userbasic();
         //TODO 默认头像设置
@@ -79,20 +78,24 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         userbasic.setStatus(new Byte("0"));
         userbasic.setPhonenumber(phoneNum);
         userbasic.setPassword(passWord);
+        //TODO 设置用户的邀请码
         //设置是被谁邀请的
-        if (invitedCode != null && !invitedCode.equals("")) {
+        if (invitedCode != null && !invitedCode.equals("") && isValidInvitedCode(invitedCode)) {
             UserbasicExample userbasicExample = new UserbasicExample();
             UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
             criteria.andInvitedcodeEqualTo(invitedCode);
             Userbasic inviter = userbasicMapper.selectByExample(userbasicExample).get(0);
-            userbasic.setInviter(inviter.getInvitedcode());
-            userbasic.setPassword(null);
-            userbasic.setPaypassword(null);
-            inviter.setInvitedpeople(userbasic);
+            //用户设置邀请人信息
+            userbasic.setInviter(inviter.getUid());
+            //邀请人更新邀请的人的列表
+            //邀请人的invitedPeople 存String --- uid,uid,uid,
+            String invitedpeople = inviter.getInvitedpeople();
+            if (invitedpeople == null) invitedpeople = "";
+            invitedpeople += uid + ",";
+            inviter.setInvitedpeople(invitedpeople);
             userbasicMapper.updateByExample(inviter, new UserbasicExample());
         }
         userbasicMapper.insert(userbasic);
-        //TODO 邀请人的invitedPeople JSON信息设置
         return uid;
     }
 
@@ -104,6 +107,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      */
     @Override
     public boolean isValidInvitedCode(String invitedCode) {
+        if (invitedCode == null || invitedCode.equals("")) return true;
         UserbasicExample example = new UserbasicExample();
         UserbasicExample.Criteria criteria = example.createCriteria();
         criteria.andInvitedcodeEqualTo(invitedCode);
@@ -272,27 +276,30 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Override
     public void initWallet(String UID) {
         //初始化钱包信息
-        Ethwallet ethwallet = new Ethwallet();
-        Bgswallet bgswallet = new Bgswallet();
-        Eoswallet eoswallet = new Eoswallet();
-        ethwallet.setUid(UID);
-        bgswallet.setUid(UID);
-        eoswallet.setUid(UID);
+        Ethtoken ethtoken = new Ethtoken();
+        Ethtoken bgstoken = new Ethtoken();
+        Eostoken eostoken = new Eostoken();
+        //UID
+        ethtoken.setUid(UID);
+        bgstoken.setUid(UID);
+        eostoken.setUid(UID);
+        //TYPE
+        ethtoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+        bgstoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+        eostoken.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
         //TODO 中心钱包地址
-        ethwallet.setEthaddress("eth" + UID);
-        ethwallet.setAmount(0);
-        ethwallet.setAvailableamount(0);
-        ethwallet.setLockedamount(0);
-        bgswallet.setAmount(0);
-        bgswallet.setAvailableamount(0);
-        bgswallet.setLockedamount(0);
-        eoswallet.setEosaddress("eos" + UID);
-        eoswallet.setAmount(0);
-        eoswallet.setAvailableamount(0);
-        eoswallet.setLockedamount(0);
-        ethwalletMapper.insert(ethwallet);
-        bgswalletMapper.insert(bgswallet);
-        eoswalletMapper.insert(eoswallet);
+        ethtoken.setAmount(0d);
+        ethtoken.setAvailableamount(0d);
+        ethtoken.setLockedamount(0d);
+        bgstoken.setAmount(0d);
+        bgstoken.setAvailableamount(0d);
+        bgstoken.setLockedamount(0d);
+        eostoken.setAmount(0d);
+        eostoken.setAvailableamount(0d);
+        eostoken.setLockedamount(0d);
+        ethtokenMapper.insert(ethtoken);
+        ethtokenMapper.insert(bgstoken);
+        eostokenMapper.insert(eostoken);
         //TODO 初始化私钥
     }
 }
