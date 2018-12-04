@@ -1,0 +1,143 @@
+中心化钱包api
+*************************
+中心化钱包页面请求
+URL /cWallet/listCWalletInfo
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"UID":	String,   		user唯一id   	必选
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"ethInfo":{
+			"address":,
+			"amount":,
+			"HUOBIprice":,
+			"lockedAmount":,
+			"availableAmount":,
+
+		},
+		"eosInfo":{
+			"address":,
+			"amount":,
+			"HUOBIprice":,
+			"lockedAmount":,
+			"availableAmount":,
+		},
+		"bgsInfo":{
+			"address":,
+			"amount":,
+			"HUOBIprice":,
+			"lockedAmount":,
+			"availableAmount":,
+	}
+}
+
+status描述：
+			0			1			  2				3
+fail 	请求失败
+success 请求成功
+error	系统异常
+
+========================================================
+
+链上钱包转出与中心化钱包转入功能
+URL /cWallet/transferMoney
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"UID":	String,   			user唯一id   	必选
+	"tokenType": int,  0/1/2(eth/eos/bgs)   token类型	必选
+	"tokenAmount": int,
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		
+
+	}
+}
+
+status描述：
+			0			1			  2				3
+fail 	余额不足
+success 请求成功
+error	系统异常
+
+============================================================
+中心化钱包提币功能
+URL /cWallet/withdraw
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"UID":	String,   			user唯一id   	必选
+	"tokenType": int,  0/1/2(eth/eos/bgs)   token类型	必选
+	"tokenAmount": String,
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		
+
+	}
+}
+
+status描述：
+			0			1			  2				3
+fail 	余额不足		提币额度太少
+success 请求成功
+error	系统异常
+
+=========================================================
+中心化钱包交易记录查询
+URL /cWallet/listHistoryBills
+
+method:POST
+
+req:
+{
+	参数名		参数类型	参数内容		描述 	类型
+	"UID":	String,   			user唯一id   	必选
+	"tokenType": int,  0/1/2(eth/eos/bgs)   token类型	必选
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		list:{
+			"amount",
+			"type",
+			"status",
+			"sourceAddress":,
+			"destAddress":,
+		}
+
+	}
+}
+
+status描述：
+			0			1			  2				3
+fail 			
+success 请求成功
+error	系统异常
