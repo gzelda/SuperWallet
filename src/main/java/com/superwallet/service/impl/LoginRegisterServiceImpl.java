@@ -65,11 +65,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         boolean registered = isRegistered(phoneNum);
         if (registered)
             return "registered";
-        //根据邀请码找到邀请人
-        UserbasicExample userbasicExample = new UserbasicExample();
-        UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
-        criteria.andInvitedcodeEqualTo(invitedCode);
-        Userbasic inviter = userbasicMapper.selectByExample(userbasicExample).get(0);
+        //如果邀请码不为空，根据邀请码找到邀请人
         String uid = UUID.randomUUID().toString();
         Userbasic userbasic = new Userbasic();
         //TODO 默认头像设置
@@ -84,13 +80,19 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         userbasic.setPhonenumber(phoneNum);
         userbasic.setPassword(passWord);
         //设置是被谁邀请的
-        userbasic.setInviter(inviter.getInvitedcode());
+        if (invitedCode != null && !invitedCode.equals("")) {
+            UserbasicExample userbasicExample = new UserbasicExample();
+            UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
+            criteria.andInvitedcodeEqualTo(invitedCode);
+            Userbasic inviter = userbasicMapper.selectByExample(userbasicExample).get(0);
+            userbasic.setInviter(inviter.getInvitedcode());
+            userbasic.setPassword(null);
+            userbasic.setPaypassword(null);
+            inviter.setInvitedpeople(userbasic);
+            userbasicMapper.updateByExample(inviter, new UserbasicExample());
+        }
         userbasicMapper.insert(userbasic);
         //TODO 邀请人的invitedPeople JSON信息设置
-        userbasic.setPassword(null);
-        userbasic.setPaypassword(null);
-        inviter.setInvitedpeople(userbasic);
-        userbasicMapper.updateByExample(inviter, new UserbasicExample());
         return uid;
     }
 
