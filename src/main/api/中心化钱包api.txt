@@ -88,7 +88,7 @@ req:
 	参数名		参数类型	参数内容		描述 	类型
 	"UID":	String,   			user唯一id   	必选
 	"tokenType": int,  0/1/2(eth/eos/bgs)   token类型	必选
-	"tokenAmount": String,
+	"tokenAmount": double,
 }
 
 resp:

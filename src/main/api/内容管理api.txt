@@ -3,7 +3,7 @@
 *************************
 请求固定位游戏列表
 
-URL /content/listFixGame
+URL /content/listFixGames
 
 method:GET
 
@@ -40,7 +40,7 @@ error	系统错误
 
 请求普通游戏列表
 
-URL /content/listSimpleGame
+URL /content/listSimpleGames
 
 method:GET
 
@@ -76,7 +76,7 @@ status描述：
 
 请求banner固定列表
 
-URL /content/listBanner
+URL /content/listBanners
 
 method:GET
 
@@ -114,7 +114,7 @@ error	系统错误
 
 请求基本信息列表
 
-URL /content/listUser
+URL /user/token/{token}
 
 method:POST
 
