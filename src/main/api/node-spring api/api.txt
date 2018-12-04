@@ -1,0 +1,203 @@
+新建账户 eth
+URL /eth/createAccount
+
+
+method:POST
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String       
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+
+	}
+}
+
+status描述：
+			0				    	1			  2				3
+fail 	创建失败
+success 请求成功
+error	系统错误
+
+====================================================
+新建账户 eos
+URL /eos/createAccount
+
+method:POST
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String       
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+
+	}
+}
+
+status描述：
+			0				    	1			  2				3
+fail 	创建失败
+success 请求成功
+error	系统错误
+
+====================================================
+转账 eth
+URL /eth/createAccount
+
+method:POST
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String 
+	"fromAddress": String
+	"toAddress":  String
+	"amount":     double
+	"type":    int
+
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+
+	}
+}
+
+status描述：
+			0		   1			  2				3
+fail 	创建失败		余额不足
+success 请求成功
+error	系统错误
+===========================================
+转账 eos
+URL /eos/createAccount
+
+method:POST
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String 
+	"fromAccount": String
+	"toAccount":  String
+	"amount":     double
+	"type"
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+
+	}
+}
+
+status描述：
+			0		   1			  2				3
+fail 	创建失败		余额不足
+success 请求成功
+error	系统错误
+
+====================================================
+质押net和cpu eos
+URL /eos/trxNetCpu
+
+method:POST
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String 
+	"cpuAmount": double
+	"netAmount":  double
+	"actionType": int    0:抵押 1:赎回 
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+
+	}
+}
+
+status描述：
+			0		   1			  2				3
+fail 	创建失败		余额不足
+success 请求成功
+error	系统错误
+====================================================
+买卖ram eos
+URL /eos/trxRam
+
+method:POST
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String 
+	"RamAmount": double
+	"actionType": int    0:买 1:卖 
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+
+	}
+}
+
+status描述：
+			0		   1			  2				3
+fail 	创建失败		余额不足
+success 请求成功
+error	系统错误
+
+
+==============================================
+查询账户信息
+URL /eos/getAccount
+
+method:Get
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String 
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"accountData":{
+			eos 区块链json包
+		}
+	}
+}
+
+status描述：
+			0		   1			  2				3
+fail 	查询失败
+success 请求成功
+error	系统错误
