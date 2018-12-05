@@ -1,6 +1,8 @@
 package com.superwallet.pojo;
 
-public class BannerWithBLOBs extends Banner {
+import java.io.Serializable;
+
+public class BannerWithBLOBs extends Banner implements Serializable {
     private byte[] photo;
 
     private String textofad;

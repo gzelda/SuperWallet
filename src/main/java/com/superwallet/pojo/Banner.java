@@ -1,6 +1,8 @@
 package com.superwallet.pojo;
 
-public class Banner {
+import java.io.Serializable;
+
+public class Banner implements Serializable {
     private Long bid;
 
     private Integer type;

@@ -8,7 +8,6 @@ import com.superwallet.service.CWalletService;
 import com.superwallet.service.LoginRegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -57,7 +56,6 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/transferMoney", method = RequestMethod.POST)
     @ResponseBody
-    @Transactional
     public SuperResult transferMoney(String UID, int tokenType, double tokenAmount) {
         boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount);
         if (result) {
@@ -76,7 +74,6 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
     @ResponseBody
-    @Transactional
     public SuperResult withdraw(String UID, int tokenType, double tokenAmount, HttpServletRequest request) {
         boolean result = cWalletService.withdraw(UID, tokenType, tokenAmount);
         if (result) return SuperResult.ok();
@@ -97,6 +94,20 @@ public class CWalletController {
         //获取历史交易
         List<Transfer> list = cWalletService.listHistoryBills(UID, tokenType);
         return SuperResult.ok(list);
+    }
+
+    /**
+     * 用户在中心钱包购买代理人
+     *
+     * @param UID
+     * @return
+     */
+    @RequestMapping(value = "/cWallet/buyAgent", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult buyAgent(String UID) {
+        boolean result = cWalletService.buyAgent(UID);
+        if (!result) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
+        return SuperResult.ok();
     }
 
 

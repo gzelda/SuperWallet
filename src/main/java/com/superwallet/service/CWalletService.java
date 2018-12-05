@@ -13,4 +13,6 @@ public interface CWalletService {
     public boolean withdraw(String UID, Integer tokenType, Double tokenAmount);
 
     public List<Transfer> listHistoryBills(String UID, Integer tokenType);
+
+    public boolean buyAgent(String UID);
 }

@@ -112,7 +112,8 @@ public class LoginController {
             return result;
         }
         //注册成功后初始化钱包信息
-        loginRegisterService.initWallet(uid);
+        boolean res = loginRegisterService.initWallet(uid);
+        if (!res) return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
         HashMap<String, String> map = new HashMap();
         map.put("UID", uid);
         //TODO 需要生成私钥，以及补充中心钱包信息（等人脸识别完）

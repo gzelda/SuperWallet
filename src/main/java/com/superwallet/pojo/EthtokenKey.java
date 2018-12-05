@@ -1,6 +1,8 @@
 package com.superwallet.pojo;
 
-public class EthtokenKey {
+import java.io.Serializable;
+
+public class EthtokenKey implements Serializable {
     private String uid;
 
     private Integer type;

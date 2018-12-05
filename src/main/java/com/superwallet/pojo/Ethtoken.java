@@ -1,6 +1,8 @@
 package com.superwallet.pojo;
 
-public class Ethtoken extends EthtokenKey {
+import java.io.Serializable;
+
+public class Ethtoken extends EthtokenKey implements Serializable {
     private String ethaddress;
 
     private Double lockedamount;

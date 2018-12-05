@@ -1,7 +1,9 @@
 package com.superwallet.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.LoginResult;
+import com.superwallet.common.SuperResult;
 import com.superwallet.mapper.EostokenMapper;
 import com.superwallet.mapper.EthtokenMapper;
 import com.superwallet.mapper.UserbasicMapper;
@@ -11,12 +13,15 @@ import com.superwallet.pojo.Userbasic;
 import com.superwallet.pojo.UserbasicExample;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.utils.ByteImageConvert;
+import com.superwallet.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -73,9 +78,9 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         userbasic.setHeadphoto(headPhoto);
         userbasic.setUid(uid);
         userbasic.setSex(new Byte("0"));
-        userbasic.setIsagency(new Byte("0"));
+        userbasic.setIsagency(CodeRepresentation.NOTAGENCY);
         userbasic.setNickname(phoneNum);
-        userbasic.setStatus(new Byte("0"));
+        userbasic.setStatus(CodeRepresentation.USER_STATUS_NOIDVALIDATION);
         userbasic.setPhonenumber(phoneNum);
         userbasic.setPassword(passWord);
         //TODO 设置用户的邀请码
@@ -274,7 +279,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      * @param UID
      */
     @Override
-    public void initWallet(String UID) {
+    public boolean initWallet(String UID) {
         //初始化钱包信息
         Ethtoken ethtoken = new Ethtoken();
         Ethtoken bgstoken = new Ethtoken();
@@ -287,7 +292,6 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         ethtoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
         bgstoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
         eostoken.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
-        //TODO 中心钱包地址
         ethtoken.setAmount(0d);
         ethtoken.setAvailableamount(0d);
         ethtoken.setLockedamount(0d);
@@ -297,9 +301,20 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         eostoken.setAmount(0d);
         eostoken.setAvailableamount(0d);
         eostoken.setLockedamount(0d);
+        //TODO 中心钱包地址
+        //TODO 初始化私钥
+        Map<String, Object> eth_params = new HashMap<String, Object>();
+        Map<String, Object> eos_params = new HashMap<String, Object>();
+        eth_params.put("UID", UID);
+        eos_params.put("UID", UID);
+        String eth_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEETH, eth_params);
+        String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEEOS, eth_params);
+        SuperResult response_eth = JSON.parseObject(eth_resp, SuperResult.class);
+        SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
+        if (response_eth.getCode() == 0 || response_eos.getCode() == 0) return false;
         ethtokenMapper.insert(ethtoken);
         ethtokenMapper.insert(bgstoken);
         eostokenMapper.insert(eostoken);
-        //TODO 初始化私钥
+        return true;
     }
 }
