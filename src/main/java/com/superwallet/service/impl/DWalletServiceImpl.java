@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,10 +66,11 @@ public class DWalletServiceImpl implements DWalletService {
         EostokenKey eostokenKey = new EostokenKey();
         ethtokenKey.setUid(UID);
         eostokenKey.setUid(UID);
-        String addressFrom = "default";
+        String addressFrom = CodeRepresentation.DEFAULT_ADDRESS;
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("UID", UID);
         params.put(RequestParams.TOADDRESS, addressTo);
+        params.put(RequestParams.AMOUNT, tokenAmount);
         String resp;
         SuperResult result;
         switch (tokenType) {
@@ -78,18 +81,13 @@ public class DWalletServiceImpl implements DWalletService {
                 //TODO 链上HTTP
                 String fromAddress_eth = ethtoken.getEthaddress();
                 addressFrom = fromAddress_eth;
-                //TODO 链上HTTP
                 params.put(RequestParams.FROMADDRESS, addressFrom);
+                //TODO TYPE类型有点区别
                 params.put(RequestParams.TYPE, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETHTRANSFER, params);
                 result = JSON.parseObject(resp, SuperResult.class);
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
-                Double amount_eth = ethtoken.getAmount();
-                //余额转入
-                amount_eth += tokenAmount;
-                ethtoken.setAmount(amount_eth);
-                ethtokenMapper.updateByExample(ethtoken, new EthtokenExample());
                 break;
             //转入eos钱包
             case 1:
@@ -104,10 +102,6 @@ public class DWalletServiceImpl implements DWalletService {
                 result = JSON.parseObject(resp, SuperResult.class);
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
-                Double amount_eos = eostoken.getAmount();
-                amount_eos += tokenAmount;
-                eostoken.setAmount(amount_eos);
-                eostokenMapper.updateByExample(eostoken, new EostokenExample());
                 break;
             //转入bgs钱包
             case 2:
@@ -122,10 +116,6 @@ public class DWalletServiceImpl implements DWalletService {
                 result = JSON.parseObject(resp, SuperResult.class);
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
-                Double amount_bgs = bgstoken.getAmount();
-                amount_bgs += tokenAmount;
-                bgstoken.setAmount(amount_bgs);
-                ethtokenMapper.updateByExample(bgstoken, new EthtokenExample());
                 break;
         }
         //转账记录
@@ -137,6 +127,7 @@ public class DWalletServiceImpl implements DWalletService {
         transfer.setSource(addressFrom);
         transfer.setDestination(addressTo);
         transfer.setCreatedtime(new Date());
+        transfer.setAmount(tokenAmount);
         transferMapper.insert(transfer);
         return true;
     }
@@ -157,14 +148,16 @@ public class DWalletServiceImpl implements DWalletService {
         EostokenKey eostokenKey = new EostokenKey();
         ethtokenKey.setUid(UID);
         eostokenKey.setUid(UID);
-        String addressFrom = "default";
+        String addressFrom = CodeRepresentation.DEFAULT_ADDRESS, addressTo = CodeRepresentation.DEFAULT_ADDRESS;
         HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("UID", UID);
+        params.put(RequestParams.AMOUNT, tokenAmount);
+        params.put(RequestParams.UID, UID);
         String resp;
         SuperResult result;
         switch (tokenType) {
             //转入eth钱包
             case 0:
+                addressTo = CodeRepresentation.SUPER_ETH;
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
                 //TODO 链上HTTP
@@ -180,6 +173,7 @@ public class DWalletServiceImpl implements DWalletService {
                 break;
             //转入eos钱包
             case 1:
+                addressTo = CodeRepresentation.SUPER_EOS;
                 eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
                 String fromAddress_eos = eostoken.getEosaccountname();
@@ -195,6 +189,7 @@ public class DWalletServiceImpl implements DWalletService {
                 break;
             //转入bgs钱包
             case 2:
+                addressTo = CodeRepresentation.SUPER_BGS;
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
                 String fromAddress_bgs = bgstoken.getEthaddress();
@@ -224,8 +219,9 @@ public class DWalletServiceImpl implements DWalletService {
         transfer.setTokentype(new Byte(tokenType + ""));
         transfer.setStatus(CodeRepresentation.TRANSFER_SUCCESS);
         transfer.setSource(addressFrom);
-        transfer.setDestination("");
+        transfer.setDestination(addressTo);
         transfer.setCreatedtime(new Date());
+        transfer.setAmount(tokenAmount);
         transferMapper.insert(transfer);
         return true;
     }
@@ -240,10 +236,17 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     public List<Lockwarehouse> listOrders(String UID, String timeStampLeft, String timeStampRight) {
-        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
-        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
-        criteria.andUidEqualTo(UID);
-        List<Lockwarehouse> list = lockwarehouseMapper.selectByExample(lockwarehouseExample);
-        return list;
+        try {
+            LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
+            LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
+            criteria.andUidEqualTo(UID);
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            criteria.andCreatedtimeBetween(format.parse(timeStampLeft), format.parse(timeStampRight));
+            List<Lockwarehouse> list = lockwarehouseMapper.selectByExample(lockwarehouseExample);
+            return list;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

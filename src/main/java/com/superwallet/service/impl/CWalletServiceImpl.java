@@ -61,7 +61,7 @@ public class CWalletServiceImpl implements CWalletService {
         ethtokenKey.setUid(UID);
         ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
         Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-        double HUOBIprice = 0.0;
+        double HUOBIprice = 1.0;
         double price_eth = Double.parseDouble(eth_price.substring(1));
         double price_eos = Double.parseDouble(eos_price.substring(1));
         WalletInfo ethInfo = new WalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), ethtoken.getAmount(),
@@ -94,9 +94,10 @@ public class CWalletServiceImpl implements CWalletService {
         EostokenKey eostokenKey = new EostokenKey();
         ethtokenKey.setUid(UID);
         eostokenKey.setUid(UID);
-        String addressFrom = "default";
+        String addressFrom = CodeRepresentation.DEFAULT_ADDRESS;
         HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("UID", UID);
+        params.put(RequestParams.UID, UID);
+        params.put(RequestParams.AMOUNT, tokenAmount);
         String resp;
         SuperResult result;
         switch (tokenType) {
@@ -119,10 +120,13 @@ public class CWalletServiceImpl implements CWalletService {
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 Double amount_eth = ethtoken.getAmount();
+                Double avaAmount_eth = ethtoken.getAvailableamount();
                 //余额转入
                 amount_eth += tokenAmount;
+                avaAmount_eth += tokenAmount;
                 ethtoken.setAmount(amount_eth);
-                ethtokenMapper.updateByExample(ethtoken, new EthtokenExample());
+                ethtoken.setAvailableamount(avaAmount_eth);
+                ethtokenMapper.updateByPrimaryKey(ethtoken);
                 break;
             //转入eos钱包
             case 1:
@@ -144,9 +148,12 @@ public class CWalletServiceImpl implements CWalletService {
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 Double amount_eos = eostoken.getAmount();
+                Double avaAmount_eos = eostoken.getAvailableamount();
                 amount_eos += tokenAmount;
+                avaAmount_eos += tokenAmount;
                 eostoken.setAmount(amount_eos);
-                eostokenMapper.updateByExample(eostoken, new EostokenExample());
+                eostoken.setAvailableamount(avaAmount_eos);
+                eostokenMapper.updateByPrimaryKey(eostoken);
                 break;
             //转入bgs钱包
             case 2:
@@ -168,9 +175,12 @@ public class CWalletServiceImpl implements CWalletService {
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 Double amount_bgs = bgstoken.getAmount();
+                Double avaAmount_bgs = bgstoken.getAvailableamount();
                 amount_bgs += tokenAmount;
+                avaAmount_bgs += tokenAmount;
                 bgstoken.setAmount(amount_bgs);
-                ethtokenMapper.updateByExample(bgstoken, new EthtokenExample());
+                bgstoken.setAvailableamount(avaAmount_bgs);
+                ethtokenMapper.updateByPrimaryKey(bgstoken);
                 break;
         }
         //转账记录
@@ -182,6 +192,7 @@ public class CWalletServiceImpl implements CWalletService {
         transfer.setSource(addressFrom);
         transfer.setDestination(addressFrom);
         transfer.setCreatedtime(new Date());
+        transfer.setAmount(tokenAmount);
         transferMapper.insert(transfer);
         return true;
     }
@@ -214,7 +225,7 @@ public class CWalletServiceImpl implements CWalletService {
                 if (amount_eth < tokenAmount) return false;
                 amount_eth -= tokenAmount;
                 ethtoken.setAmount(amount_eth);
-                ethtokenMapper.updateByExample(ethtoken, new EthtokenExample());
+                ethtokenMapper.updateByPrimaryKey(ethtoken);
                 break;
             //EOS
             case 1:
@@ -225,7 +236,7 @@ public class CWalletServiceImpl implements CWalletService {
                 if (amount_eos < tokenAmount) return false;
                 amount_eos -= tokenAmount;
                 eostoken.setAmount(amount_eos);
-                eostokenMapper.updateByExample(eostoken, new EostokenExample());
+                eostokenMapper.updateByPrimaryKey(eostoken);
                 break;
             //BGS
             case 2:
@@ -236,7 +247,7 @@ public class CWalletServiceImpl implements CWalletService {
                 if (amount_bgs < tokenAmount) return false;
                 amount_bgs -= tokenAmount;
                 bgstoken.setAmount(amount_bgs);
-                ethtokenMapper.updateByExample(bgstoken, new EthtokenExample());
+                ethtokenMapper.updateByPrimaryKey(bgstoken);
                 break;
         }
         //TODO 需要业务人员判断是否同意该用户提币
@@ -283,8 +294,8 @@ public class CWalletServiceImpl implements CWalletService {
         bgstoken.setAvailableamount(bgstoken.getAvailableamount() - CodeRepresentation.AGENT_PRICE);
         //设置用户为代理人
         user.setIsagency(CodeRepresentation.ISAGENCY);
-        userbasicMapper.updateByExample(user, new UserbasicExample());
-        ethtokenMapper.updateByExample(bgstoken, new EthtokenExample());
+        userbasicMapper.updateByPrimaryKey(user);
+        ethtokenMapper.updateByPrimaryKey(bgstoken);
         //转账记录
         Transfer transfer = new Transfer();
         transfer.setUid(UID);
@@ -295,6 +306,7 @@ public class CWalletServiceImpl implements CWalletService {
         //TODO super账户地址
         transfer.setDestination(CodeRepresentation.SUPER_BGS);
         transfer.setCreatedtime(new Date());
+        transfer.setAmount(CodeRepresentation.AGENT_PRICE);
         transferMapper.insert(transfer);
         return true;
     }

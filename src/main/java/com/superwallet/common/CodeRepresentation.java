@@ -38,6 +38,10 @@ public class CodeRepresentation {
     //代理人价格 --BGS
     public static final double AGENT_PRICE = 10000;
 
+    //默认地址
+    public static final String DEFAULT_ADDRESS = "default";
+
+
     //超级账户
     public static final String SUPER_UID = "10000";
 
@@ -60,13 +64,13 @@ public class CodeRepresentation {
     public static final Byte NOTAGENCY = new Byte("0");
 
     //超级账户的Address
-    public static final String SUPER_ETH = "";
-    public static final String SUPER_BGS = "";
-    public static final String SUPER_EOS = "";
+    public static final String SUPER_ETH = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
+    public static final String SUPER_BGS = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
+    public static final String SUPER_EOS = "eostesttest1";
 
     //链上HTTP请求地址
-    public static final String NODE_URL_ETH = "http://localhost:4000";
-    public static final String NODE_URL_EOS = "http://localhost:3000";
+    public static final String NODE_URL_ETH = "http://192.168.43.135:4000";
+    public static final String NODE_URL_EOS = "http://10.180.55.125:3000";
     public static final String NODE_ACTION_CREATEETH = "/eth/createAccount";
     public static final String NODE_ACTION_CREATEEOS = "/eos/createAccount";
     public static final String NODE_ACTION_ETHTRANSFER = "/eth/transfer";
@@ -75,9 +79,6 @@ public class CodeRepresentation {
     public static final String NODE_ACTION_EOS_RAM = "/eos/trxRam";
     public static final String NODE_ACTION_EOS_ACCOUNTINFO = "/eos/getAccount";
     public static final String NODE_ACTION_ETH_ACCOUNTINFO = "/eth/getBalance";
-
-
-
 
     //爬取数字货币价格的网站
     public static final String URL_PRICE = "https://coinmarketcap.com/zh/";

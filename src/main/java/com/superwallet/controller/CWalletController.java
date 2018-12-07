@@ -85,12 +85,11 @@ public class CWalletController {
      *
      * @param UID
      * @param tokenType
-     * @param request
      * @return
      */
     @RequestMapping(value = "/cWallet/listHistoryBills", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult listHistoryBills(String UID, int tokenType, HttpServletRequest request) {
+    public SuperResult listHistoryBills(String UID, int tokenType) {
         //获取历史交易
         List<Transfer> list = cWalletService.listHistoryBills(UID, tokenType);
         return SuperResult.ok(list);

@@ -98,7 +98,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
             if (invitedpeople == null) invitedpeople = "";
             invitedpeople += uid + ",";
             inviter.setInvitedpeople(invitedpeople);
-            userbasicMapper.updateByExample(inviter, new UserbasicExample());
+            userbasicMapper.updateByPrimaryKey(inviter);
         }
         userbasicMapper.insert(userbasic);
         return uid;
@@ -219,7 +219,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         Userbasic user = list.get(0);
         //更新密码
         user.setPassword(newPassWord);
-        userbasicMapper.updateByExample(user, userbasicExample);
+        userbasicMapper.updateByPrimaryKey(user);
         user.setPaypassword(null);
         user.setPassword(null);
         //更新成功后，返回user
@@ -238,7 +238,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         Userbasic userbasic = userbasicMapper.selectByPrimaryKey(UID);
         //设置支付密码
         userbasic.setPaypassword(payCode);
-        userbasicMapper.updateByExample(userbasic, new UserbasicExample());
+        userbasicMapper.updateByPrimaryKey(userbasic);
     }
 
     /**
@@ -305,13 +305,15 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //TODO 初始化私钥
         Map<String, Object> eth_params = new HashMap<String, Object>();
         Map<String, Object> eos_params = new HashMap<String, Object>();
-        eth_params.put("UID", UID);
+        //传UID
+        eth_params.put("UID", "testUID");
         eos_params.put("UID", UID);
         String eth_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEETH, eth_params);
         String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEEOS, eth_params);
         SuperResult response_eth = JSON.parseObject(eth_resp, SuperResult.class);
         SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
-        if (response_eth.getCode() == 0 || response_eos.getCode() == 0) return false;
+        if (response_eth.getCode() == CodeRepresentation.CODE_FAIL || response_eos.getCode() == CodeRepresentation.CODE_FAIL)
+            return false;
         ethtokenMapper.insert(ethtoken);
         ethtokenMapper.insert(bgstoken);
         eostokenMapper.insert(eostoken);
