@@ -1,4 +1,7 @@
 /*wallet项目数据库表设计*/
+drop database if exists superWallet;
+create database superWallet;
+use superWallet;
 
 -- 用户基本资料表--
 drop table if exists userBasic;
@@ -23,7 +26,7 @@ drop table if exists userStatus;
 create table userStatus(
     UID char(100) not null,
     lastOpTime timestamp,
-    lastOpDevice varchar(70);
+    lastOpDevice varchar(70),
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

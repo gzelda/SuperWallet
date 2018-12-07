@@ -54,7 +54,7 @@ error	系统错误
 
 ====================================================
 转账 eth
-URL /eth/createAccount
+URL /eth/tranfer
 
 method:POST
 
@@ -85,7 +85,7 @@ success 请求成功
 error	系统错误
 ===========================================
 转账 eos
-URL /eos/createAccount
+URL /eos/transfer
 
 method:POST
 
@@ -174,7 +174,7 @@ error	系统错误
 
 
 ==============================================
-查询账户信息
+查询eos账户信息
 URL /eos/getAccount
 
 method:Get
@@ -193,6 +193,35 @@ resp:
 		"accountData":{
 			eos 区块链json包
 		}
+	}
+}
+
+status描述：
+			0		   1			  2				3
+fail 	查询失败
+success 请求成功
+error	系统错误
+
+==============================================
+查询eth账户余额信息
+URL /eth/getBalance
+
+method:Get
+
+req:
+参数名		参数类型	参数内容		描述 		类型
+{
+	"UID"   String ,
+	"type": 0 全要 1 eth 2 bgs
+}
+
+resp:
+{
+	"code":,		  0:fail 1:success 2:error
+	"status":,		  code的状态描述（表格）
+	"data":{
+		"ethBalance": double,
+		"bgsBalance": double
 	}
 }
 
