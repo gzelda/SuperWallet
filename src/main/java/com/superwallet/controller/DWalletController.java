@@ -1,8 +1,8 @@
 package com.superwallet.controller;
 
+import com.superwallet.common.BasicWalletInfo;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.SuperResult;
-import com.superwallet.common.WalletInfo;
 import com.superwallet.pojo.Lockwarehouse;
 import com.superwallet.service.DWalletService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class DWalletController {
     @RequestMapping(value = "/dWallet/listWalletInfo", method = RequestMethod.POST)
     @ResponseBody
     public SuperResult listWalletInfo(String UID) {
-        List<WalletInfo> walletInfos = dWalletService.listWalletInfo(UID);
+        List<BasicWalletInfo> walletInfos = dWalletService.listWalletInfo(UID);
         return SuperResult.ok(walletInfos);
     }
 

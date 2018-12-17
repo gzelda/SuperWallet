@@ -1,8 +1,8 @@
 package com.superwallet.controller;
 
+import com.superwallet.common.CWalletInfo;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.SuperResult;
-import com.superwallet.common.WalletInfo;
 import com.superwallet.pojo.Transfer;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.LoginRegisterService;
@@ -35,11 +35,11 @@ public class CWalletController {
     @RequestMapping(value = "/cWallet/listCWalletInfo", method = RequestMethod.POST)
     @ResponseBody
     public SuperResult listCWalletInfo(String UID, HttpServletRequest request) {
-        List<WalletInfo> walletInfos = cWalletService.listCWalletInfo(UID);
+        List<CWalletInfo> walletInfos = cWalletService.listCWalletInfo(UID);
         //如果钱包返回总量信息不对，将返回系统异常
         if (walletInfos.size() != CodeRepresentation.COUNT_WALLETS)
             return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
-        HashMap<String, WalletInfo> map = new HashMap<String, WalletInfo>();
+        HashMap<String, CWalletInfo> map = new HashMap<String, CWalletInfo>();
         map.put(CodeRepresentation.ETHINFO, walletInfos.get(0));
         map.put(CodeRepresentation.BGSINFO, walletInfos.get(1));
         map.put(CodeRepresentation.EOSINFO, walletInfos.get(2));
@@ -47,7 +47,7 @@ public class CWalletController {
     }
 
     /**
-     * 链上钱包转出，中心钱包转入
+     * 中心钱包转入
      *
      * @param UID
      * @param tokenType
@@ -65,6 +65,22 @@ public class CWalletController {
     }
 
     /**
+     * 中心钱包提现请求
+     *
+     * @param UID
+     * @param tokenType
+     * @param tokenAmount
+     * @return
+     */
+    @RequestMapping(value = "/cWallet/withdrawRequest", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult withdrawRequest(String UID, int tokenType, double tokenAmount, HttpServletRequest request) {
+        boolean result = cWalletService.withdrawRequest(UID, tokenType, tokenAmount);
+        if (result) return SuperResult.ok();
+        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
+    }
+
+    /**
      * 中心钱包提现
      *
      * @param UID
@@ -74,8 +90,8 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult withdraw(String UID, int tokenType, double tokenAmount, HttpServletRequest request) {
-        boolean result = cWalletService.withdraw(UID, tokenType, tokenAmount);
+    public SuperResult withdraw(String UID, String WID, int tokenType, double tokenAmount, HttpServletRequest request) {
+        boolean result = cWalletService.withdraw(UID, WID, tokenType, tokenAmount);
         if (result) return SuperResult.ok();
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
     }

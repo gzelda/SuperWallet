@@ -24,4 +24,6 @@ public interface LoginRegisterService {
     public boolean isTimeOut(String UID, HttpServletRequest request);
 
     public boolean initWallet(String UID);
+
+    public boolean isValidOldPassword(String UID, String oldPassWord);
 }

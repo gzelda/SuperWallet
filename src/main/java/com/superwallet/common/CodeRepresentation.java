@@ -58,6 +58,11 @@ public class CodeRepresentation {
     public static final Byte LOCK_ON = 0;
     public static final Byte LOCK_OFF = 1;
 
+    //提现申请表的状态
+    public static final Byte WITHDRAW_WAIT = 0;
+    public static final Byte WITHDRAW_SUCCESS = 1;
+    public static final Byte WITHDRAW_FAIL = 2;
+
 
     //isAgency字段 0-非代理 1-代理
     public static final Byte ISAGENCY = new Byte("1");
@@ -66,11 +71,11 @@ public class CodeRepresentation {
     //超级账户的Address
     public static final String SUPER_ETH = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
     public static final String SUPER_BGS = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
-    public static final String SUPER_EOS = "eostesttest1";
+    public static final String SUPER_EOS = "tygavingavin";
 
     //链上HTTP请求地址
-    public static final String NODE_URL_ETH = "http://192.168.43.135:4000";
-    public static final String NODE_URL_EOS = "http://10.180.55.125:3000";
+    public static final String NODE_URL_ETH = "http://localhost:4000";
+    public static final String NODE_URL_EOS = "http://localhost:3000";
     public static final String NODE_ACTION_CREATEETH = "/eth/createAccount";
     public static final String NODE_ACTION_CREATEEOS = "/eos/createAccount";
     public static final String NODE_ACTION_ETHTRANSFER = "/eth/transfer";

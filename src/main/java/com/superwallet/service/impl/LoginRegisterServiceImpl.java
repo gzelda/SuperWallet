@@ -301,22 +301,37 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         eostoken.setAmount(0d);
         eostoken.setAvailableamount(0d);
         eostoken.setLockedamount(0d);
+        ethtokenMapper.insert(ethtoken);
+        ethtokenMapper.insert(bgstoken);
+        eostokenMapper.insert(eostoken);
         //TODO 中心钱包地址
         //TODO 初始化私钥
         Map<String, Object> eth_params = new HashMap<String, Object>();
         Map<String, Object> eos_params = new HashMap<String, Object>();
         //传UID
-        eth_params.put("UID", "testUID");
+        eth_params.put("UID", UID);
         eos_params.put("UID", UID);
         String eth_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEETH, eth_params);
-        String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEEOS, eth_params);
+        String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_CREATEEOS, eos_params);
         SuperResult response_eth = JSON.parseObject(eth_resp, SuperResult.class);
         SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
-        if (response_eth.getCode() == CodeRepresentation.CODE_FAIL || response_eos.getCode() == CodeRepresentation.CODE_FAIL)
+        if (response_eth.getCode() == CodeRepresentation.CODE_FAIL || response_eos.getCode() == CodeRepresentation.CODE_FAIL) {
             return false;
-        ethtokenMapper.insert(ethtoken);
-        ethtokenMapper.insert(bgstoken);
-        eostokenMapper.insert(eostoken);
+        }
+        return true;
+    }
+
+    /**
+     * 判断密码是否正确
+     *
+     * @param UID
+     * @param oldPassWord
+     * @return
+     */
+    @Override
+    public boolean isValidOldPassword(String UID, String oldPassWord) {
+        Userbasic userbasic = userbasicMapper.selectByPrimaryKey(UID);
+        if (!userbasic.getPassword().equals(oldPassWord)) return false;
         return true;
     }
 }

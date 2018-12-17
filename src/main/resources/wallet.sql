@@ -74,6 +74,7 @@ create table ETHPriKeyWarehouse(
     priKey varchar(70),
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 --EOS私钥库--
 create table EOSPriKeyWarehouse(
     UID char(100) not null,
@@ -146,4 +147,16 @@ create table notification(
     protocol varchar(20),
     notice text,
     primary key(nid)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--提现表--
+drop table if exists withdrawMoney;
+create table withdrawMoney(
+    UID char(100) not null,
+    WID char(100) not null,
+    tokenType tinyint not null,
+    amount double not null,
+    createdTime timestamp not null,
+    status tinyint not null,
+    primary key(UID,WID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

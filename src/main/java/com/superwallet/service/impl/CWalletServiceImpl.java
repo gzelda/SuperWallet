@@ -1,16 +1,14 @@
 package com.superwallet.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.superwallet.common.CWalletInfo;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.RequestParams;
 import com.superwallet.common.SuperResult;
-import com.superwallet.common.WalletInfo;
-import com.superwallet.mapper.EostokenMapper;
-import com.superwallet.mapper.EthtokenMapper;
-import com.superwallet.mapper.TransferMapper;
-import com.superwallet.mapper.UserbasicMapper;
+import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
 import com.superwallet.service.CWalletService;
+import com.superwallet.service.CommonService;
 import com.superwallet.utils.HttpUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * 中心化钱包Service
@@ -41,6 +36,12 @@ public class CWalletServiceImpl implements CWalletService {
     @Autowired
     private UserbasicMapper userbasicMapper;
 
+    @Autowired
+    private CommonService commonService;
+
+    @Autowired
+    private WithdrawmoneyMapper withdrawmoneyMapper;
+
     /**
      * 获取用户的所有中心化钱包信息
      *
@@ -48,8 +49,8 @@ public class CWalletServiceImpl implements CWalletService {
      * @return
      */
     @Override
-    public List<WalletInfo> listCWalletInfo(String UID) {
-        List<WalletInfo> list = new ArrayList<WalletInfo>();
+    public List<CWalletInfo> listCWalletInfo(String UID) {
+        List<CWalletInfo> list = new ArrayList<CWalletInfo>();
         //TODO 数字货币价格--目前爬虫实现
         String origin = HttpUtil.get(CodeRepresentation.URL_PRICE);
         Document document = Jsoup.parse(origin);
@@ -64,17 +65,17 @@ public class CWalletServiceImpl implements CWalletService {
         double HUOBIprice = 1.0;
         double price_eth = Double.parseDouble(eth_price.substring(1));
         double price_eos = Double.parseDouble(eos_price.substring(1));
-        WalletInfo ethInfo = new WalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), ethtoken.getAmount(),
+        CWalletInfo ethInfo = new CWalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), ethtoken.getAmount(),
                 price_eth, ethtoken.getLockedamount(), ethtoken.getAvailableamount());
         ethtoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
         Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtoken);
-        WalletInfo bgsInfo = new WalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), bgstoken.getAmount(),
+        CWalletInfo bgsInfo = new CWalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), bgstoken.getAmount(),
                 HUOBIprice, bgstoken.getLockedamount(), bgstoken.getAvailableamount());
         EostokenKey eostokenKey = new EostokenKey();
         eostokenKey.setUid(UID);
         eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
         Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
-        WalletInfo eosInfo = new WalletInfo(eostoken.getEosaccountname() == null ? "" : eostoken.getEosaccountname(), eostoken.getAmount(),
+        CWalletInfo eosInfo = new CWalletInfo(eostoken.getEosaccountname() == null ? "" : eostoken.getEosaccountname(), eostoken.getAmount(),
                 price_eos, eostoken.getLockedamount(), eostoken.getAvailableamount());
         list.add(ethInfo);
         list.add(bgsInfo);
@@ -83,37 +84,42 @@ public class CWalletServiceImpl implements CWalletService {
     }
 
     /**
-     * 链上钱包转出与中心钱包转入
+     * 中心钱包转入
      *
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount) {
+        //主键类
         EthtokenKey ethtokenKey = new EthtokenKey();
         EostokenKey eostokenKey = new EostokenKey();
         ethtokenKey.setUid(UID);
         eostokenKey.setUid(UID);
-        String addressFrom = CodeRepresentation.DEFAULT_ADDRESS;
+        String addressFrom = CodeRepresentation.DEFAULT_ADDRESS, addressTo;
+        //请求nodejs的参数
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(RequestParams.UID, UID);
         params.put(RequestParams.AMOUNT, tokenAmount);
+        //nodejs返回结果--JSON String
         String resp;
         SuperResult result;
+        //转账类型
+        Byte transferType = CodeRepresentation.CHAIN_ON2OFF;
+        //转账币种
+        Byte token = new Byte(tokenType + "");
         switch (tokenType) {
             //转入eth钱包
             case 0:
-                //拿到ETH超级账户
-                EthtokenKey superWallet_eth = new EthtokenKey();
-                superWallet_eth.setUid(UID);
-                superWallet_eth.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                //找到中心化钱包
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
                 String fromAddress_eth = ethtoken.getEthaddress();
-                addressFrom = fromAddress_eth;
-                //TODO 链上HTTP
+                addressFrom = CodeRepresentation.SUPER_ETH;
+                addressTo = fromAddress_eth;
+                //链上HTTP请求
                 params.put(RequestParams.FROMADDRESS, addressFrom);
-                params.put(RequestParams.TOADDRESS, CodeRepresentation.SUPER_ETH);
+                params.put(RequestParams.TOADDRESS, addressTo);
                 params.put(RequestParams.TYPE, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETHTRANSFER, params);
                 result = JSON.parseObject(resp, SuperResult.class);
@@ -121,27 +127,27 @@ public class CWalletServiceImpl implements CWalletService {
                 if (result.getCode() == 0) return false;
                 Double amount_eth = ethtoken.getAmount();
                 Double avaAmount_eth = ethtoken.getAvailableamount();
-                //余额转入
+                //TODO 事务管理
+                //余额转入,钱包更新
                 amount_eth += tokenAmount;
                 avaAmount_eth += tokenAmount;
                 ethtoken.setAmount(amount_eth);
                 ethtoken.setAvailableamount(avaAmount_eth);
                 ethtokenMapper.updateByPrimaryKey(ethtoken);
+                //生成转账记录
+                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
             //转入eos钱包
             case 1:
-                //拿到EOS超级账户
-                EostokenKey superWallet_eos = new EostokenKey();
-                superWallet_eos.setUid(UID);
-                superWallet_eos.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
-                Eostoken super_eos = eostokenMapper.selectByPrimaryKey(superWallet_eos);
+                //找到中心化eos钱包
                 eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
                 String fromAddress_eos = eostoken.getEosaccountname();
-                addressFrom = fromAddress_eos;
+                addressFrom = CodeRepresentation.SUPER_EOS;
+                addressTo = fromAddress_eos;
                 //链上请求
                 params.put(RequestParams.FROMADDRESS, addressFrom);
-                params.put(RequestParams.TOADDRESS, CodeRepresentation.SUPER_EOS);
+                params.put(RequestParams.TOADDRESS, addressTo);
                 params.put(RequestParams.TYPE, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOSTRANSFER, params);
                 result = JSON.parseObject(resp, SuperResult.class);
@@ -149,26 +155,26 @@ public class CWalletServiceImpl implements CWalletService {
                 if (result.getCode() == 0) return false;
                 Double amount_eos = eostoken.getAmount();
                 Double avaAmount_eos = eostoken.getAvailableamount();
+                //余额转入,钱包更新
                 amount_eos += tokenAmount;
                 avaAmount_eos += tokenAmount;
                 eostoken.setAmount(amount_eos);
                 eostoken.setAvailableamount(avaAmount_eos);
                 eostokenMapper.updateByPrimaryKey(eostoken);
+                //生成转账记录
+                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
             //转入bgs钱包
             case 2:
-                //拿到BGS超级账户
-                EthtokenKey superWallet_bgs = new EthtokenKey();
-                superWallet_bgs.setUid(UID);
-                superWallet_bgs.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
-                Ethtoken super_bgs = ethtokenMapper.selectByPrimaryKey(superWallet_bgs);
+                //找到中心化BGS钱包
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
                 String fromAddress_bgs = bgstoken.getEthaddress();
-                addressFrom = fromAddress_bgs;
+                addressFrom = CodeRepresentation.SUPER_BGS;
+                addressTo = fromAddress_bgs;
                 //链上请求
                 params.put(RequestParams.FROMADDRESS, addressFrom);
-                params.put(RequestParams.TOADDRESS, CodeRepresentation.SUPER_ETH);
+                params.put(RequestParams.TOADDRESS, addressTo);
                 params.put(RequestParams.TYPE, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETHTRANSFER, params);
                 result = JSON.parseObject(resp, SuperResult.class);
@@ -176,29 +182,93 @@ public class CWalletServiceImpl implements CWalletService {
                 if (result.getCode() == 0) return false;
                 Double amount_bgs = bgstoken.getAmount();
                 Double avaAmount_bgs = bgstoken.getAvailableamount();
+                //余额转入,钱包更新
                 amount_bgs += tokenAmount;
                 avaAmount_bgs += tokenAmount;
                 bgstoken.setAmount(amount_bgs);
                 bgstoken.setAvailableamount(avaAmount_bgs);
                 ethtokenMapper.updateByPrimaryKey(bgstoken);
+                //生成转账记录
+                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
         }
-        //转账记录
-        Transfer transfer = new Transfer();
-        transfer.setUid(UID);
-        transfer.setTransfertype(CodeRepresentation.CHAIN_OFF2ON);
-        transfer.setTokentype(new Byte(tokenType + ""));
-        transfer.setStatus(CodeRepresentation.TRANSFER_SUCCESS);
-        transfer.setSource(addressFrom);
-        transfer.setDestination(addressFrom);
-        transfer.setCreatedtime(new Date());
-        transfer.setAmount(tokenAmount);
-        transferMapper.insert(transfer);
         return true;
     }
 
     /**
-     * 中心钱包提币到链上钱包
+     * 提现申请
+     *
+     * @param UID
+     * @param tokenType
+     * @param tokenAmount
+     * @return
+     */
+    @Override
+    public boolean withdrawRequest(String UID, Integer tokenType, Double tokenAmount) {
+        //拿到中心钱包信息
+        EthtokenKey ethtokenKey = new EthtokenKey();
+        EostokenKey eostokenKey = new EostokenKey();
+        ethtokenKey.setUid(UID);
+        eostokenKey.setUid(UID);
+        Double avaAmount, amount;
+        switch (tokenType) {
+            //ETH
+            case 0:
+                ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                //获得可用余额
+                avaAmount = ethtoken.getAvailableamount();
+                amount = ethtoken.getAmount();
+                //余额不足
+                if (avaAmount < tokenAmount) return false;
+                //余额更新
+                avaAmount -= tokenAmount;
+                amount -= tokenAmount;
+                ethtoken.setAvailableamount(avaAmount);
+                ethtoken.setAmount(amount);
+                ethtokenMapper.updateByPrimaryKey(ethtoken);
+                commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
+                break;
+            //EOS
+            case 1:
+                eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+                //获得可用余额
+                avaAmount = eostoken.getAvailableamount();
+                amount = eostoken.getAmount();
+                //余额不足
+                if (avaAmount < tokenAmount) return false;
+                //余额更新
+                avaAmount -= tokenAmount;
+                amount -= tokenAmount;
+                eostoken.setAvailableamount(avaAmount);
+                eostoken.setAmount(amount);
+                eostokenMapper.updateByPrimaryKey(eostoken);
+                commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
+                break;
+            //BGS
+            case 2:
+                ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                //获得可用余额
+                avaAmount = bgstoken.getAvailableamount();
+                amount = bgstoken.getAmount();
+                //余额不足
+                if (avaAmount < tokenAmount) return false;
+                //余额更新
+                avaAmount -= tokenAmount;
+                amount -= tokenAmount;
+                bgstoken.setAvailableamount(avaAmount);
+                bgstoken.setAmount(amount);
+                ethtokenMapper.updateByPrimaryKey(bgstoken);
+                commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
+                break;
+        }
+        return true;
+    }
+
+    /**
+     * 中心钱包提币到链上钱包--转账操作
      *
      * @param UID
      * @param tokenType
@@ -207,53 +277,89 @@ public class CWalletServiceImpl implements CWalletService {
      */
     @Override
     @Transactional
-    public boolean withdraw(String UID, Integer tokenType, Double tokenAmount) {
-        //TODO 提现地址问题
-        //TODO 提现记录
-        //TODO 提现表
+    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount) {
         EthtokenKey ethtokenKey = new EthtokenKey();
         EostokenKey eostokenKey = new EostokenKey();
         ethtokenKey.setUid(UID);
         eostokenKey.setUid(UID);
+        String addressFrom, addressTo;
+        //请求nodejs的参数
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        params.put(RequestParams.AMOUNT, tokenAmount);
+        //nodejs返回结果--JSON String
+        String resp;
+        SuperResult result;
+        //转账类型
+        Byte transferType = CodeRepresentation.CHAIN_OFF2ON;
+        //转账币种
+        Byte token = new Byte(tokenType + "");
+        Double avaAmount, amount;
+        //拿到申请表里的转账记录
+        WithdrawmoneyKey key = new WithdrawmoneyKey(UID, WID);
+        Withdrawmoney record = withdrawmoneyMapper.selectByPrimaryKey(key);
         switch (tokenType) {
             //ETH
             case 0:
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-                Double amount_eth = ethtoken.getAmount();
-                //余额不足
-                if (amount_eth < tokenAmount) return false;
-                amount_eth -= tokenAmount;
-                ethtoken.setAmount(amount_eth);
-                ethtokenMapper.updateByPrimaryKey(ethtoken);
+                //从中心转到链上
+                addressFrom = CodeRepresentation.SUPER_ETH;
+                addressTo = ethtoken.getEthaddress();
+                params.put(RequestParams.FROMADDRESS, addressFrom);
+                params.put(RequestParams.TOADDRESS, addressTo);
+                params.put(RequestParams.TYPE, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETHTRANSFER, params);
+                result = JSON.parseObject(resp, SuperResult.class);
+                //链上转账请求失败
+                if (result.getCode() == 0) return false;
+                //申请表记录更新--涉及到钱是否返还问题
+                record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
+                withdrawmoneyMapper.updateByPrimaryKey(record);
+                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
             //EOS
             case 1:
                 eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
-                Double amount_eos = eostoken.getAmount();
-                //余额不足
-                if (amount_eos < tokenAmount) return false;
-                amount_eos -= tokenAmount;
-                eostoken.setAmount(amount_eos);
-                eostokenMapper.updateByPrimaryKey(eostoken);
+                //从中心转到链上
+                addressFrom = CodeRepresentation.SUPER_EOS;
+                addressTo = eostoken.getEosaccountname();
+                params.put(RequestParams.FROMADDRESS, addressFrom);
+                params.put(RequestParams.TOADDRESS, addressTo);
+                params.put(RequestParams.TYPE, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOSTRANSFER, params);
+                result = JSON.parseObject(resp, SuperResult.class);
+                //链上转账请求失败
+                if (result.getCode() == 0) return false;
+                //申请表记录更新--涉及到钱是否返还问题
+                record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
+                withdrawmoneyMapper.updateByPrimaryKey(record);
+                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
             //BGS
             case 2:
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-                Double amount_bgs = bgstoken.getAmount();
-                //余额不足
-                if (amount_bgs < tokenAmount) return false;
-                amount_bgs -= tokenAmount;
-                bgstoken.setAmount(amount_bgs);
-                ethtokenMapper.updateByPrimaryKey(bgstoken);
+                //从中心转到链上
+                addressFrom = CodeRepresentation.SUPER_BGS;
+                addressTo = bgstoken.getEthaddress();
+                params.put(RequestParams.FROMADDRESS, addressFrom);
+                params.put(RequestParams.TOADDRESS, addressTo);
+                params.put(RequestParams.TYPE, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETHTRANSFER, params);
+                result = JSON.parseObject(resp, SuperResult.class);
+                //链上转账请求失败
+                if (result.getCode() == 0) return false;
+                //申请表记录更新--涉及到钱是否返还问题
+                record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
+                withdrawmoneyMapper.updateByPrimaryKey(record);
+                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
         }
-        //TODO 需要业务人员判断是否同意该用户提币
-        //TODO 转到链上钱包地址
         return true;
     }
+
 
     /**
      * 查看历史转账信息--只要是在平台操作的记录都有

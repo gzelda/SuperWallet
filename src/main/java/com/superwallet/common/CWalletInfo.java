@@ -2,18 +2,18 @@ package com.superwallet.common;
 
 import java.io.Serializable;
 
-public class WalletInfo implements Serializable {
+public class CWalletInfo implements Serializable {
     private String address;
     private double amount;
     private double HUOBIprice;
     private double lockedAmount;
     private double availableAmount;
 
-    public WalletInfo() {
+    public CWalletInfo() {
     }
 
 
-    public WalletInfo(String address, double amount, double HUOBIprice, double lockedAmount, double availableAmount) {
+    public CWalletInfo(String address, double amount, double HUOBIprice, double lockedAmount, double availableAmount) {
         this.address = address;
         this.amount = amount;
         this.HUOBIprice = HUOBIprice;

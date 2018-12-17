@@ -207,6 +207,8 @@ public class LoginController {
             session.setMaxInactiveInterval(CodeRepresentation.SESSION_EXPIRE);
             //写cookie
             CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, user.getUid());
+            String cookieValue = CookieUtils.getCookieValue(request, CodeRepresentation.TOKEN_KEY);
+            System.out.println(cookieValue);
             map.put(CodeRepresentation.UID, user.getUid());
             return new SuperResult(loginResult.getCode(), loginResult.getStatus(), map);
         }
@@ -278,6 +280,45 @@ public class LoginController {
         boolean res = loginRegisterService.payCodeValidation(UID, payCode);
         if (!res) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
         return SuperResult.ok();
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param UID
+     * @param phoneNum
+     * @param oldPassWord
+     * @param newPassWord
+     * @return
+     */
+    @RequestMapping(value = "/login/changePassword", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult changePassword(String UID, String phoneNum, String phoneIDCode, String oldPassWord, String newPassWord, HttpServletRequest request) {
+        SuperResult result;
+        //判断验证码是否正确
+        HttpSession session = request.getSession();
+        String phoneCode = (String) session.getAttribute(phoneNum);
+        //验证码错误
+        if (phoneCode == null || phoneCode.equals("") || !phoneCode.equals(phoneIDCode)) {
+            result = new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, null);
+            return result;
+        }
+        //旧密码错误
+        oldPassWord = SHA1.encode(oldPassWord);
+        boolean validOldPassword = loginRegisterService.isValidOldPassword(UID, oldPassWord);
+        if (!validOldPassword) {
+            result = new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, null);
+            return result;
+        }
+        //对新密码进行加密
+        newPassWord = SHA1.encode(newPassWord);
+        LoginResult loginResult = loginRegisterService.findPassword(phoneNum, newPassWord);
+        //当修改成功时候
+        if (loginResult.getCode() == 1) {
+            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), null);
+        }
+        //其他任何失败情况
+        return new SuperResult(loginResult.getCode(), loginResult.getStatus(), null);
     }
 
 }
