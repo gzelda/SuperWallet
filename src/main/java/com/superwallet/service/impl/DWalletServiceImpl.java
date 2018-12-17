@@ -341,4 +341,101 @@ public class DWalletServiceImpl implements DWalletService {
         }
         return null;
     }
+
+    /**
+     * 质押和赎回EOS的CPU和网络资源
+     *
+     * @param UID
+     * @param cpuAmount
+     * @param netAmount
+     * @param actionType
+     */
+    @Override
+    public boolean buyOrSellEOSCPUNET(String UID, Double cpuAmount, Double netAmount, Integer actionType) {
+        String resp;
+        SuperResult result;
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        params.put(RequestParams.CPUAMOUNT, cpuAmount);
+        params.put(RequestParams.NETAMOUNT, netAmount);
+        params.put(RequestParams.ACTIONTYPE, actionType);
+        resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_NETCPU, params);
+        result = JSON.parseObject(resp, SuperResult.class);
+        //链上转账请求失败
+        if (result.getCode() == 0) return false;
+        return true;
+    }
+
+    /**
+     * 质押或赎回RAM资源
+     *
+     * @param UID
+     * @param ramAmount
+     * @param actionType
+     * @return
+     */
+    @Override
+    public boolean buyOrSellRAM(String UID, Double ramAmount, Integer actionType) {
+        String resp;
+        SuperResult result;
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        params.put(RequestParams.RAMAMOUNT, ramAmount);
+        params.put(RequestParams.ACTIONTYPE, actionType);
+        resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_RAM, params);
+        result = JSON.parseObject(resp, SuperResult.class);
+        //链上转账请求失败
+        if (result.getCode() == 0) return false;
+        return true;
+    }
+
+    /**
+     * 展示用户EOS的基本信息
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public EOSWalletInfo listEOSBasic(String UID) {
+        EOSWalletInfo eosWalletInfo;
+        String resp;
+        SuperResult result;
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_ACCOUNTINFO, params);
+        SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
+        JSONObject eos_json = JSON.parseObject(response_eos.getData().toString());
+        //-----开始设置EOS链上钱包信息-----
+        //拿到EOS账户信息
+        EostokenKey eostokenKey = new EostokenKey();
+        eostokenKey.setUid(UID);
+        eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+        Eostoken eos = eostokenMapper.selectByPrimaryKey(eostokenKey);
+        String eos_account = eos.getEosaccountname();
+        double eos_avaAmount = Double.parseDouble(eos_json.getString("core_liquid_balance").split(" ")[0]);
+        double eos_lockedAmount = eos.getLockedamount();
+        double eos_amount = eos_avaAmount + eos_lockedAmount;
+        double eos_price = 1.0;
+        JSONObject mortgageEOS_json = JSON.parseObject(eos_json.getString("self_delegated_bandwidth"));
+        double mortgageEOS_cpu = Double.parseDouble(mortgageEOS_json.getString("cpu_weight").split(" ")[0]);
+        double mortgageEOS_net = Double.parseDouble(mortgageEOS_json.getString("net_weight").split(" ")[0]);
+        JSONObject cpu_json = JSON.parseObject(eos_json.getString("cpu_limit"));
+        JSONObject net_json = JSON.parseObject(eos_json.getString("net_limit"));
+        double total_cpu = cpu_json.getDouble("max");
+        double used_cpu = cpu_json.getDouble("used");
+        double remain_cpu = cpu_json.getDouble("available");
+        double total_net = net_json.getDouble("max");
+        double used_net = net_json.getDouble("used");
+        double remain_net = net_json.getDouble("available");
+        double total_ram = eos_json.getDouble("ram_quota");
+        double used_ram = eos_json.getDouble("ram_usage");
+        //TODO 全网RAM总量
+        double EOSRAM;
+        double EOSRAM_USED;
+        eosWalletInfo = new EOSWalletInfo(eos_amount, eos_lockedAmount, eos_avaAmount,
+                eos_price, eos_account, mortgageEOS_cpu, mortgageEOS_net, total_cpu,
+                total_net, total_ram, used_cpu, used_net, used_ram, remain_cpu, remain_net);
+        //-----设置EOS链上钱包信息结束-----
+        return eosWalletInfo;
+    }
 }
