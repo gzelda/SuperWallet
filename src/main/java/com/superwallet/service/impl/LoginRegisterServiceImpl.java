@@ -304,8 +304,6 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         ethtokenMapper.insert(ethtoken);
         ethtokenMapper.insert(bgstoken);
         eostokenMapper.insert(eostoken);
-        //TODO 中心钱包地址
-        //TODO 初始化私钥
         Map<String, Object> eth_params = new HashMap<String, Object>();
         Map<String, Object> eos_params = new HashMap<String, Object>();
         //传UID

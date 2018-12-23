@@ -1,9 +1,9 @@
 package com.superwallet.mapper;
 
-import com.superwallet.pojo.Transfer;
-import com.superwallet.pojo.TransferExample;
-import com.superwallet.pojo.TransferKey;
 import org.apache.ibatis.annotations.Param;
+import pojo.Transfer;
+import pojo.TransferExample;
+import pojo.TransferKey;
 
 import java.util.List;
 

@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.EthtokenMapper">
-    <resultMap id="BaseResultMap" type="pojo.Ethtoken">
+<mapper namespace="mapper.UserstatusMapper">
+    <resultMap id="BaseResultMap" type="pojo.Userstatus">
         <id column="UID" property="uid" jdbcType="CHAR"/>
-        <id column="type" property="type" jdbcType="INTEGER"/>
-        <result column="ETHAddress" property="ethaddress" jdbcType="VARCHAR"/>
-        <result column="lockedAmount" property="lockedamount" jdbcType="DOUBLE"/>
-        <result column="availableAmount" property="availableamount" jdbcType="DOUBLE"/>
-        <result column="amount" property="amount" jdbcType="DOUBLE"/>
-        <result column="canLock" property="canlock" jdbcType="TINYINT"/>
+        <result column="lastOpTime" property="lastoptime" jdbcType="TIMESTAMP"/>
+        <result column="lastOpDevice" property="lastopdevice" jdbcType="VARCHAR"/>
+        <result column="invitedTime" property="invitedtime" jdbcType="TIMESTAMP"/>
+        <result column="state" property="state" jdbcType="TINYINT"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -71,15 +69,15 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    UID, type, ETHAddress, lockedAmount, availableAmount, amount, canLock
+    UID, lastOpTime, lastOpDevice, invitedTime, state
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.EthtokenExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.UserstatusExample">
         select
         <if test="distinct">
             distinct
         </if>
         <include refid="Base_Column_List"/>
-        from ethtoken
+        from userstatus
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
@@ -87,110 +85,88 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pojo.EthtokenKey">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String">
         select
         <include refid="Base_Column_List"/>
-        from ethtoken
+        from userstatus
         where UID = #{uid,jdbcType=CHAR}
-        and type = #{type,jdbcType=INTEGER}
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="pojo.EthtokenKey">
-    delete from ethtoken
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from userstatus
     where UID = #{uid,jdbcType=CHAR}
-      and type = #{type,jdbcType=INTEGER}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.EthtokenExample">
-        delete from ethtoken
+    <delete id="deleteByExample" parameterType="pojo.UserstatusExample">
+        delete from userstatus
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Ethtoken">
-    insert into ethtoken (UID, type, ETHAddress, 
-      lockedAmount, availableAmount, amount, 
-      canLock)
-    values (#{uid,jdbcType=CHAR}, #{type,jdbcType=INTEGER}, #{ethaddress,jdbcType=VARCHAR}, 
-      #{lockedamount,jdbcType=DOUBLE}, #{availableamount,jdbcType=DOUBLE}, #{amount,jdbcType=DOUBLE}, 
-      #{canlock,jdbcType=TINYINT})
+    <insert id="insert" parameterType="pojo.Userstatus">
+    insert into userstatus (UID, lastOpTime, lastOpDevice, 
+      invitedTime, state)
+    values (#{uid,jdbcType=CHAR}, #{lastoptime,jdbcType=TIMESTAMP}, #{lastopdevice,jdbcType=VARCHAR}, 
+      #{invitedtime,jdbcType=TIMESTAMP}, #{state,jdbcType=TINYINT})
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Ethtoken">
-        insert into ethtoken
+    <insert id="insertSelective" parameterType="pojo.Userstatus">
+        insert into userstatus
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null">
                 UID,
             </if>
-            <if test="type != null">
-                type,
+            <if test="lastoptime != null">
+                lastOpTime,
             </if>
-            <if test="ethaddress != null">
-                ETHAddress,
+            <if test="lastopdevice != null">
+                lastOpDevice,
             </if>
-            <if test="lockedamount != null">
-                lockedAmount,
+            <if test="invitedtime != null">
+                invitedTime,
             </if>
-            <if test="availableamount != null">
-                availableAmount,
-            </if>
-            <if test="amount != null">
-                amount,
-            </if>
-            <if test="canlock != null">
-                canLock,
+            <if test="state != null">
+                state,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="uid != null">
                 #{uid,jdbcType=CHAR},
             </if>
-            <if test="type != null">
-                #{type,jdbcType=INTEGER},
+            <if test="lastoptime != null">
+                #{lastoptime,jdbcType=TIMESTAMP},
             </if>
-            <if test="ethaddress != null">
-                #{ethaddress,jdbcType=VARCHAR},
+            <if test="lastopdevice != null">
+                #{lastopdevice,jdbcType=VARCHAR},
             </if>
-            <if test="lockedamount != null">
-                #{lockedamount,jdbcType=DOUBLE},
+            <if test="invitedtime != null">
+                #{invitedtime,jdbcType=TIMESTAMP},
             </if>
-            <if test="availableamount != null">
-                #{availableamount,jdbcType=DOUBLE},
-            </if>
-            <if test="amount != null">
-                #{amount,jdbcType=DOUBLE},
-            </if>
-            <if test="canlock != null">
-                #{canlock,jdbcType=TINYINT},
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="pojo.EthtokenExample" resultType="java.lang.Integer">
-        select count(*) from ethtoken
+    <select id="countByExample" parameterType="pojo.UserstatusExample" resultType="java.lang.Integer">
+        select count(*) from userstatus
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </select>
     <update id="updateByExampleSelective" parameterType="map">
-        update ethtoken
+        update userstatus
         <set>
             <if test="record.uid != null">
                 UID = #{record.uid,jdbcType=CHAR},
             </if>
-            <if test="record.type != null">
-                type = #{record.type,jdbcType=INTEGER},
+            <if test="record.lastoptime != null">
+                lastOpTime = #{record.lastoptime,jdbcType=TIMESTAMP},
             </if>
-            <if test="record.ethaddress != null">
-                ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
+            <if test="record.lastopdevice != null">
+                lastOpDevice = #{record.lastopdevice,jdbcType=VARCHAR},
             </if>
-            <if test="record.lockedamount != null">
-                lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
+            <if test="record.invitedtime != null">
+                invitedTime = #{record.invitedtime,jdbcType=TIMESTAMP},
             </if>
-            <if test="record.availableamount != null">
-                availableAmount = #{record.availableamount,jdbcType=DOUBLE},
-            </if>
-            <if test="record.amount != null">
-                amount = #{record.amount,jdbcType=DOUBLE},
-            </if>
-            <if test="record.canlock != null">
-                canLock = #{record.canlock,jdbcType=TINYINT},
+            <if test="record.state != null">
+                state = #{record.state,jdbcType=TINYINT},
             </if>
         </set>
         <if test="_parameter != null">
@@ -198,48 +174,40 @@
         </if>
     </update>
     <update id="updateByExample" parameterType="map">
-        update ethtoken
+        update userstatus
         set UID = #{record.uid,jdbcType=CHAR},
-        type = #{record.type,jdbcType=INTEGER},
-        ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
-        lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
-        availableAmount = #{record.availableamount,jdbcType=DOUBLE},
-        amount = #{record.amount,jdbcType=DOUBLE},
-        canLock = #{record.canlock,jdbcType=TINYINT}
+        lastOpTime = #{record.lastoptime,jdbcType=TIMESTAMP},
+        lastOpDevice = #{record.lastopdevice,jdbcType=VARCHAR},
+        invitedTime = #{record.invitedtime,jdbcType=TIMESTAMP},
+        state = #{record.state,jdbcType=TINYINT}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Ethtoken">
-        update ethtoken
+    <update id="updateByPrimaryKeySelective" parameterType="pojo.Userstatus">
+        update userstatus
         <set>
-            <if test="ethaddress != null">
-                ETHAddress = #{ethaddress,jdbcType=VARCHAR},
+            <if test="lastoptime != null">
+                lastOpTime = #{lastoptime,jdbcType=TIMESTAMP},
             </if>
-            <if test="lockedamount != null">
-                lockedAmount = #{lockedamount,jdbcType=DOUBLE},
+            <if test="lastopdevice != null">
+                lastOpDevice = #{lastopdevice,jdbcType=VARCHAR},
             </if>
-            <if test="availableamount != null">
-                availableAmount = #{availableamount,jdbcType=DOUBLE},
+            <if test="invitedtime != null">
+                invitedTime = #{invitedtime,jdbcType=TIMESTAMP},
             </if>
-            <if test="amount != null">
-                amount = #{amount,jdbcType=DOUBLE},
-            </if>
-            <if test="canlock != null">
-                canLock = #{canlock,jdbcType=TINYINT},
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
             </if>
         </set>
         where UID = #{uid,jdbcType=CHAR}
-        and type = #{type,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Ethtoken">
-    update ethtoken
-    set ETHAddress = #{ethaddress,jdbcType=VARCHAR},
-      lockedAmount = #{lockedamount,jdbcType=DOUBLE},
-      availableAmount = #{availableamount,jdbcType=DOUBLE},
-      amount = #{amount,jdbcType=DOUBLE},
-      canLock = #{canlock,jdbcType=TINYINT}
+    <update id="updateByPrimaryKey" parameterType="pojo.Userstatus">
+    update userstatus
+    set lastOpTime = #{lastoptime,jdbcType=TIMESTAMP},
+      lastOpDevice = #{lastopdevice,jdbcType=VARCHAR},
+      invitedTime = #{invitedtime,jdbcType=TIMESTAMP},
+      state = #{state,jdbcType=TINYINT}
     where UID = #{uid,jdbcType=CHAR}
-      and type = #{type,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class TransferKey implements Serializable {
+public class TransferKey {
     private Long transferid;
 
     private String uid;

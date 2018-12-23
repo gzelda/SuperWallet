@@ -11,6 +11,12 @@ public class Withdrawmoney extends WithdrawmoneyKey {
 
     private Byte status;
 
+    private String auditor;
+
+    private Date audittime;
+
+    private String remark;
+
     public Byte getTokentype() {
         return tokentype;
     }
@@ -41,5 +47,29 @@ public class Withdrawmoney extends WithdrawmoneyKey {
 
     public void setStatus(Byte status) {
         this.status = status;
+    }
+
+    public String getAuditor() {
+        return auditor;
+    }
+
+    public void setAuditor(String auditor) {
+        this.auditor = auditor == null ? null : auditor.trim();
+    }
+
+    public Date getAudittime() {
+        return audittime;
+    }
+
+    public void setAudittime(Date audittime) {
+        this.audittime = audittime;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
     }
 }

@@ -415,6 +415,126 @@ public class LockwarehouseExample {
             return (Criteria) this;
         }
 
+        public Criteria andTokentypeIsNull() {
+            addCriterion("tokenType is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeIsNotNull() {
+            addCriterion("tokenType is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeEqualTo(Byte value) {
+            addCriterion("tokenType =", value, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeNotEqualTo(Byte value) {
+            addCriterion("tokenType <>", value, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeGreaterThan(Byte value) {
+            addCriterion("tokenType >", value, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeGreaterThanOrEqualTo(Byte value) {
+            addCriterion("tokenType >=", value, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeLessThan(Byte value) {
+            addCriterion("tokenType <", value, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeLessThanOrEqualTo(Byte value) {
+            addCriterion("tokenType <=", value, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeIn(List<Byte> values) {
+            addCriterion("tokenType in", values, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeNotIn(List<Byte> values) {
+            addCriterion("tokenType not in", values, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeBetween(Byte value1, Byte value2) {
+            addCriterion("tokenType between", value1, value2, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andTokentypeNotBetween(Byte value1, Byte value2) {
+            addCriterion("tokenType not between", value1, value2, "tokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsIsNull() {
+            addCriterion("dailyReturns is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsIsNotNull() {
+            addCriterion("dailyReturns is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsEqualTo(Double value) {
+            addCriterion("dailyReturns =", value, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsNotEqualTo(Double value) {
+            addCriterion("dailyReturns <>", value, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsGreaterThan(Double value) {
+            addCriterion("dailyReturns >", value, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsGreaterThanOrEqualTo(Double value) {
+            addCriterion("dailyReturns >=", value, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsLessThan(Double value) {
+            addCriterion("dailyReturns <", value, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsLessThanOrEqualTo(Double value) {
+            addCriterion("dailyReturns <=", value, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsIn(List<Double> values) {
+            addCriterion("dailyReturns in", values, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsNotIn(List<Double> values) {
+            addCriterion("dailyReturns not in", values, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsBetween(Double value1, Double value2) {
+            addCriterion("dailyReturns between", value1, value2, "dailyreturns");
+            return (Criteria) this;
+        }
+
+        public Criteria andDailyreturnsNotBetween(Double value1, Double value2) {
+            addCriterion("dailyReturns not between", value1, value2, "dailyreturns");
+            return (Criteria) this;
+        }
+
         public Criteria andStatusIsNull() {
             addCriterion("status is null");
             return (Criteria) this;

@@ -1,14 +1,17 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class Lockwarehouse extends LockwarehouseKey implements Serializable {
+public class Lockwarehouse extends LockwarehouseKey {
     private Double amount;
 
     private Integer period;
 
     private Date createdtime;
+
+    private Byte tokentype;
+
+    private Double dailyreturns;
 
     private Byte status;
 
@@ -34,6 +37,22 @@ public class Lockwarehouse extends LockwarehouseKey implements Serializable {
 
     public void setCreatedtime(Date createdtime) {
         this.createdtime = createdtime;
+    }
+
+    public Byte getTokentype() {
+        return tokentype;
+    }
+
+    public void setTokentype(Byte tokentype) {
+        this.tokentype = tokentype;
+    }
+
+    public Double getDailyreturns() {
+        return dailyreturns;
+    }
+
+    public void setDailyreturns(Double dailyreturns) {
+        this.dailyreturns = dailyreturns;
     }
 
     public Byte getStatus() {

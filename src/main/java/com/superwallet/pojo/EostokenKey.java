@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class EostokenKey implements Serializable {
+public class EostokenKey {
     private String uid;
 
     private Integer type;

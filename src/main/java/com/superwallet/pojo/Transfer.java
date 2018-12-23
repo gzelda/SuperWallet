@@ -1,9 +1,8 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class Transfer extends TransferKey implements Serializable {
+public class Transfer extends TransferKey {
     private String source;
 
     private String destination;

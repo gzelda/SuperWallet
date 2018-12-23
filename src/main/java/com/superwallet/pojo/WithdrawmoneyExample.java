@@ -484,6 +484,206 @@ public class WithdrawmoneyExample {
             addCriterion("status not between", value1, value2, "status");
             return (Criteria) this;
         }
+
+        public Criteria andAuditorIsNull() {
+            addCriterion("auditor is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorIsNotNull() {
+            addCriterion("auditor is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorEqualTo(String value) {
+            addCriterion("auditor =", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorNotEqualTo(String value) {
+            addCriterion("auditor <>", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorGreaterThan(String value) {
+            addCriterion("auditor >", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorGreaterThanOrEqualTo(String value) {
+            addCriterion("auditor >=", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorLessThan(String value) {
+            addCriterion("auditor <", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorLessThanOrEqualTo(String value) {
+            addCriterion("auditor <=", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorLike(String value) {
+            addCriterion("auditor like", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorNotLike(String value) {
+            addCriterion("auditor not like", value, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorIn(List<String> values) {
+            addCriterion("auditor in", values, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorNotIn(List<String> values) {
+            addCriterion("auditor not in", values, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorBetween(String value1, String value2) {
+            addCriterion("auditor between", value1, value2, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditorNotBetween(String value1, String value2) {
+            addCriterion("auditor not between", value1, value2, "auditor");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeIsNull() {
+            addCriterion("auditTime is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeIsNotNull() {
+            addCriterion("auditTime is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeEqualTo(Date value) {
+            addCriterion("auditTime =", value, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeNotEqualTo(Date value) {
+            addCriterion("auditTime <>", value, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeGreaterThan(Date value) {
+            addCriterion("auditTime >", value, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("auditTime >=", value, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeLessThan(Date value) {
+            addCriterion("auditTime <", value, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeLessThanOrEqualTo(Date value) {
+            addCriterion("auditTime <=", value, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeIn(List<Date> values) {
+            addCriterion("auditTime in", values, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeNotIn(List<Date> values) {
+            addCriterion("auditTime not in", values, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeBetween(Date value1, Date value2) {
+            addCriterion("auditTime between", value1, value2, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAudittimeNotBetween(Date value1, Date value2) {
+            addCriterion("auditTime not between", value1, value2, "audittime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNull() {
+            addCriterion("remark is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNotNull() {
+            addCriterion("remark is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkEqualTo(String value) {
+            addCriterion("remark =", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotEqualTo(String value) {
+            addCriterion("remark <>", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThan(String value) {
+            addCriterion("remark >", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThanOrEqualTo(String value) {
+            addCriterion("remark >=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThan(String value) {
+            addCriterion("remark <", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThanOrEqualTo(String value) {
+            addCriterion("remark <=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLike(String value) {
+            addCriterion("remark like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotLike(String value) {
+            addCriterion("remark not like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIn(List<String> values) {
+            addCriterion("remark in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotIn(List<String> values) {
+            addCriterion("remark not in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkBetween(String value1, String value2) {
+            addCriterion("remark between", value1, value2, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotBetween(String value1, String value2) {
+            addCriterion("remark not between", value1, value2, "remark");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

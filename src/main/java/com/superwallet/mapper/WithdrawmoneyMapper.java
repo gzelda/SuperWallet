@@ -1,9 +1,9 @@
 package com.superwallet.mapper;
 
-import com.superwallet.pojo.Withdrawmoney;
-import com.superwallet.pojo.WithdrawmoneyExample;
-import com.superwallet.pojo.WithdrawmoneyKey;
 import org.apache.ibatis.annotations.Param;
+import pojo.Withdrawmoney;
+import pojo.WithdrawmoneyExample;
+import pojo.WithdrawmoneyKey;
 
 import java.util.List;
 

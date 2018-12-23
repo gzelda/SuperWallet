@@ -1,9 +1,9 @@
 package com.superwallet.mapper;
 
-import com.superwallet.pojo.Userprivate;
-import com.superwallet.pojo.UserprivateExample;
-import com.superwallet.pojo.UserprivateWithBLOBs;
 import org.apache.ibatis.annotations.Param;
+import pojo.Userprivate;
+import pojo.UserprivateExample;
+import pojo.UserprivateWithBLOBs;
 
 import java.util.List;
 

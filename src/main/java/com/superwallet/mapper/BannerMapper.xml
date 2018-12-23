@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.superwallet.mapper.BannerMapper">
-    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Banner">
+<mapper namespace="mapper.BannerMapper">
+    <resultMap id="BaseResultMap" type="pojo.Banner">
         <id column="bid" property="bid" jdbcType="BIGINT"/>
+        <result column="adName" property="adname" jdbcType="VARCHAR"/>
         <result column="type" property="type" jdbcType="INTEGER"/>
     </resultMap>
-    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.BannerWithBLOBs" extends="BaseResultMap">
+    <resultMap id="ResultMapWithBLOBs" type="pojo.BannerWithBLOBs" extends="BaseResultMap">
         <result column="photo" property="photo" jdbcType="LONGVARBINARY"/>
         <result column="textOfAd" property="textofad" jdbcType="LONGVARCHAR"/>
         <result column="linkOfAd" property="linkofad" jdbcType="LONGVARCHAR"/>
@@ -71,13 +72,12 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    bid, type
+    bid, adName, type
   </sql>
     <sql id="Blob_Column_List">
     photo, textOfAd, linkOfAd
   </sql>
-    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
-            parameterType="com.superwallet.pojo.BannerExample">
+    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="pojo.BannerExample">
         select
         <if test="distinct">
             distinct
@@ -93,7 +93,7 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.BannerExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.BannerExample">
         select
         <if test="distinct">
             distinct
@@ -119,23 +119,28 @@
     delete from banner
     where bid = #{bid,jdbcType=BIGINT}
   </delete>
-    <delete id="deleteByExample" parameterType="com.superwallet.pojo.BannerExample">
+    <delete id="deleteByExample" parameterType="pojo.BannerExample">
         delete from banner
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="com.superwallet.pojo.BannerWithBLOBs">
-    insert into banner (bid, type, photo, 
-      textOfAd, linkOfAd)
-    values (#{bid,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, #{photo,jdbcType=LONGVARBINARY}, 
-      #{textofad,jdbcType=LONGVARCHAR}, #{linkofad,jdbcType=LONGVARCHAR})
+    <insert id="insert" parameterType="pojo.BannerWithBLOBs">
+    insert into banner (bid, adName, type, 
+      photo, textOfAd, linkOfAd
+      )
+    values (#{bid,jdbcType=BIGINT}, #{adname,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
+      #{photo,jdbcType=LONGVARBINARY}, #{textofad,jdbcType=LONGVARCHAR}, #{linkofad,jdbcType=LONGVARCHAR}
+      )
   </insert>
-    <insert id="insertSelective" parameterType="com.superwallet.pojo.BannerWithBLOBs">
+    <insert id="insertSelective" parameterType="pojo.BannerWithBLOBs">
         insert into banner
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="bid != null">
                 bid,
+            </if>
+            <if test="adname != null">
+                adName,
             </if>
             <if test="type != null">
                 type,
@@ -154,6 +159,9 @@
             <if test="bid != null">
                 #{bid,jdbcType=BIGINT},
             </if>
+            <if test="adname != null">
+                #{adname,jdbcType=VARCHAR},
+            </if>
             <if test="type != null">
                 #{type,jdbcType=INTEGER},
             </if>
@@ -168,7 +176,7 @@
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="com.superwallet.pojo.BannerExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="pojo.BannerExample" resultType="java.lang.Integer">
         select count(*) from banner
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -179,6 +187,9 @@
         <set>
             <if test="record.bid != null">
                 bid = #{record.bid,jdbcType=BIGINT},
+            </if>
+            <if test="record.adname != null">
+                adName = #{record.adname,jdbcType=VARCHAR},
             </if>
             <if test="record.type != null">
                 type = #{record.type,jdbcType=INTEGER},
@@ -200,6 +211,7 @@
     <update id="updateByExampleWithBLOBs" parameterType="map">
         update banner
         set bid = #{record.bid,jdbcType=BIGINT},
+        adName = #{record.adname,jdbcType=VARCHAR},
         type = #{record.type,jdbcType=INTEGER},
         photo = #{record.photo,jdbcType=LONGVARBINARY},
         textOfAd = #{record.textofad,jdbcType=LONGVARCHAR},
@@ -211,14 +223,18 @@
     <update id="updateByExample" parameterType="map">
         update banner
         set bid = #{record.bid,jdbcType=BIGINT},
+        adName = #{record.adname,jdbcType=VARCHAR},
         type = #{record.type,jdbcType=INTEGER}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.BannerWithBLOBs">
+    <update id="updateByPrimaryKeySelective" parameterType="pojo.BannerWithBLOBs">
         update banner
         <set>
+            <if test="adname != null">
+                adName = #{adname,jdbcType=VARCHAR},
+            </if>
             <if test="type != null">
                 type = #{type,jdbcType=INTEGER},
             </if>
@@ -234,17 +250,19 @@
         </set>
         where bid = #{bid,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.BannerWithBLOBs">
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="pojo.BannerWithBLOBs">
     update banner
-    set type = #{type,jdbcType=INTEGER},
+    set adName = #{adname,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
       photo = #{photo,jdbcType=LONGVARBINARY},
       textOfAd = #{textofad,jdbcType=LONGVARCHAR},
       linkOfAd = #{linkofad,jdbcType=LONGVARCHAR}
     where bid = #{bid,jdbcType=BIGINT}
   </update>
-    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Banner">
+    <update id="updateByPrimaryKey" parameterType="pojo.Banner">
     update banner
-    set type = #{type,jdbcType=INTEGER}
+    set adName = #{adname,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER}
     where bid = #{bid,jdbcType=BIGINT}
   </update>
 </mapper>

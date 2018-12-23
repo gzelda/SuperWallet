@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.superwallet.mapper.WithdrawmoneyMapper">
-    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Withdrawmoney">
+<mapper namespace="mapper.WithdrawmoneyMapper">
+    <resultMap id="BaseResultMap" type="pojo.Withdrawmoney">
         <id column="UID" property="uid" jdbcType="CHAR"/>
         <id column="WID" property="wid" jdbcType="CHAR"/>
         <result column="tokenType" property="tokentype" jdbcType="TINYINT"/>
         <result column="amount" property="amount" jdbcType="DOUBLE"/>
         <result column="createdTime" property="createdtime" jdbcType="TIMESTAMP"/>
         <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="auditor" property="auditor" jdbcType="VARCHAR"/>
+        <result column="auditTime" property="audittime" jdbcType="TIMESTAMP"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -70,9 +73,9 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    UID, WID, tokenType, amount, createdTime, status
+    UID, WID, tokenType, amount, createdTime, status, auditor, auditTime, remark
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.WithdrawmoneyExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.WithdrawmoneyExample">
         select
         <if test="distinct">
             distinct
@@ -86,33 +89,35 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.WithdrawmoneyKey">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pojo.WithdrawmoneyKey">
         select
         <include refid="Base_Column_List"/>
         from withdrawmoney
         where UID = #{uid,jdbcType=CHAR}
         and WID = #{wid,jdbcType=CHAR}
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.WithdrawmoneyKey">
+    <delete id="deleteByPrimaryKey" parameterType="pojo.WithdrawmoneyKey">
     delete from withdrawmoney
     where UID = #{uid,jdbcType=CHAR}
       and WID = #{wid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="com.superwallet.pojo.WithdrawmoneyExample">
+    <delete id="deleteByExample" parameterType="pojo.WithdrawmoneyExample">
         delete from withdrawmoney
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="com.superwallet.pojo.Withdrawmoney">
+    <insert id="insert" parameterType="pojo.Withdrawmoney">
     insert into withdrawmoney (UID, WID, tokenType, 
-      amount, createdTime, status
+      amount, createdTime, status, 
+      auditor, auditTime, remark
       )
     values (#{uid,jdbcType=CHAR}, #{wid,jdbcType=CHAR}, #{tokentype,jdbcType=TINYINT}, 
-      #{amount,jdbcType=DOUBLE}, #{createdtime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}
+      #{amount,jdbcType=DOUBLE}, #{createdtime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, 
+      #{auditor,jdbcType=VARCHAR}, #{audittime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}
       )
   </insert>
-    <insert id="insertSelective" parameterType="com.superwallet.pojo.Withdrawmoney">
+    <insert id="insertSelective" parameterType="pojo.Withdrawmoney">
         insert into withdrawmoney
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null">
@@ -132,6 +137,15 @@
             </if>
             <if test="status != null">
                 status,
+            </if>
+            <if test="auditor != null">
+                auditor,
+            </if>
+            <if test="audittime != null">
+                auditTime,
+            </if>
+            <if test="remark != null">
+                remark,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -153,10 +167,18 @@
             <if test="status != null">
                 #{status,jdbcType=TINYINT},
             </if>
+            <if test="auditor != null">
+                #{auditor,jdbcType=VARCHAR},
+            </if>
+            <if test="audittime != null">
+                #{audittime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="com.superwallet.pojo.WithdrawmoneyExample"
-            resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="pojo.WithdrawmoneyExample" resultType="java.lang.Integer">
         select count(*) from withdrawmoney
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -183,6 +205,15 @@
             <if test="record.status != null">
                 status = #{record.status,jdbcType=TINYINT},
             </if>
+            <if test="record.auditor != null">
+                auditor = #{record.auditor,jdbcType=VARCHAR},
+            </if>
+            <if test="record.audittime != null">
+                auditTime = #{record.audittime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="record.remark != null">
+                remark = #{record.remark,jdbcType=VARCHAR},
+            </if>
         </set>
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
@@ -195,12 +226,15 @@
         tokenType = #{record.tokentype,jdbcType=TINYINT},
         amount = #{record.amount,jdbcType=DOUBLE},
         createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
-        status = #{record.status,jdbcType=TINYINT}
+        status = #{record.status,jdbcType=TINYINT},
+        auditor = #{record.auditor,jdbcType=VARCHAR},
+        auditTime = #{record.audittime,jdbcType=TIMESTAMP},
+        remark = #{record.remark,jdbcType=VARCHAR}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Withdrawmoney">
+    <update id="updateByPrimaryKeySelective" parameterType="pojo.Withdrawmoney">
         update withdrawmoney
         <set>
             <if test="tokentype != null">
@@ -215,16 +249,28 @@
             <if test="status != null">
                 status = #{status,jdbcType=TINYINT},
             </if>
+            <if test="auditor != null">
+                auditor = #{auditor,jdbcType=VARCHAR},
+            </if>
+            <if test="audittime != null">
+                auditTime = #{audittime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
         </set>
         where UID = #{uid,jdbcType=CHAR}
         and WID = #{wid,jdbcType=CHAR}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Withdrawmoney">
+    <update id="updateByPrimaryKey" parameterType="pojo.Withdrawmoney">
     update withdrawmoney
     set tokenType = #{tokentype,jdbcType=TINYINT},
       amount = #{amount,jdbcType=DOUBLE},
       createdTime = #{createdtime,jdbcType=TIMESTAMP},
-      status = #{status,jdbcType=TINYINT}
+      status = #{status,jdbcType=TINYINT},
+      auditor = #{auditor,jdbcType=VARCHAR},
+      auditTime = #{audittime,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR}
     where UID = #{uid,jdbcType=CHAR}
       and WID = #{wid,jdbcType=CHAR}
   </update>

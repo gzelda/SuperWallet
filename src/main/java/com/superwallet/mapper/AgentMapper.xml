@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.EthtokenMapper">
-    <resultMap id="BaseResultMap" type="pojo.Ethtoken">
+<mapper namespace="mapper.AgentMapper">
+    <resultMap id="BaseResultMap" type="pojo.Agent">
         <id column="UID" property="uid" jdbcType="CHAR"/>
-        <id column="type" property="type" jdbcType="INTEGER"/>
-        <result column="ETHAddress" property="ethaddress" jdbcType="VARCHAR"/>
-        <result column="lockedAmount" property="lockedamount" jdbcType="DOUBLE"/>
-        <result column="availableAmount" property="availableamount" jdbcType="DOUBLE"/>
-        <result column="amount" property="amount" jdbcType="DOUBLE"/>
-        <result column="canLock" property="canlock" jdbcType="TINYINT"/>
+        <result column="createTime" property="createtime" jdbcType="TIMESTAMP"/>
+        <result column="nickName" property="nickname" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="TINYINT"/>
+        <result column="phoneNumber" property="phonenumber" jdbcType="VARCHAR"/>
+        <result column="lowerAmount" property="loweramount" jdbcType="INTEGER"/>
+        <result column="earnings" property="earnings" jdbcType="DOUBLE"/>
+        <result column="totalIncome" property="totalincome" jdbcType="DOUBLE"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -71,15 +72,15 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    UID, type, ETHAddress, lockedAmount, availableAmount, amount, canLock
+    UID, createTime, nickName, sex, phoneNumber, lowerAmount, earnings, totalIncome
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.EthtokenExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.AgentExample">
         select
         <if test="distinct">
             distinct
         </if>
         <include refid="Base_Column_List"/>
-        from ethtoken
+        from agent
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
@@ -87,110 +88,117 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pojo.EthtokenKey">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String">
         select
         <include refid="Base_Column_List"/>
-        from ethtoken
+        from agent
         where UID = #{uid,jdbcType=CHAR}
-        and type = #{type,jdbcType=INTEGER}
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="pojo.EthtokenKey">
-    delete from ethtoken
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from agent
     where UID = #{uid,jdbcType=CHAR}
-      and type = #{type,jdbcType=INTEGER}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.EthtokenExample">
-        delete from ethtoken
+    <delete id="deleteByExample" parameterType="pojo.AgentExample">
+        delete from agent
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Ethtoken">
-    insert into ethtoken (UID, type, ETHAddress, 
-      lockedAmount, availableAmount, amount, 
-      canLock)
-    values (#{uid,jdbcType=CHAR}, #{type,jdbcType=INTEGER}, #{ethaddress,jdbcType=VARCHAR}, 
-      #{lockedamount,jdbcType=DOUBLE}, #{availableamount,jdbcType=DOUBLE}, #{amount,jdbcType=DOUBLE}, 
-      #{canlock,jdbcType=TINYINT})
+    <insert id="insert" parameterType="pojo.Agent">
+    insert into agent (UID, createTime, nickName, 
+      sex, phoneNumber, lowerAmount, 
+      earnings, totalIncome)
+    values (#{uid,jdbcType=CHAR}, #{createtime,jdbcType=TIMESTAMP}, #{nickname,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=TINYINT}, #{phonenumber,jdbcType=VARCHAR}, #{loweramount,jdbcType=INTEGER}, 
+      #{earnings,jdbcType=DOUBLE}, #{totalincome,jdbcType=DOUBLE})
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Ethtoken">
-        insert into ethtoken
+    <insert id="insertSelective" parameterType="pojo.Agent">
+        insert into agent
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null">
                 UID,
             </if>
-            <if test="type != null">
-                type,
+            <if test="createtime != null">
+                createTime,
             </if>
-            <if test="ethaddress != null">
-                ETHAddress,
+            <if test="nickname != null">
+                nickName,
             </if>
-            <if test="lockedamount != null">
-                lockedAmount,
+            <if test="sex != null">
+                sex,
             </if>
-            <if test="availableamount != null">
-                availableAmount,
+            <if test="phonenumber != null">
+                phoneNumber,
             </if>
-            <if test="amount != null">
-                amount,
+            <if test="loweramount != null">
+                lowerAmount,
             </if>
-            <if test="canlock != null">
-                canLock,
+            <if test="earnings != null">
+                earnings,
+            </if>
+            <if test="totalincome != null">
+                totalIncome,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="uid != null">
                 #{uid,jdbcType=CHAR},
             </if>
-            <if test="type != null">
-                #{type,jdbcType=INTEGER},
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
             </if>
-            <if test="ethaddress != null">
-                #{ethaddress,jdbcType=VARCHAR},
+            <if test="nickname != null">
+                #{nickname,jdbcType=VARCHAR},
             </if>
-            <if test="lockedamount != null">
-                #{lockedamount,jdbcType=DOUBLE},
+            <if test="sex != null">
+                #{sex,jdbcType=TINYINT},
             </if>
-            <if test="availableamount != null">
-                #{availableamount,jdbcType=DOUBLE},
+            <if test="phonenumber != null">
+                #{phonenumber,jdbcType=VARCHAR},
             </if>
-            <if test="amount != null">
-                #{amount,jdbcType=DOUBLE},
+            <if test="loweramount != null">
+                #{loweramount,jdbcType=INTEGER},
             </if>
-            <if test="canlock != null">
-                #{canlock,jdbcType=TINYINT},
+            <if test="earnings != null">
+                #{earnings,jdbcType=DOUBLE},
+            </if>
+            <if test="totalincome != null">
+                #{totalincome,jdbcType=DOUBLE},
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="pojo.EthtokenExample" resultType="java.lang.Integer">
-        select count(*) from ethtoken
+    <select id="countByExample" parameterType="pojo.AgentExample" resultType="java.lang.Integer">
+        select count(*) from agent
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </select>
     <update id="updateByExampleSelective" parameterType="map">
-        update ethtoken
+        update agent
         <set>
             <if test="record.uid != null">
                 UID = #{record.uid,jdbcType=CHAR},
             </if>
-            <if test="record.type != null">
-                type = #{record.type,jdbcType=INTEGER},
+            <if test="record.createtime != null">
+                createTime = #{record.createtime,jdbcType=TIMESTAMP},
             </if>
-            <if test="record.ethaddress != null">
-                ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
+            <if test="record.nickname != null">
+                nickName = #{record.nickname,jdbcType=VARCHAR},
             </if>
-            <if test="record.lockedamount != null">
-                lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
+            <if test="record.sex != null">
+                sex = #{record.sex,jdbcType=TINYINT},
             </if>
-            <if test="record.availableamount != null">
-                availableAmount = #{record.availableamount,jdbcType=DOUBLE},
+            <if test="record.phonenumber != null">
+                phoneNumber = #{record.phonenumber,jdbcType=VARCHAR},
             </if>
-            <if test="record.amount != null">
-                amount = #{record.amount,jdbcType=DOUBLE},
+            <if test="record.loweramount != null">
+                lowerAmount = #{record.loweramount,jdbcType=INTEGER},
             </if>
-            <if test="record.canlock != null">
-                canLock = #{record.canlock,jdbcType=TINYINT},
+            <if test="record.earnings != null">
+                earnings = #{record.earnings,jdbcType=DOUBLE},
+            </if>
+            <if test="record.totalincome != null">
+                totalIncome = #{record.totalincome,jdbcType=DOUBLE},
             </if>
         </set>
         <if test="_parameter != null">
@@ -198,48 +206,55 @@
         </if>
     </update>
     <update id="updateByExample" parameterType="map">
-        update ethtoken
+        update agent
         set UID = #{record.uid,jdbcType=CHAR},
-        type = #{record.type,jdbcType=INTEGER},
-        ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
-        lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
-        availableAmount = #{record.availableamount,jdbcType=DOUBLE},
-        amount = #{record.amount,jdbcType=DOUBLE},
-        canLock = #{record.canlock,jdbcType=TINYINT}
+        createTime = #{record.createtime,jdbcType=TIMESTAMP},
+        nickName = #{record.nickname,jdbcType=VARCHAR},
+        sex = #{record.sex,jdbcType=TINYINT},
+        phoneNumber = #{record.phonenumber,jdbcType=VARCHAR},
+        lowerAmount = #{record.loweramount,jdbcType=INTEGER},
+        earnings = #{record.earnings,jdbcType=DOUBLE},
+        totalIncome = #{record.totalincome,jdbcType=DOUBLE}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Ethtoken">
-        update ethtoken
+    <update id="updateByPrimaryKeySelective" parameterType="pojo.Agent">
+        update agent
         <set>
-            <if test="ethaddress != null">
-                ETHAddress = #{ethaddress,jdbcType=VARCHAR},
+            <if test="createtime != null">
+                createTime = #{createtime,jdbcType=TIMESTAMP},
             </if>
-            <if test="lockedamount != null">
-                lockedAmount = #{lockedamount,jdbcType=DOUBLE},
+            <if test="nickname != null">
+                nickName = #{nickname,jdbcType=VARCHAR},
             </if>
-            <if test="availableamount != null">
-                availableAmount = #{availableamount,jdbcType=DOUBLE},
+            <if test="sex != null">
+                sex = #{sex,jdbcType=TINYINT},
             </if>
-            <if test="amount != null">
-                amount = #{amount,jdbcType=DOUBLE},
+            <if test="phonenumber != null">
+                phoneNumber = #{phonenumber,jdbcType=VARCHAR},
             </if>
-            <if test="canlock != null">
-                canLock = #{canlock,jdbcType=TINYINT},
+            <if test="loweramount != null">
+                lowerAmount = #{loweramount,jdbcType=INTEGER},
+            </if>
+            <if test="earnings != null">
+                earnings = #{earnings,jdbcType=DOUBLE},
+            </if>
+            <if test="totalincome != null">
+                totalIncome = #{totalincome,jdbcType=DOUBLE},
             </if>
         </set>
         where UID = #{uid,jdbcType=CHAR}
-        and type = #{type,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Ethtoken">
-    update ethtoken
-    set ETHAddress = #{ethaddress,jdbcType=VARCHAR},
-      lockedAmount = #{lockedamount,jdbcType=DOUBLE},
-      availableAmount = #{availableamount,jdbcType=DOUBLE},
-      amount = #{amount,jdbcType=DOUBLE},
-      canLock = #{canlock,jdbcType=TINYINT}
+    <update id="updateByPrimaryKey" parameterType="pojo.Agent">
+    update agent
+    set createTime = #{createtime,jdbcType=TIMESTAMP},
+      nickName = #{nickname,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=TINYINT},
+      phoneNumber = #{phonenumber,jdbcType=VARCHAR},
+      lowerAmount = #{loweramount,jdbcType=INTEGER},
+      earnings = #{earnings,jdbcType=DOUBLE},
+      totalIncome = #{totalincome,jdbcType=DOUBLE}
     where UID = #{uid,jdbcType=CHAR}
-      and type = #{type,jdbcType=INTEGER}
   </update>
 </mapper>

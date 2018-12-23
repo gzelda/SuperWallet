@@ -4,6 +4,7 @@ create database superWallet;
 use superWallet;
 
 -- 用户基本资料表--
+--status：0-未实名认证 1-已实名认证--
 drop table if exists userBasic;
 create table userBasic(
     UID char(100) not null,
@@ -18,6 +19,7 @@ create table userBasic(
     payPassWord varchar(100),
     invitedCode varchar(100),
     invitedPeople varchar(255),
+    registerTime timestamp not null,
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -27,6 +29,8 @@ create table userStatus(
     UID char(100) not null,
     lastOpTime timestamp,
     lastOpDevice varchar(70),
+    invitedTime timestamp ,
+    state tinyint,
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -41,7 +45,22 @@ create table userPrivate(
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--代理人表--
+drop table if exists agent;
+create table agent(
+    UID char(100) not null,
+    createTime timestamp not null,
+    nickName varchar(50) not null,
+    sex tinyint not null,
+    phoneNumber varchar(50) not null,
+    lowerAmount int,
+    earnings double,
+    totalIncome double,
+    primary key(UID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- 中心化钱包--
+--canLock 0-不可以 1-可以--
 -- ETH--
 drop table if exists ETHWALLET,ETHTOKEN;
 create table ETHTOKEN(
@@ -50,6 +69,7 @@ create table ETHTOKEN(
     lockedAmount double not null,
     availableAmount double not null,
     amount double not null,
+    canLock tinyint not null default 0,
     type int not null,
     primary key(UID,type)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -63,6 +83,7 @@ create table EOSTOKEN(
     availableAmount double not null,
     amount double not null,
     type int not null,
+    canLock tinyint not null default 0,
     primary key(UID,type)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -91,6 +112,8 @@ create table EOSPriKeyWarehouse(
 3.链上链上转账--链上钱包转到链上钱包
 4.买代理人（中心钱包买）--中心钱包扣
 5.提现（最小限额）--中心钱包转到链上钱包
+6.买EOS的RAM
+7.买EOS的CPU和NET
 */
 drop table if exists transfer;
 create table transfer(
@@ -114,7 +137,9 @@ create table lockWarehouse(
     amount double not null,
     period int unsigned not null,
     createdTime timestamp not null,
-    status tinyint not null,
+    tokenType tinyint not null default 0,
+    dailyReturns double,
+    status tinyint not null default 0,
     primary key(LID,UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -122,6 +147,7 @@ create table lockWarehouse(
 drop table if exists banner;
 create table banner(
     bid bigint unsigned auto_increment not null,
+    adName varchar(100),
     photo mediumblob,
     textOfAd text,
     linkOfAd text,
@@ -133,10 +159,13 @@ create table banner(
 drop table if exists gameList;
 create table if not exists gameList(
     gid bigint unsigned auto_increment not null,
+    gameName varchar(50),
     photo mediumblob,
     text text,
     link nvarchar(255),
     type tinyint,
+    sort tinyint,
+    createTime timestamp not null default now(),
     primary key(gid)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -158,5 +187,70 @@ create table withdrawMoney(
     amount double not null,
     createdTime timestamp not null,
     status tinyint not null,
+    auditor varchar(100),
+    auditTime timestamp,
+    remark varchar(255),
     primary key(UID,WID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--后台操作日志--
+drop table if exists systemlog;
+create table systemlog(
+    sid bigint unsigned auto_increment not null,
+    opuserId varchar(100) not null,
+    optime timestamp not null,
+    function varchar(100) not null,
+    opusername varchar(100) not null,
+    primary key(sid,opuserId)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--用户反馈--
+drop table if exists feedback;
+create table feedback(
+    fid bigint unsigned auto_increment not null,
+    UID varchar(100) not null,
+    createTime timestamp not null default now(),
+    content varchar(255) not null,
+    contact varchar(30) not null,
+    primary key(fid,UID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--后台管理人员--
+drop table if exists bgUser;
+create table bgUser(
+    bid bigint unsigned auto_increment not null,
+    username varchar(100) not null,
+    realName varchar(100),
+    password varchar(100) not null,
+    state tinyint not null,
+    admin tinyint not null,
+    primary key(bid)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--角色--
+drop table if exists role;
+create table role(
+    rid bigint not null,
+    sn varchar(100) not null,
+    name varchar(100),
+    primary key(rid)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--权限--
+drop table if exists permission;
+create table permission(
+    pid bigint unsigned auto_increment not null,
+    name varchar(100) not null,
+    resource varchar(100),
+    primary key(pid)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--菜单--
+drop table if exists menu;
+create table menu(
+    mid bigint not null,
+    text varchar(100) not null,
+    url varchar(100),
+    parent_id bigint,
+    primary key(mid)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

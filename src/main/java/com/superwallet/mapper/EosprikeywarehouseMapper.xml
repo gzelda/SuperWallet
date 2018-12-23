@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.EthtokenMapper">
-    <resultMap id="BaseResultMap" type="pojo.Ethtoken">
+<mapper namespace="mapper.EosprikeywarehouseMapper">
+    <resultMap id="BaseResultMap" type="pojo.Eosprikeywarehouse">
         <id column="UID" property="uid" jdbcType="CHAR"/>
-        <id column="type" property="type" jdbcType="INTEGER"/>
-        <result column="ETHAddress" property="ethaddress" jdbcType="VARCHAR"/>
-        <result column="lockedAmount" property="lockedamount" jdbcType="DOUBLE"/>
-        <result column="availableAmount" property="availableamount" jdbcType="DOUBLE"/>
-        <result column="amount" property="amount" jdbcType="DOUBLE"/>
-        <result column="canLock" property="canlock" jdbcType="TINYINT"/>
+        <result column="ownerPriKey" property="ownerprikey" jdbcType="VARCHAR"/>
+        <result column="activePriKey" property="activeprikey" jdbcType="VARCHAR"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -71,15 +67,15 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    UID, type, ETHAddress, lockedAmount, availableAmount, amount, canLock
+    UID, ownerPriKey, activePriKey
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.EthtokenExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.EosprikeywarehouseExample">
         select
         <if test="distinct">
             distinct
         </if>
         <include refid="Base_Column_List"/>
-        from ethtoken
+        from eosprikeywarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
@@ -87,110 +83,70 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pojo.EthtokenKey">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String">
         select
         <include refid="Base_Column_List"/>
-        from ethtoken
+        from eosprikeywarehouse
         where UID = #{uid,jdbcType=CHAR}
-        and type = #{type,jdbcType=INTEGER}
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="pojo.EthtokenKey">
-    delete from ethtoken
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from eosprikeywarehouse
     where UID = #{uid,jdbcType=CHAR}
-      and type = #{type,jdbcType=INTEGER}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.EthtokenExample">
-        delete from ethtoken
+    <delete id="deleteByExample" parameterType="pojo.EosprikeywarehouseExample">
+        delete from eosprikeywarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Ethtoken">
-    insert into ethtoken (UID, type, ETHAddress, 
-      lockedAmount, availableAmount, amount, 
-      canLock)
-    values (#{uid,jdbcType=CHAR}, #{type,jdbcType=INTEGER}, #{ethaddress,jdbcType=VARCHAR}, 
-      #{lockedamount,jdbcType=DOUBLE}, #{availableamount,jdbcType=DOUBLE}, #{amount,jdbcType=DOUBLE}, 
-      #{canlock,jdbcType=TINYINT})
+    <insert id="insert" parameterType="pojo.Eosprikeywarehouse">
+    insert into eosprikeywarehouse (UID, ownerPriKey, activePriKey
+      )
+    values (#{uid,jdbcType=CHAR}, #{ownerprikey,jdbcType=VARCHAR}, #{activeprikey,jdbcType=VARCHAR}
+      )
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Ethtoken">
-        insert into ethtoken
+    <insert id="insertSelective" parameterType="pojo.Eosprikeywarehouse">
+        insert into eosprikeywarehouse
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null">
                 UID,
             </if>
-            <if test="type != null">
-                type,
+            <if test="ownerprikey != null">
+                ownerPriKey,
             </if>
-            <if test="ethaddress != null">
-                ETHAddress,
-            </if>
-            <if test="lockedamount != null">
-                lockedAmount,
-            </if>
-            <if test="availableamount != null">
-                availableAmount,
-            </if>
-            <if test="amount != null">
-                amount,
-            </if>
-            <if test="canlock != null">
-                canLock,
+            <if test="activeprikey != null">
+                activePriKey,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="uid != null">
                 #{uid,jdbcType=CHAR},
             </if>
-            <if test="type != null">
-                #{type,jdbcType=INTEGER},
+            <if test="ownerprikey != null">
+                #{ownerprikey,jdbcType=VARCHAR},
             </if>
-            <if test="ethaddress != null">
-                #{ethaddress,jdbcType=VARCHAR},
-            </if>
-            <if test="lockedamount != null">
-                #{lockedamount,jdbcType=DOUBLE},
-            </if>
-            <if test="availableamount != null">
-                #{availableamount,jdbcType=DOUBLE},
-            </if>
-            <if test="amount != null">
-                #{amount,jdbcType=DOUBLE},
-            </if>
-            <if test="canlock != null">
-                #{canlock,jdbcType=TINYINT},
+            <if test="activeprikey != null">
+                #{activeprikey,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="pojo.EthtokenExample" resultType="java.lang.Integer">
-        select count(*) from ethtoken
+    <select id="countByExample" parameterType="pojo.EosprikeywarehouseExample" resultType="java.lang.Integer">
+        select count(*) from eosprikeywarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </select>
     <update id="updateByExampleSelective" parameterType="map">
-        update ethtoken
+        update eosprikeywarehouse
         <set>
             <if test="record.uid != null">
                 UID = #{record.uid,jdbcType=CHAR},
             </if>
-            <if test="record.type != null">
-                type = #{record.type,jdbcType=INTEGER},
+            <if test="record.ownerprikey != null">
+                ownerPriKey = #{record.ownerprikey,jdbcType=VARCHAR},
             </if>
-            <if test="record.ethaddress != null">
-                ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
-            </if>
-            <if test="record.lockedamount != null">
-                lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
-            </if>
-            <if test="record.availableamount != null">
-                availableAmount = #{record.availableamount,jdbcType=DOUBLE},
-            </if>
-            <if test="record.amount != null">
-                amount = #{record.amount,jdbcType=DOUBLE},
-            </if>
-            <if test="record.canlock != null">
-                canLock = #{record.canlock,jdbcType=TINYINT},
+            <if test="record.activeprikey != null">
+                activePriKey = #{record.activeprikey,jdbcType=VARCHAR},
             </if>
         </set>
         <if test="_parameter != null">
@@ -198,48 +154,30 @@
         </if>
     </update>
     <update id="updateByExample" parameterType="map">
-        update ethtoken
+        update eosprikeywarehouse
         set UID = #{record.uid,jdbcType=CHAR},
-        type = #{record.type,jdbcType=INTEGER},
-        ETHAddress = #{record.ethaddress,jdbcType=VARCHAR},
-        lockedAmount = #{record.lockedamount,jdbcType=DOUBLE},
-        availableAmount = #{record.availableamount,jdbcType=DOUBLE},
-        amount = #{record.amount,jdbcType=DOUBLE},
-        canLock = #{record.canlock,jdbcType=TINYINT}
+        ownerPriKey = #{record.ownerprikey,jdbcType=VARCHAR},
+        activePriKey = #{record.activeprikey,jdbcType=VARCHAR}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Ethtoken">
-        update ethtoken
+    <update id="updateByPrimaryKeySelective" parameterType="pojo.Eosprikeywarehouse">
+        update eosprikeywarehouse
         <set>
-            <if test="ethaddress != null">
-                ETHAddress = #{ethaddress,jdbcType=VARCHAR},
+            <if test="ownerprikey != null">
+                ownerPriKey = #{ownerprikey,jdbcType=VARCHAR},
             </if>
-            <if test="lockedamount != null">
-                lockedAmount = #{lockedamount,jdbcType=DOUBLE},
-            </if>
-            <if test="availableamount != null">
-                availableAmount = #{availableamount,jdbcType=DOUBLE},
-            </if>
-            <if test="amount != null">
-                amount = #{amount,jdbcType=DOUBLE},
-            </if>
-            <if test="canlock != null">
-                canLock = #{canlock,jdbcType=TINYINT},
+            <if test="activeprikey != null">
+                activePriKey = #{activeprikey,jdbcType=VARCHAR},
             </if>
         </set>
         where UID = #{uid,jdbcType=CHAR}
-        and type = #{type,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Ethtoken">
-    update ethtoken
-    set ETHAddress = #{ethaddress,jdbcType=VARCHAR},
-      lockedAmount = #{lockedamount,jdbcType=DOUBLE},
-      availableAmount = #{availableamount,jdbcType=DOUBLE},
-      amount = #{amount,jdbcType=DOUBLE},
-      canLock = #{canlock,jdbcType=TINYINT}
+    <update id="updateByPrimaryKey" parameterType="pojo.Eosprikeywarehouse">
+    update eosprikeywarehouse
+    set ownerPriKey = #{ownerprikey,jdbcType=VARCHAR},
+      activePriKey = #{activeprikey,jdbcType=VARCHAR}
     where UID = #{uid,jdbcType=CHAR}
-      and type = #{type,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -1,6 +1,7 @@
 package com.superwallet.pojo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class UserbasicExample {
@@ -841,6 +842,66 @@ public class UserbasicExample {
 
         public Criteria andInvitedpeopleNotBetween(String value1, String value2) {
             addCriterion("invitedPeople not between", value1, value2, "invitedpeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeIsNull() {
+            addCriterion("registerTime is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeIsNotNull() {
+            addCriterion("registerTime is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeEqualTo(Date value) {
+            addCriterion("registerTime =", value, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeNotEqualTo(Date value) {
+            addCriterion("registerTime <>", value, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeGreaterThan(Date value) {
+            addCriterion("registerTime >", value, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("registerTime >=", value, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeLessThan(Date value) {
+            addCriterion("registerTime <", value, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeLessThanOrEqualTo(Date value) {
+            addCriterion("registerTime <=", value, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeIn(List<Date> values) {
+            addCriterion("registerTime in", values, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeNotIn(List<Date> values) {
+            addCriterion("registerTime not in", values, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeBetween(Date value1, Date value2) {
+            addCriterion("registerTime between", value1, value2, "registertime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRegistertimeNotBetween(Date value1, Date value2) {
+            addCriterion("registerTime not between", value1, value2, "registertime");
             return (Criteria) this;
         }
     }

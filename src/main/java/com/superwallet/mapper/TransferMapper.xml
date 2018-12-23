@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.superwallet.mapper.TransferMapper">
-    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Transfer">
+<mapper namespace="mapper.TransferMapper">
+    <resultMap id="BaseResultMap" type="pojo.Transfer">
         <id column="transferId" property="transferid" jdbcType="BIGINT"/>
     <id column="UID" property="uid" jdbcType="CHAR" />
         <result column="source" property="source" jdbcType="VARCHAR"/>
@@ -76,7 +76,7 @@
     transferId, UID, source, destination, amount, transferType, tokenType, createdTime, 
     status
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.TransferExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.TransferExample">
         select
         <if test="distinct">
             distinct
@@ -90,25 +90,25 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.TransferKey">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pojo.TransferKey">
         select
         <include refid="Base_Column_List"/>
         from transfer
         where transferId = #{transferid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </select>
-    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.TransferKey">
+    <delete id="deleteByPrimaryKey" parameterType="pojo.TransferKey">
     delete from transfer
     where transferId = #{transferid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="com.superwallet.pojo.TransferExample">
+    <delete id="deleteByExample" parameterType="pojo.TransferExample">
         delete from transfer
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="com.superwallet.pojo.Transfer">
+    <insert id="insert" parameterType="pojo.Transfer">
     insert into transfer (transferId, UID, source, 
       destination, amount, transferType, 
       tokenType, createdTime, status
@@ -118,7 +118,7 @@
       #{tokentype,jdbcType=TINYINT}, #{createdtime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}
       )
   </insert>
-    <insert id="insertSelective" parameterType="com.superwallet.pojo.Transfer">
+    <insert id="insertSelective" parameterType="pojo.Transfer">
     insert into transfer
     <trim prefix="(" suffix=")" suffixOverrides="," >
         <if test="transferid != null">
@@ -179,7 +179,7 @@
         </if>
     </trim>
   </insert>
-    <select id="countByExample" parameterType="com.superwallet.pojo.TransferExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="pojo.TransferExample" resultType="java.lang.Integer">
         select count(*) from transfer
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -235,7 +235,7 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Transfer">
+    <update id="updateByPrimaryKeySelective" parameterType="pojo.Transfer">
         update transfer
         <set>
             <if test="source != null">
@@ -263,7 +263,7 @@
         where transferId = #{transferid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </update>
-    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Transfer">
+    <update id="updateByPrimaryKey" parameterType="pojo.Transfer">
     update transfer
     set source = #{source,jdbcType=VARCHAR},
       destination = #{destination,jdbcType=VARCHAR},

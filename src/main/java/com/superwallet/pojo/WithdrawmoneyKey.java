@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class WithdrawmoneyKey implements Serializable {
+public class WithdrawmoneyKey {
     private String uid;
 
     private String wid;
@@ -21,13 +19,5 @@ public class WithdrawmoneyKey implements Serializable {
 
     public void setWid(String wid) {
         this.wid = wid == null ? null : wid.trim();
-    }
-
-    public WithdrawmoneyKey() {
-    }
-
-    public WithdrawmoneyKey(String uid, String wid) {
-        this.uid = uid;
-        this.wid = wid;
     }
 }

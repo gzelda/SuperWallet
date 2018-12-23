@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.superwallet.mapper.LockwarehouseMapper">
-    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Lockwarehouse">
+<mapper namespace="mapper.LockwarehouseMapper">
+    <resultMap id="BaseResultMap" type="pojo.Lockwarehouse">
         <id column="LID" property="lid" jdbcType="BIGINT"/>
     <id column="UID" property="uid" jdbcType="CHAR" />
         <result column="amount" property="amount" jdbcType="DOUBLE"/>
     <result column="period" property="period" jdbcType="INTEGER" />
         <result column="createdTime" property="createdtime" jdbcType="TIMESTAMP"/>
+        <result column="tokenType" property="tokentype" jdbcType="TINYINT"/>
+        <result column="dailyReturns" property="dailyreturns" jdbcType="DOUBLE"/>
     <result column="status" property="status" jdbcType="TINYINT" />
   </resultMap>
     <sql id="Example_Where_Clause">
@@ -70,9 +72,9 @@
         </where>
     </sql>
   <sql id="Base_Column_List" >
-    LID, UID, amount, period, createdTime, status
+    LID, UID, amount, period, createdTime, tokenType, dailyReturns, status
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.LockwarehouseExample">
         select
         <if test="distinct">
             distinct
@@ -86,33 +88,33 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseKey">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pojo.LockwarehouseKey">
     select 
     <include refid="Base_Column_List" />
         from lockwarehouse
         where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </select>
-    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.LockwarehouseKey">
+    <delete id="deleteByPrimaryKey" parameterType="pojo.LockwarehouseKey">
     delete from lockwarehouse
     where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="com.superwallet.pojo.LockwarehouseExample">
+    <delete id="deleteByExample" parameterType="pojo.LockwarehouseExample">
         delete from lockwarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="com.superwallet.pojo.Lockwarehouse">
+    <insert id="insert" parameterType="pojo.Lockwarehouse">
     insert into lockwarehouse (LID, UID, amount, 
-      period, createdTime, status
-      )
+      period, createdTime, tokenType, 
+      dailyReturns, status)
     values (#{lid,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{amount,jdbcType=DOUBLE}, 
-      #{period,jdbcType=INTEGER}, #{createdtime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}
-      )
+      #{period,jdbcType=INTEGER}, #{createdtime,jdbcType=TIMESTAMP}, #{tokentype,jdbcType=TINYINT}, 
+      #{dailyreturns,jdbcType=DOUBLE}, #{status,jdbcType=TINYINT})
   </insert>
-    <insert id="insertSelective" parameterType="com.superwallet.pojo.Lockwarehouse">
+    <insert id="insertSelective" parameterType="pojo.Lockwarehouse">
         insert into lockwarehouse
     <trim prefix="(" suffix=")" suffixOverrides="," >
         <if test="lid != null">
@@ -129,7 +131,13 @@
       </if>
         <if test="createdtime != null">
         createdTime,
-      </if>
+        </if>
+        <if test="tokentype != null">
+            tokenType,
+        </if>
+        <if test="dailyreturns != null">
+            dailyReturns,
+        </if>
       <if test="status != null" >
         status,
       </if>
@@ -149,14 +157,19 @@
       </if>
         <if test="createdtime != null">
             #{createdtime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="tokentype != null">
+            #{tokentype,jdbcType=TINYINT},
+        </if>
+        <if test="dailyreturns != null">
+            #{dailyreturns,jdbcType=DOUBLE},
       </if>
       <if test="status != null" >
         #{status,jdbcType=TINYINT},
       </if>
     </trim>
   </insert>
-    <select id="countByExample" parameterType="com.superwallet.pojo.LockwarehouseExample"
-            resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="pojo.LockwarehouseExample" resultType="java.lang.Integer">
         select count(*) from lockwarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -180,6 +193,12 @@
             <if test="record.createdtime != null">
                 createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
             </if>
+            <if test="record.tokentype != null">
+                tokenType = #{record.tokentype,jdbcType=TINYINT},
+            </if>
+            <if test="record.dailyreturns != null">
+                dailyReturns = #{record.dailyreturns,jdbcType=DOUBLE},
+            </if>
             <if test="record.status != null">
                 status = #{record.status,jdbcType=TINYINT},
             </if>
@@ -195,12 +214,14 @@
         amount = #{record.amount,jdbcType=DOUBLE},
         period = #{record.period,jdbcType=INTEGER},
         createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
+        tokenType = #{record.tokentype,jdbcType=TINYINT},
+        dailyReturns = #{record.dailyreturns,jdbcType=DOUBLE},
         status = #{record.status,jdbcType=TINYINT}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Lockwarehouse">
+    <update id="updateByPrimaryKeySelective" parameterType="pojo.Lockwarehouse">
         update lockwarehouse
     <set >
       <if test="amount != null" >
@@ -212,6 +233,12 @@
         <if test="createdtime != null">
             createdTime = #{createdtime,jdbcType=TIMESTAMP},
       </if>
+        <if test="tokentype != null">
+            tokenType = #{tokentype,jdbcType=TINYINT},
+        </if>
+        <if test="dailyreturns != null">
+            dailyReturns = #{dailyreturns,jdbcType=DOUBLE},
+        </if>
       <if test="status != null" >
         status = #{status,jdbcType=TINYINT},
       </if>
@@ -219,11 +246,13 @@
         where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </update>
-    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Lockwarehouse">
+    <update id="updateByPrimaryKey" parameterType="pojo.Lockwarehouse">
     update lockwarehouse
     set amount = #{amount,jdbcType=DOUBLE},
       period = #{period,jdbcType=INTEGER},
       createdTime = #{createdtime,jdbcType=TIMESTAMP},
+      tokenType = #{tokentype,jdbcType=TINYINT},
+      dailyReturns = #{dailyreturns,jdbcType=DOUBLE},
       status = #{status,jdbcType=TINYINT}
     where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}

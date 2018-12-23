@@ -1,9 +1,9 @@
 package com.superwallet.mapper;
 
-import com.superwallet.pojo.Banner;
-import com.superwallet.pojo.BannerExample;
-import com.superwallet.pojo.BannerWithBLOBs;
 import org.apache.ibatis.annotations.Param;
+import pojo.Banner;
+import pojo.BannerExample;
+import pojo.BannerWithBLOBs;
 
 import java.util.List;
 

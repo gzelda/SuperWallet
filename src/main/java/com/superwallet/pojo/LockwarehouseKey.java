@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class LockwarehouseKey implements Serializable {
+public class LockwarehouseKey {
     private Long lid;
 
     private String uid;

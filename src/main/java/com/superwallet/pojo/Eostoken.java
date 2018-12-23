@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class Eostoken extends EostokenKey implements Serializable {
+public class Eostoken extends EostokenKey {
     private String eosaccountname;
 
     private Double lockedamount;
@@ -10,6 +8,8 @@ public class Eostoken extends EostokenKey implements Serializable {
     private Double availableamount;
 
     private Double amount;
+
+    private Byte canlock;
 
     public String getEosaccountname() {
         return eosaccountname;
@@ -41,5 +41,13 @@ public class Eostoken extends EostokenKey implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public Byte getCanlock() {
+        return canlock;
+    }
+
+    public void setCanlock(Byte canlock) {
+        this.canlock = canlock;
     }
 }

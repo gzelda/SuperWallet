@@ -1,8 +1,6 @@
 package com.superwallet.pojo;
 
-import java.io.Serializable;
-
-public class Ethtoken extends EthtokenKey implements Serializable {
+public class Ethtoken extends EthtokenKey {
     private String ethaddress;
 
     private Double lockedamount;
@@ -10,6 +8,8 @@ public class Ethtoken extends EthtokenKey implements Serializable {
     private Double availableamount;
 
     private Double amount;
+
+    private Byte canlock;
 
     public String getEthaddress() {
         return ethaddress;
@@ -41,5 +41,13 @@ public class Ethtoken extends EthtokenKey implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public Byte getCanlock() {
+        return canlock;
+    }
+
+    public void setCanlock(Byte canlock) {
+        this.canlock = canlock;
     }
 }

@@ -483,6 +483,66 @@ public class EostokenExample {
             addCriterion("amount not between", value1, value2, "amount");
             return (Criteria) this;
         }
+
+        public Criteria andCanlockIsNull() {
+            addCriterion("canLock is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockIsNotNull() {
+            addCriterion("canLock is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockEqualTo(Byte value) {
+            addCriterion("canLock =", value, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockNotEqualTo(Byte value) {
+            addCriterion("canLock <>", value, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockGreaterThan(Byte value) {
+            addCriterion("canLock >", value, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockGreaterThanOrEqualTo(Byte value) {
+            addCriterion("canLock >=", value, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockLessThan(Byte value) {
+            addCriterion("canLock <", value, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockLessThanOrEqualTo(Byte value) {
+            addCriterion("canLock <=", value, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockIn(List<Byte> values) {
+            addCriterion("canLock in", values, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockNotIn(List<Byte> values) {
+            addCriterion("canLock not in", values, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockBetween(Byte value1, Byte value2) {
+            addCriterion("canLock between", value1, value2, "canlock");
+            return (Criteria) this;
+        }
+
+        public Criteria andCanlockNotBetween(Byte value1, Byte value2) {
+            addCriterion("canLock not between", value1, value2, "canlock");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

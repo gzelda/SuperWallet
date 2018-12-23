@@ -1,9 +1,9 @@
 package com.superwallet.mapper;
 
-import com.superwallet.pojo.Gamelist;
-import com.superwallet.pojo.GamelistExample;
-import com.superwallet.pojo.GamelistWithBLOBs;
 import org.apache.ibatis.annotations.Param;
+import pojo.Gamelist;
+import pojo.GamelistExample;
+import pojo.GamelistWithBLOBs;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
 package com.superwallet.pojo;
 
-public class EthtokenKey {
+public class Ethprikeywarehouse {
     private String uid;
 
-    private Integer type;
+    private String prikey;
 
     public String getUid() {
         return uid;
@@ -13,11 +13,11 @@ public class EthtokenKey {
         this.uid = uid == null ? null : uid.trim();
     }
 
-    public Integer getType() {
-        return type;
+    public String getPrikey() {
+        return prikey;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setPrikey(String prikey) {
+        this.prikey = prikey == null ? null : prikey.trim();
     }
 }

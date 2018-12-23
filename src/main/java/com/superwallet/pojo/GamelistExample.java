@@ -1,6 +1,7 @@
 package com.superwallet.pojo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class GamelistExample {
@@ -164,6 +165,76 @@ public class GamelistExample {
             return (Criteria) this;
         }
 
+        public Criteria andGamenameIsNull() {
+            addCriterion("gameName is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameIsNotNull() {
+            addCriterion("gameName is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameEqualTo(String value) {
+            addCriterion("gameName =", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameNotEqualTo(String value) {
+            addCriterion("gameName <>", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameGreaterThan(String value) {
+            addCriterion("gameName >", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameGreaterThanOrEqualTo(String value) {
+            addCriterion("gameName >=", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameLessThan(String value) {
+            addCriterion("gameName <", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameLessThanOrEqualTo(String value) {
+            addCriterion("gameName <=", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameLike(String value) {
+            addCriterion("gameName like", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameNotLike(String value) {
+            addCriterion("gameName not like", value, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameIn(List<String> values) {
+            addCriterion("gameName in", values, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameNotIn(List<String> values) {
+            addCriterion("gameName not in", values, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameBetween(String value1, String value2) {
+            addCriterion("gameName between", value1, value2, "gamename");
+            return (Criteria) this;
+        }
+
+        public Criteria andGamenameNotBetween(String value1, String value2) {
+            addCriterion("gameName not between", value1, value2, "gamename");
+            return (Criteria) this;
+        }
+
         public Criteria andLinkIsNull() {
             addCriterion("link is null");
             return (Criteria) this;
@@ -291,6 +362,126 @@ public class GamelistExample {
 
         public Criteria andTypeNotBetween(Byte value1, Byte value2) {
             addCriterion("type not between", value1, value2, "type");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortIsNull() {
+            addCriterion("sort is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortIsNotNull() {
+            addCriterion("sort is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortEqualTo(Byte value) {
+            addCriterion("sort =", value, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortNotEqualTo(Byte value) {
+            addCriterion("sort <>", value, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortGreaterThan(Byte value) {
+            addCriterion("sort >", value, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortGreaterThanOrEqualTo(Byte value) {
+            addCriterion("sort >=", value, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortLessThan(Byte value) {
+            addCriterion("sort <", value, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortLessThanOrEqualTo(Byte value) {
+            addCriterion("sort <=", value, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortIn(List<Byte> values) {
+            addCriterion("sort in", values, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortNotIn(List<Byte> values) {
+            addCriterion("sort not in", values, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortBetween(Byte value1, Byte value2) {
+            addCriterion("sort between", value1, value2, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andSortNotBetween(Byte value1, Byte value2) {
+            addCriterion("sort not between", value1, value2, "sort");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeIsNull() {
+            addCriterion("createTime is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeIsNotNull() {
+            addCriterion("createTime is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeEqualTo(Date value) {
+            addCriterion("createTime =", value, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeNotEqualTo(Date value) {
+            addCriterion("createTime <>", value, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeGreaterThan(Date value) {
+            addCriterion("createTime >", value, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("createTime >=", value, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeLessThan(Date value) {
+            addCriterion("createTime <", value, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeLessThanOrEqualTo(Date value) {
+            addCriterion("createTime <=", value, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeIn(List<Date> values) {
+            addCriterion("createTime in", values, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeNotIn(List<Date> values) {
+            addCriterion("createTime not in", values, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeBetween(Date value1, Date value2) {
+            addCriterion("createTime between", value1, value2, "createtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreatetimeNotBetween(Date value1, Date value2) {
+            addCriterion("createTime not between", value1, value2, "createtime");
             return (Criteria) this;
         }
     }
