@@ -1,9 +1,9 @@
 package com.superwallet.mapper;
 
+import com.superwallet.pojo.Lockwarehouse;
+import com.superwallet.pojo.LockwarehouseExample;
+import com.superwallet.pojo.LockwarehouseKey;
 import org.apache.ibatis.annotations.Param;
-import pojo.Lockwarehouse;
-import pojo.LockwarehouseExample;
-import pojo.LockwarehouseKey;
 
 import java.util.List;
 

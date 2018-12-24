@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.NotificationMapper">
-    <resultMap id="BaseResultMap" type="pojo.Notification">
+<mapper namespace="com.superwallet.mapper.NotificationMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Notification">
         <id column="nid" property="nid" jdbcType="BIGINT"/>
         <result column="protocol" property="protocol" jdbcType="VARCHAR"/>
     </resultMap>
-    <resultMap id="ResultMapWithBLOBs" type="pojo.Notification" extends="BaseResultMap">
+    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Notification" extends="BaseResultMap">
         <result column="notice" property="notice" jdbcType="LONGVARCHAR"/>
     </resultMap>
     <sql id="Example_Where_Clause">
@@ -74,7 +74,8 @@
     <sql id="Blob_Column_List">
     notice
   </sql>
-    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="pojo.NotificationExample">
+    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
+            parameterType="com.superwallet.pojo.NotificationExample">
         select
         <if test="distinct">
             distinct
@@ -90,7 +91,7 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.NotificationExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.NotificationExample">
         select
         <if test="distinct">
             distinct
@@ -116,19 +117,19 @@
     delete from notification
     where nid = #{nid,jdbcType=BIGINT}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.NotificationExample">
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.NotificationExample">
         delete from notification
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Notification">
+    <insert id="insert" parameterType="com.superwallet.pojo.Notification">
     insert into notification (nid, protocol, notice
       )
     values (#{nid,jdbcType=BIGINT}, #{protocol,jdbcType=VARCHAR}, #{notice,jdbcType=LONGVARCHAR}
       )
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Notification">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Notification">
         insert into notification
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="nid != null">
@@ -153,7 +154,7 @@
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="pojo.NotificationExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="com.superwallet.pojo.NotificationExample" resultType="java.lang.Integer">
         select count(*) from notification
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -193,7 +194,7 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Notification">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Notification">
         update notification
         <set>
             <if test="protocol != null">
@@ -205,13 +206,13 @@
         </set>
         where nid = #{nid,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKeyWithBLOBs" parameterType="pojo.Notification">
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.Notification">
     update notification
     set protocol = #{protocol,jdbcType=VARCHAR},
       notice = #{notice,jdbcType=LONGVARCHAR}
     where nid = #{nid,jdbcType=BIGINT}
   </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Notification">
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Notification">
     update notification
     set protocol = #{protocol,jdbcType=VARCHAR}
     where nid = #{nid,jdbcType=BIGINT}

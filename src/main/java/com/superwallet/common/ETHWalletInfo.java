@@ -13,8 +13,8 @@ public class ETHWalletInfo extends BasicWalletInfo implements Serializable {
         this.address = address;
     }
 
-    public ETHWalletInfo(String address, double amount, double lockedAmount, double availableAmount, double HUOBIprice) {
-        super(amount, lockedAmount, availableAmount, HUOBIprice);
+    public ETHWalletInfo(String address, double amount, double lockedAmount, double availableAmount, double price, byte canLock) {
+        super(amount, lockedAmount, availableAmount, price, canLock);
         this.address = address;
     }
 }

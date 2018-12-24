@@ -5,6 +5,14 @@ public class EthtokenKey {
 
     private Integer type;
 
+    public EthtokenKey() {
+    }
+
+    public EthtokenKey(String uid, Integer type) {
+        this.uid = uid;
+        this.type = type;
+    }
+
     public String getUid() {
         return uid;
     }

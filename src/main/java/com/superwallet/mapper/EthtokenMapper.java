@@ -1,9 +1,9 @@
 package com.superwallet.mapper;
 
+import com.superwallet.pojo.Ethtoken;
+import com.superwallet.pojo.EthtokenExample;
+import com.superwallet.pojo.EthtokenKey;
 import org.apache.ibatis.annotations.Param;
-import pojo.Ethtoken;
-import pojo.EthtokenExample;
-import pojo.EthtokenKey;
 
 import java.util.List;
 

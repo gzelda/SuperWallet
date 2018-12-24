@@ -108,12 +108,16 @@ public class EOSWalletInfo extends BasicWalletInfo implements Serializable {
     public EOSWalletInfo() {
     }
 
-    public EOSWalletInfo(double amount, double lockedAmount, double availableAmount,
-                         double HUOBIprice, String accountName, double mortgageEOS_cpu,
-                         double mortgageEOS_net, double total_cpu, double total_net,
-                         double total_ram, double used_cpu, double used_net, double used_ram,
-                         double remain_cpu, double reamin_net) {
-        super(amount, lockedAmount, availableAmount, HUOBIprice);
+    public EOSWalletInfo(double amount, double lockedAmount,
+                         double availableAmount, double price,
+                         byte canLock, String accountName,
+                         double mortgageEOS_cpu, double mortgageEOS_net,
+                         double total_cpu, double total_net,
+                         double total_ram, double used_cpu,
+                         double used_net, double used_ram,
+                         double remain_cpu, double reamin_net
+    ) {
+        super(amount, lockedAmount, availableAmount, price, canLock);
         this.accountName = accountName;
         this.mortgageEOS_cpu = mortgageEOS_cpu;
         this.mortgageEOS_net = mortgageEOS_net;

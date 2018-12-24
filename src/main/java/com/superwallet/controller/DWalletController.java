@@ -1,9 +1,11 @@
 package com.superwallet.controller;
 
-import com.superwallet.common.BasicWalletInfo;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.SuperResult;
-import com.superwallet.pojo.Lockwarehouse;
+import com.superwallet.response.ResponseDWalletAssets;
+import com.superwallet.response.ResponseDWalletLockedOrder;
+import com.superwallet.response.ResponseDWalletLockedOrderEntry;
+import com.superwallet.response.ResponseDWalletSimpleInfo;
 import com.superwallet.service.DWalletService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,12 +33,13 @@ public class DWalletController {
     @RequestMapping(value = "/dWallet/listWalletInfo", method = RequestMethod.POST)
     @ResponseBody
     public SuperResult listWalletInfo(String UID) {
-        List<BasicWalletInfo> walletInfos = dWalletService.listWalletInfo(UID);
+        List<ResponseDWalletSimpleInfo> walletInfos = dWalletService.listWalletInfo(UID);
         return SuperResult.ok(walletInfos);
     }
 
     /**
      * 链上钱包转账
+     *
      * @param UID
      * @param tokenType
      * @param tokenAmount
@@ -56,6 +59,7 @@ public class DWalletController {
 
     /**
      * 锁仓
+     *
      * @param UID
      * @param tokenType
      * @param tokenAmount
@@ -71,16 +75,43 @@ public class DWalletController {
     }
 
     /**
-     * 查询历史锁仓订单
+     * 锁仓订单查询
+     *
      * @param UID
-     * @param timeStampLeft
-     * @param timeStampRight
+     * @param tokenType
      * @return
      */
     @RequestMapping(value = "/dWallet/listOrders", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult listOrders(String UID, String timeStampLeft, String timeStampRight) {
-        List<Lockwarehouse> res = dWalletService.listOrders(UID, timeStampLeft, timeStampRight);
+    public SuperResult listOrders(String UID, int tokenType) {
+        ResponseDWalletLockedOrder res = dWalletService.listOrders(UID, tokenType);
+        return SuperResult.ok(res);
+    }
+
+    /**
+     * 某个锁仓订单详情查询
+     *
+     * @param UID
+     * @param LID
+     * @return
+     */
+    @RequestMapping(value = "/dWallet/listOrders", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult listOrders(String UID, String LID) {
+        ResponseDWalletLockedOrderEntry res = dWalletService.getOrder(UID, LID);
+        return SuperResult.ok(res);
+    }
+
+    /**
+     * 链上钱包详细信息查询--包括交易记录
+     *
+     * @param UID
+     * @return
+     */
+    @RequestMapping(value = "/dWallet/listDWalletInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult listBills(String UID) {
+        ResponseDWalletAssets res = dWalletService.listDWalletInfo(UID);
         return SuperResult.ok(res);
     }
 
@@ -116,6 +147,4 @@ public class DWalletController {
         if (!res) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
         return SuperResult.ok();
     }
-
-
 }

@@ -26,4 +26,8 @@ public interface LoginRegisterService {
     public boolean initWallet(String UID);
 
     public boolean isValidOldPassword(String UID, String oldPassWord);
+
+    public void modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex);
+
+    public boolean isPayCodeExists(String UID);
 }

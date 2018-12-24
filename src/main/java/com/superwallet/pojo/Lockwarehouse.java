@@ -4,15 +4,10 @@ import java.util.Date;
 
 public class Lockwarehouse extends LockwarehouseKey {
     private Double amount;
-
     private Integer period;
-
     private Date createdtime;
-
     private Byte tokentype;
-
     private Double dailyreturns;
-
     private Byte status;
 
     public Double getAmount() {

@@ -1,8 +1,8 @@
 package com.superwallet.mapper;
 
+import com.superwallet.pojo.Notification;
+import com.superwallet.pojo.NotificationExample;
 import org.apache.ibatis.annotations.Param;
-import pojo.Notification;
-import pojo.NotificationExample;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.superwallet.mapper;
 
+import com.superwallet.pojo.Ethprikeywarehouse;
+import com.superwallet.pojo.EthprikeywarehouseExample;
 import org.apache.ibatis.annotations.Param;
-import pojo.Ethprikeywarehouse;
-import pojo.EthprikeywarehouseExample;
 
 import java.util.List;
 

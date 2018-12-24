@@ -54,9 +54,19 @@ public class CodeRepresentation {
     public static final Byte TRANSFER_FAIL = 0;
     public static final Byte TRANSFER_SUCCESS = 1;
 
+    //链上钱包返回CoinType,CoinName
+    public static final int COINTYPE_ETH = 0;
+    public static final int COINTYPE_EOS = 1;
+    public static final int COINTYPE_BGS = 2;
+
     //锁仓状态
     public static final Byte LOCK_ON = 0;
     public static final Byte LOCK_OFF = 1;
+    //这个币是否可以锁仓 0-不可以 1-可以
+    public static final Byte CANNOT_LOCK = 0;
+    public static final Byte CAN_LOCK = 1;
+
+
 
     //提现申请表的状态
     public static final Byte WITHDRAW_WAIT = 0;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.GamelistMapper">
-    <resultMap id="BaseResultMap" type="pojo.Gamelist">
+<mapper namespace="com.superwallet.mapper.GamelistMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Gamelist">
         <id column="gid" property="gid" jdbcType="BIGINT"/>
         <result column="gameName" property="gamename" jdbcType="VARCHAR"/>
         <result column="link" property="link" jdbcType="VARCHAR"/>
@@ -9,7 +9,7 @@
         <result column="sort" property="sort" jdbcType="TINYINT"/>
         <result column="createTime" property="createtime" jdbcType="TIMESTAMP"/>
   </resultMap>
-    <resultMap id="ResultMapWithBLOBs" type="pojo.GamelistWithBLOBs" extends="BaseResultMap">
+    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.GamelistWithBLOBs" extends="BaseResultMap">
         <result column="photo" property="photo" jdbcType="LONGVARBINARY"/>
         <result column="text" property="text" jdbcType="LONGVARCHAR"/>
   </resultMap>
@@ -79,7 +79,8 @@
     <sql id="Blob_Column_List">
     photo, text
   </sql>
-    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="pojo.GamelistExample">
+    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
+            parameterType="com.superwallet.pojo.GamelistExample">
     select
         <if test="distinct">
       distinct
@@ -95,7 +96,7 @@
       order by ${orderByClause}
     </if>
   </select>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.GamelistExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.GamelistExample">
     select
         <if test="distinct">
       distinct
@@ -121,13 +122,13 @@
     delete from gamelist
     where gid = #{gid,jdbcType=BIGINT}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.GamelistExample">
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.GamelistExample">
     delete from gamelist
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
     </if>
   </delete>
-    <insert id="insert" parameterType="pojo.GamelistWithBLOBs">
+    <insert id="insert" parameterType="com.superwallet.pojo.GamelistWithBLOBs">
     insert into gamelist (gid, gameName, link, 
       type, sort, createTime, 
       photo, text)
@@ -135,7 +136,7 @@
       #{type,jdbcType=TINYINT}, #{sort,jdbcType=TINYINT}, #{createtime,jdbcType=TIMESTAMP}, 
       #{photo,jdbcType=LONGVARBINARY}, #{text,jdbcType=LONGVARCHAR})
   </insert>
-    <insert id="insertSelective" parameterType="pojo.GamelistWithBLOBs">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.GamelistWithBLOBs">
     insert into gamelist
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="gid != null">
@@ -190,7 +191,7 @@
       </if>
     </trim>
   </insert>
-    <select id="countByExample" parameterType="pojo.GamelistExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="com.superwallet.pojo.GamelistExample" resultType="java.lang.Integer">
     select count(*) from gamelist
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -254,7 +255,7 @@
             <include refid="Update_By_Example_Where_Clause"/>
     </if>
   </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.GamelistWithBLOBs">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.GamelistWithBLOBs">
     update gamelist
         <set>
             <if test="gamename != null">
@@ -281,7 +282,7 @@
     </set>
     where gid = #{gid,jdbcType=BIGINT}
   </update>
-    <update id="updateByPrimaryKeyWithBLOBs" parameterType="pojo.GamelistWithBLOBs">
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.GamelistWithBLOBs">
     update gamelist
     set gameName = #{gamename,jdbcType=VARCHAR},
       link = #{link,jdbcType=VARCHAR},
@@ -292,7 +293,7 @@
       text = #{text,jdbcType=LONGVARCHAR}
     where gid = #{gid,jdbcType=BIGINT}
   </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Gamelist">
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Gamelist">
     update gamelist
     set gameName = #{gamename,jdbcType=VARCHAR},
       link = #{link,jdbcType=VARCHAR},

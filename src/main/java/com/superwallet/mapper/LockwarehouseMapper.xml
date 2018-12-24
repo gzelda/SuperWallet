@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.LockwarehouseMapper">
-    <resultMap id="BaseResultMap" type="pojo.Lockwarehouse">
+<mapper namespace="com.superwallet.mapper.LockwarehouseMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Lockwarehouse">
         <id column="LID" property="lid" jdbcType="BIGINT"/>
     <id column="UID" property="uid" jdbcType="CHAR" />
         <result column="amount" property="amount" jdbcType="DOUBLE"/>
@@ -74,7 +74,7 @@
   <sql id="Base_Column_List" >
     LID, UID, amount, period, createdTime, tokenType, dailyReturns, status
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.LockwarehouseExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseExample">
         select
         <if test="distinct">
             distinct
@@ -88,25 +88,25 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pojo.LockwarehouseKey">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseKey">
     select 
     <include refid="Base_Column_List" />
         from lockwarehouse
         where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </select>
-    <delete id="deleteByPrimaryKey" parameterType="pojo.LockwarehouseKey">
+    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.LockwarehouseKey">
     delete from lockwarehouse
     where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.LockwarehouseExample">
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.LockwarehouseExample">
         delete from lockwarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Lockwarehouse">
+    <insert id="insert" parameterType="com.superwallet.pojo.Lockwarehouse">
     insert into lockwarehouse (LID, UID, amount, 
       period, createdTime, tokenType, 
       dailyReturns, status)
@@ -114,7 +114,7 @@
       #{period,jdbcType=INTEGER}, #{createdtime,jdbcType=TIMESTAMP}, #{tokentype,jdbcType=TINYINT}, 
       #{dailyreturns,jdbcType=DOUBLE}, #{status,jdbcType=TINYINT})
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Lockwarehouse">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Lockwarehouse">
         insert into lockwarehouse
     <trim prefix="(" suffix=")" suffixOverrides="," >
         <if test="lid != null">
@@ -169,7 +169,8 @@
       </if>
     </trim>
   </insert>
-    <select id="countByExample" parameterType="pojo.LockwarehouseExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="com.superwallet.pojo.LockwarehouseExample"
+            resultType="java.lang.Integer">
         select count(*) from lockwarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -221,7 +222,7 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Lockwarehouse">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Lockwarehouse">
         update lockwarehouse
     <set >
       <if test="amount != null" >
@@ -246,7 +247,7 @@
         where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Lockwarehouse">
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Lockwarehouse">
     update lockwarehouse
     set amount = #{amount,jdbcType=DOUBLE},
       period = #{period,jdbcType=INTEGER},

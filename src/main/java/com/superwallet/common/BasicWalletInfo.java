@@ -4,7 +4,32 @@ public class BasicWalletInfo {
     private double amount;
     private double lockedAmount;
     private double availableAmount;
-    private double HUOBIprice;
+    private double price;
+    private byte canLock;
+
+    public BasicWalletInfo(double amount, double lockedAmount, double availableAmount, double price, byte canLock) {
+        this.amount = amount;
+        this.lockedAmount = lockedAmount;
+        this.availableAmount = availableAmount;
+        this.price = price;
+        this.canLock = canLock;
+    }
+
+    public byte getCanLock() {
+        return canLock;
+    }
+
+    public void setCanLock(byte canLock) {
+        this.canLock = canLock;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
 
     public double getAmount() {
         return amount;
@@ -30,21 +55,7 @@ public class BasicWalletInfo {
         this.availableAmount = availableAmount;
     }
 
-    public double getHUOBIprice() {
-        return HUOBIprice;
-    }
-
-    public void setHUOBIprice(double HUOBIprice) {
-        this.HUOBIprice = HUOBIprice;
-    }
 
     public BasicWalletInfo() {
-    }
-
-    public BasicWalletInfo(double amount, double lockedAmount, double availableAmount, double HUOBIprice) {
-        this.amount = amount;
-        this.lockedAmount = lockedAmount;
-        this.availableAmount = availableAmount;
-        this.HUOBIprice = HUOBIprice;
     }
 }

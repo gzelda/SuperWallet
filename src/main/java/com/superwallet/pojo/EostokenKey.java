@@ -5,6 +5,14 @@ public class EostokenKey {
 
     private Integer type;
 
+    public EostokenKey() {
+    }
+
+    public EostokenKey(String uid, Integer type) {
+        this.uid = uid;
+        this.type = type;
+    }
+
     public String getUid() {
         return uid;
     }

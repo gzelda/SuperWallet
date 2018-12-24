@@ -321,4 +321,56 @@ public class LoginController {
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), null);
     }
 
+    /**
+     * 修改用户基本信息
+     *
+     * @param UID
+     * @param headPhoto
+     * @param nickName
+     * @param sex
+     * @return
+     */
+    @RequestMapping(value = "/login/modifyUserBasic", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
+        loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex);
+        return SuperResult.ok();
+    }
+
+    /**
+     * 登出
+     *
+     * @param UID
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/login/logout", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult logout(String UID, HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession();
+        //TODO 关闭session 清除cookie
+        session.removeAttribute(UID);
+        CookieUtils.deleteCookie(request, response, "token");
+        return SuperResult.ok();
+    }
+
+    /**
+     * 判断支付密码是否存在
+     *
+     * @param UID
+     * @return
+     */
+    @RequestMapping(value = "/login/isPayCodeExists", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult isPayCodeExists(String UID) {
+        boolean exists = loginRegisterService.isPayCodeExists(UID);
+        SuperResult result = new SuperResult();
+        if (!exists) {
+            result.setCode(CodeRepresentation.CODE_FAIL);
+            result.setStatus(CodeRepresentation.STATUS_0);
+        }
+        return result;
+    }
+
 }

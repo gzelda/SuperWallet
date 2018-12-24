@@ -1,8 +1,8 @@
 package com.superwallet.mapper;
 
+import com.superwallet.pojo.Eosprikeywarehouse;
+import com.superwallet.pojo.EosprikeywarehouseExample;
 import org.apache.ibatis.annotations.Param;
-import pojo.Eosprikeywarehouse;
-import pojo.EosprikeywarehouseExample;
 
 import java.util.List;
 

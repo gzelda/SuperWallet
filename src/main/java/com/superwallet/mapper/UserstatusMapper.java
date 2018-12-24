@@ -1,8 +1,8 @@
 package com.superwallet.mapper;
 
+import com.superwallet.pojo.Userstatus;
+import com.superwallet.pojo.UserstatusExample;
 import org.apache.ibatis.annotations.Param;
-import pojo.Userstatus;
-import pojo.UserstatusExample;
 
 import java.util.List;
 

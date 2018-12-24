@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.UserstatusMapper">
-    <resultMap id="BaseResultMap" type="pojo.Userstatus">
+<mapper namespace="com.superwallet.mapper.UserstatusMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Userstatus">
         <id column="UID" property="uid" jdbcType="CHAR"/>
         <result column="lastOpTime" property="lastoptime" jdbcType="TIMESTAMP"/>
         <result column="lastOpDevice" property="lastopdevice" jdbcType="VARCHAR"/>
@@ -71,7 +71,7 @@
     <sql id="Base_Column_List">
     UID, lastOpTime, lastOpDevice, invitedTime, state
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.UserstatusExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.UserstatusExample">
         select
         <if test="distinct">
             distinct
@@ -95,19 +95,19 @@
     delete from userstatus
     where UID = #{uid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.UserstatusExample">
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.UserstatusExample">
         delete from userstatus
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Userstatus">
+    <insert id="insert" parameterType="com.superwallet.pojo.Userstatus">
     insert into userstatus (UID, lastOpTime, lastOpDevice, 
       invitedTime, state)
     values (#{uid,jdbcType=CHAR}, #{lastoptime,jdbcType=TIMESTAMP}, #{lastopdevice,jdbcType=VARCHAR}, 
       #{invitedtime,jdbcType=TIMESTAMP}, #{state,jdbcType=TINYINT})
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Userstatus">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Userstatus">
         insert into userstatus
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null">
@@ -144,7 +144,7 @@
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="pojo.UserstatusExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="com.superwallet.pojo.UserstatusExample" resultType="java.lang.Integer">
         select count(*) from userstatus
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -184,7 +184,7 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Userstatus">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Userstatus">
         update userstatus
         <set>
             <if test="lastoptime != null">
@@ -202,7 +202,7 @@
         </set>
         where UID = #{uid,jdbcType=CHAR}
     </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Userstatus">
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Userstatus">
     update userstatus
     set lastOpTime = #{lastoptime,jdbcType=TIMESTAMP},
       lastOpDevice = #{lastopdevice,jdbcType=VARCHAR},

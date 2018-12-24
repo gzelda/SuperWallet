@@ -1,8 +1,8 @@
 package com.superwallet.mapper;
 
+import com.superwallet.pojo.Userbasic;
+import com.superwallet.pojo.UserbasicExample;
 import org.apache.ibatis.annotations.Param;
-import pojo.Userbasic;
-import pojo.UserbasicExample;
 
 import java.util.List;
 

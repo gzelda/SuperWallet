@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.EosprikeywarehouseMapper">
-    <resultMap id="BaseResultMap" type="pojo.Eosprikeywarehouse">
+<mapper namespace="com.superwallet.mapper.EosprikeywarehouseMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Eosprikeywarehouse">
         <id column="UID" property="uid" jdbcType="CHAR"/>
         <result column="ownerPriKey" property="ownerprikey" jdbcType="VARCHAR"/>
         <result column="activePriKey" property="activeprikey" jdbcType="VARCHAR"/>
@@ -69,7 +69,8 @@
     <sql id="Base_Column_List">
     UID, ownerPriKey, activePriKey
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.EosprikeywarehouseExample">
+    <select id="selectByExample" resultMap="BaseResultMap"
+            parameterType="com.superwallet.pojo.EosprikeywarehouseExample">
         select
         <if test="distinct">
             distinct
@@ -93,19 +94,19 @@
     delete from eosprikeywarehouse
     where UID = #{uid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.EosprikeywarehouseExample">
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.EosprikeywarehouseExample">
         delete from eosprikeywarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Eosprikeywarehouse">
+    <insert id="insert" parameterType="com.superwallet.pojo.Eosprikeywarehouse">
     insert into eosprikeywarehouse (UID, ownerPriKey, activePriKey
       )
     values (#{uid,jdbcType=CHAR}, #{ownerprikey,jdbcType=VARCHAR}, #{activeprikey,jdbcType=VARCHAR}
       )
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Eosprikeywarehouse">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Eosprikeywarehouse">
         insert into eosprikeywarehouse
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null">
@@ -130,7 +131,8 @@
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="pojo.EosprikeywarehouseExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="com.superwallet.pojo.EosprikeywarehouseExample"
+            resultType="java.lang.Integer">
         select count(*) from eosprikeywarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -162,7 +164,7 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Eosprikeywarehouse">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Eosprikeywarehouse">
         update eosprikeywarehouse
         <set>
             <if test="ownerprikey != null">
@@ -174,7 +176,7 @@
         </set>
         where UID = #{uid,jdbcType=CHAR}
     </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Eosprikeywarehouse">
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Eosprikeywarehouse">
     update eosprikeywarehouse
     set ownerPriKey = #{ownerprikey,jdbcType=VARCHAR},
       activePriKey = #{activeprikey,jdbcType=VARCHAR}

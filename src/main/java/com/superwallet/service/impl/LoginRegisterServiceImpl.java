@@ -13,16 +13,14 @@ import com.superwallet.pojo.Userbasic;
 import com.superwallet.pojo.UserbasicExample;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.utils.ByteImageConvert;
+import com.superwallet.utils.CodeGenerator;
 import com.superwallet.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class LoginRegisterServiceImpl implements LoginRegisterService {
@@ -72,7 +70,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //如果邀请码不为空并且合法，根据邀请码找到邀请人
         String uid = UUID.randomUUID().toString();
         Userbasic userbasic = new Userbasic();
-        //TODO 默认头像设置
+        //默认头像设置
         String path = rootPath + "WEB-INF\\imgs\\default.jpg";
         byte[] headPhoto = ByteImageConvert.image2byte(path);
         userbasic.setHeadphoto(headPhoto);
@@ -83,7 +81,10 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         userbasic.setStatus(CodeRepresentation.USER_STATUS_NOIDVALIDATION);
         userbasic.setPhonenumber(phoneNum);
         userbasic.setPassword(passWord);
-        //TODO 设置用户的邀请码
+        //设置注册日期
+        userbasic.setRegistertime(new Date());
+        //设置用户的邀请码
+        userbasic.setInvitedcode(CodeGenerator.getInvitedCode(phoneNum));
         //设置是被谁邀请的
         if (invitedCode != null && !invitedCode.equals("") && isValidInvitedCode(invitedCode)) {
             UserbasicExample userbasicExample = new UserbasicExample();
@@ -295,12 +296,15 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         ethtoken.setAmount(0d);
         ethtoken.setAvailableamount(0d);
         ethtoken.setLockedamount(0d);
+        ethtoken.setCanlock(CodeRepresentation.CANNOT_LOCK);
         bgstoken.setAmount(0d);
         bgstoken.setAvailableamount(0d);
         bgstoken.setLockedamount(0d);
+        bgstoken.setCanlock(CodeRepresentation.CAN_LOCK);
         eostoken.setAmount(0d);
         eostoken.setAvailableamount(0d);
         eostoken.setLockedamount(0d);
+        eostoken.setCanlock(CodeRepresentation.CANNOT_LOCK);
         ethtokenMapper.insert(ethtoken);
         ethtokenMapper.insert(bgstoken);
         eostokenMapper.insert(eostoken);
@@ -330,6 +334,37 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     public boolean isValidOldPassword(String UID, String oldPassWord) {
         Userbasic userbasic = userbasicMapper.selectByPrimaryKey(UID);
         if (!userbasic.getPassword().equals(oldPassWord)) return false;
+        return true;
+    }
+
+    /**
+     * 修改用户个人信息
+     *
+     * @param UID
+     * @param headPhoto
+     * @param nickName
+     * @param sex
+     */
+    @Override
+    public void modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
+        Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
+        user.setHeadphoto(headPhoto);
+        user.setNickname(nickName);
+        user.setSex(sex);
+        userbasicMapper.updateByPrimaryKey(user);
+    }
+
+    /**
+     * 判断支付密码是否存在
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public boolean isPayCodeExists(String UID) {
+        Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
+        String payCode = user.getPaypassword();
+        if (payCode == null || payCode.equals("")) return false;
         return true;
     }
 }

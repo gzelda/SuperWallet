@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="mapper.EthprikeywarehouseMapper">
-    <resultMap id="BaseResultMap" type="pojo.Ethprikeywarehouse">
+<mapper namespace="com.superwallet.mapper.EthprikeywarehouseMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Ethprikeywarehouse">
         <id column="UID" property="uid" jdbcType="CHAR"/>
         <result column="priKey" property="prikey" jdbcType="VARCHAR"/>
     </resultMap>
@@ -68,7 +68,8 @@
     <sql id="Base_Column_List">
     UID, priKey
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="pojo.EthprikeywarehouseExample">
+    <select id="selectByExample" resultMap="BaseResultMap"
+            parameterType="com.superwallet.pojo.EthprikeywarehouseExample">
         select
         <if test="distinct">
             distinct
@@ -92,17 +93,17 @@
     delete from ethprikeywarehouse
     where UID = #{uid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="pojo.EthprikeywarehouseExample">
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.EthprikeywarehouseExample">
         delete from ethprikeywarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
         </if>
     </delete>
-    <insert id="insert" parameterType="pojo.Ethprikeywarehouse">
+    <insert id="insert" parameterType="com.superwallet.pojo.Ethprikeywarehouse">
     insert into ethprikeywarehouse (UID, priKey)
     values (#{uid,jdbcType=CHAR}, #{prikey,jdbcType=VARCHAR})
   </insert>
-    <insert id="insertSelective" parameterType="pojo.Ethprikeywarehouse">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Ethprikeywarehouse">
         insert into ethprikeywarehouse
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="uid != null">
@@ -121,7 +122,8 @@
             </if>
         </trim>
     </insert>
-    <select id="countByExample" parameterType="pojo.EthprikeywarehouseExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="com.superwallet.pojo.EthprikeywarehouseExample"
+            resultType="java.lang.Integer">
         select count(*) from ethprikeywarehouse
         <if test="_parameter != null">
             <include refid="Example_Where_Clause"/>
@@ -149,7 +151,7 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateByPrimaryKeySelective" parameterType="pojo.Ethprikeywarehouse">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Ethprikeywarehouse">
         update ethprikeywarehouse
         <set>
             <if test="prikey != null">
@@ -158,7 +160,7 @@
         </set>
         where UID = #{uid,jdbcType=CHAR}
     </update>
-    <update id="updateByPrimaryKey" parameterType="pojo.Ethprikeywarehouse">
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Ethprikeywarehouse">
     update ethprikeywarehouse
     set priKey = #{prikey,jdbcType=VARCHAR}
     where UID = #{uid,jdbcType=CHAR}

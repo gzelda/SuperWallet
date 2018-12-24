@@ -5,6 +5,14 @@ public class LockwarehouseKey {
 
     private String uid;
 
+    public LockwarehouseKey() {
+    }
+
+    public LockwarehouseKey(Long lid, String uid) {
+        this.lid = lid;
+        this.uid = uid;
+    }
+
     public Long getLid() {
         return lid;
     }

@@ -5,6 +5,11 @@ public class WithdrawmoneyKey {
 
     private String wid;
 
+    public WithdrawmoneyKey(String uid, String wid) {
+        this.uid = uid;
+        this.wid = wid;
+    }
+
     public String getUid() {
         return uid;
     }
