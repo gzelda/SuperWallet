@@ -3,135 +3,120 @@ package com.superwallet.response;
 import java.io.Serializable;
 
 public class ResponseDWalletLockedOrderEntry implements Serializable {
-    private String dealId;
-    private String coinName;
-    private String dealState;
-    private double dealLockCount;
-    private double dealInstanceProfit;
-    private double dealTodayProfit;
-    private int dealInstanceDay;
-    private int dealTotalDay;
-    private int dealLeftDay;
-    private String dealStartTime;
-    private String dealEndTime;
-    private String dealProfitType;
+    private String LID;
+    private String lockedOrderProfitTokenName;
+    private double lockedOrderTodayProfitToRMB;
+    private double lockedAmount;
+    private double lockedOrderInTimeProfit;
+    private String lockedOrderStartTime;
+    private String lockedOrderEndTime;
+    private int period;
+    private int lockedOrderLeftDay;
+    private String lockedOrderState;
+    private String tokenName;
 
     public ResponseDWalletLockedOrderEntry() {
     }
 
-    public ResponseDWalletLockedOrderEntry(String dealId, String coinName,
-                                           String dealState, double dealLockCount,
-                                           double dealInstanceProfit, double dealTodayProfit,
-                                           int dealInstanceDay, int dealTotalDay,
-                                           int dealLeftDay, String dealStartTime,
-                                           String dealEndTime, String dealProfitType) {
-        this.dealId = dealId;
-        this.coinName = coinName;
-        this.dealState = dealState;
-        this.dealLockCount = dealLockCount;
-        this.dealInstanceProfit = dealInstanceProfit;
-        this.dealTodayProfit = dealTodayProfit;
-        this.dealInstanceDay = dealInstanceDay;
-        this.dealTotalDay = dealTotalDay;
-        this.dealLeftDay = dealLeftDay;
-        this.dealStartTime = dealStartTime;
-        this.dealEndTime = dealEndTime;
-        this.dealProfitType = dealProfitType;
+    public ResponseDWalletLockedOrderEntry(String LID, String lockedOrderProfitTokenName, double lockedOrderTodayProfitToRMB, double lockedAmount, double lockedOrderInTimeProfit, String lockedOrderStartTime, String lockedOrderEndTime, int period, int lockedOrderLeftDay, String lockedOrderState, String tokenName) {
+        this.LID = LID;
+        this.lockedOrderProfitTokenName = lockedOrderProfitTokenName;
+        this.lockedOrderTodayProfitToRMB = lockedOrderTodayProfitToRMB;
+        this.lockedAmount = lockedAmount;
+        this.lockedOrderInTimeProfit = lockedOrderInTimeProfit;
+        this.lockedOrderStartTime = lockedOrderStartTime;
+        this.lockedOrderEndTime = lockedOrderEndTime;
+        this.period = period;
+        this.lockedOrderLeftDay = lockedOrderLeftDay;
+        this.lockedOrderState = lockedOrderState;
+        this.tokenName = tokenName;
     }
 
-    public String getDealId() {
-        return dealId;
+    public String getLID() {
+        return LID;
     }
 
-    public void setDealId(String dealId) {
-        this.dealId = dealId;
+    public void setLID(String LID) {
+        this.LID = LID;
     }
 
-    public String getCoinName() {
-        return coinName;
+    public String getLockedOrderProfitTokenName() {
+        return lockedOrderProfitTokenName;
     }
 
-    public void setCoinName(String coinName) {
-        this.coinName = coinName;
+    public void setLockedOrderProfitTokenName(String lockedOrderProfitTokenName) {
+        this.lockedOrderProfitTokenName = lockedOrderProfitTokenName;
     }
 
-    public String getDealState() {
-        return dealState;
+    public double getLockedOrderTodayProfitToRMB() {
+        return lockedOrderTodayProfitToRMB;
     }
 
-    public void setDealState(String dealState) {
-        this.dealState = dealState;
+    public void setLockedOrderTodayProfitToRMB(double lockedOrderTodayProfitToRMB) {
+        this.lockedOrderTodayProfitToRMB = lockedOrderTodayProfitToRMB;
     }
 
-    public double getDealLockCount() {
-        return dealLockCount;
+    public double getLockedAmount() {
+        return lockedAmount;
     }
 
-    public void setDealLockCount(double dealLockCount) {
-        this.dealLockCount = dealLockCount;
+    public void setLockedAmount(double lockedAmount) {
+        this.lockedAmount = lockedAmount;
     }
 
-    public double getDealInstanceProfit() {
-        return dealInstanceProfit;
+    public double getLockedOrderInTimeProfit() {
+        return lockedOrderInTimeProfit;
     }
 
-    public void setDealInstanceProfit(double dealInstanceProfit) {
-        this.dealInstanceProfit = dealInstanceProfit;
+    public void setLockedOrderInTimeProfit(double lockedOrderInTimeProfit) {
+        this.lockedOrderInTimeProfit = lockedOrderInTimeProfit;
     }
 
-    public double getDealTodayProfit() {
-        return dealTodayProfit;
+    public String getLockedOrderStartTime() {
+        return lockedOrderStartTime;
     }
 
-    public void setDealTodayProfit(double dealTodayProfit) {
-        this.dealTodayProfit = dealTodayProfit;
+    public void setLockedOrderStartTime(String lockedOrderStartTime) {
+        this.lockedOrderStartTime = lockedOrderStartTime;
     }
 
-    public int getDealInstanceDay() {
-        return dealInstanceDay;
+    public String getLockedOrderEndTime() {
+        return lockedOrderEndTime;
     }
 
-    public void setDealInstanceDay(int dealInstanceDay) {
-        this.dealInstanceDay = dealInstanceDay;
+    public void setLockedOrderEndTime(String lockedOrderEndTime) {
+        this.lockedOrderEndTime = lockedOrderEndTime;
     }
 
-    public int getDealTotalDay() {
-        return dealTotalDay;
+    public int getPeriod() {
+        return period;
     }
 
-    public void setDealTotalDay(int dealTotalDay) {
-        this.dealTotalDay = dealTotalDay;
+    public void setPeriod(int period) {
+        this.period = period;
     }
 
-    public int getDealLeftDay() {
-        return dealLeftDay;
+    public int getLockedOrderLeftDay() {
+        return lockedOrderLeftDay;
     }
 
-    public void setDealLeftDay(int dealLeftDay) {
-        this.dealLeftDay = dealLeftDay;
+    public void setLockedOrderLeftDay(int lockedOrderLeftDay) {
+        this.lockedOrderLeftDay = lockedOrderLeftDay;
     }
 
-    public String getDealStartTime() {
-        return dealStartTime;
+    public String getLockedOrderState() {
+        return lockedOrderState;
     }
 
-    public void setDealStartTime(String dealStartTime) {
-        this.dealStartTime = dealStartTime;
+    public void setLockedOrderState(String lockedOrderState) {
+        this.lockedOrderState = lockedOrderState;
     }
 
-    public String getDealEndTime() {
-        return dealEndTime;
+    public String getTokenName() {
+        return tokenName;
     }
 
-    public void setDealEndTime(String dealEndTime) {
-        this.dealEndTime = dealEndTime;
-    }
-
-    public String getDealProfitType() {
-        return dealProfitType;
-    }
-
-    public void setDealProfitType(String dealProfitType) {
-        this.dealProfitType = dealProfitType;
+    public void setTokenName(String tokenName) {
+        this.tokenName = tokenName;
     }
 }

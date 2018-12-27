@@ -18,9 +18,17 @@ create table userBasic(
     passWord varchar(100),
     payPassWord varchar(100),
     invitedCode varchar(100),
-    invitedPeople varchar(255),
-    registerTime timestamp not null,
+    registerTime timestamp not null default now(),
     primary key(UID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--邀请人表--
+drop table if exists inviter;
+create table inviter(
+    inviterID varchar(100) not null,
+    beinvitedID varchar(100) not null,
+    invitingTime timestamp not null default now(),
+    primary key(inviterID,beinvitedID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 用户状态信息表--
@@ -32,7 +40,7 @@ create table userStatus(
     invitedTime timestamp ,
     state tinyint,
     primary key(UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/* /* )ENGINE=InnoDB DEFAULT CHARSET=utf8; */ */
 
 -- 用户隐私资料表--
 drop table if exists userPrivate;
@@ -42,6 +50,7 @@ create table userPrivate(
     IDCardNumber char(20) not null,
     IDCardFront blob not null,
     IDCardBack blob not null,
+    face blob not null,
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -66,8 +75,6 @@ drop table if exists ETHWALLET,ETHTOKEN;
 create table ETHTOKEN(
     UID char(100) not null,
     ETHAddress varchar(50),
-    lockedAmount double not null,
-    availableAmount double not null,
     amount double not null,
     canLock tinyint not null default 0,
     type int not null,
@@ -79,8 +86,6 @@ drop table if exists EOSWallet,EOSTOKEN;
 create table EOSTOKEN(
     UID char(100) not null,
     EOSAccountName varchar(50),
-    lockedAmount double not null,
-    availableAmount double not null,
     amount double not null,
     type int not null,
     canLock tinyint not null default 0,
@@ -107,13 +112,18 @@ create table EOSPriKeyWarehouse(
 -- 交易记录--
 /**
 几种转账类型：
-1.锁仓--链上钱包锁入中心钱包
-2.链上中心转账--链上钱包转到中心钱包
-3.链上链上转账--链上钱包转到链上钱包
-4.买代理人（中心钱包买）--中心钱包扣
-5.提现（最小限额）--中心钱包转到链上钱包
-6.买EOS的RAM
-7.买EOS的CPU和NET
+1.链上中心转账--链上钱包转到中心钱包
+ 2.链上链上转账--链上钱包转到链上钱包
+ 3.锁仓支出--链上钱包锁入中心钱包
+ 4.Dapp游戏支出
+ 5.购买代理人支出
+ 6.买EOS的RAM支出
+ 7.买EOS的CPU和NET支出
+ 8.提现（最小限额）--中心钱包转到链上钱包
+ 9.注册获得BGS
+ 10.邀请获得BGS
+ 11.锁仓获得收益
+ 12.代理获得收益
 */
 drop table if exists transfer;
 create table transfer(
@@ -130,6 +140,12 @@ create table transfer(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 锁仓记录--
+/**
+status类型：
+1.收益中
+2.归仓中
+3.已结束
+*/
 drop table if exists lockWarehouse;
 create table lockWarehouse(
     UID char(100) not null,
@@ -137,10 +153,23 @@ create table lockWarehouse(
     amount double not null,
     period int unsigned not null,
     createdTime timestamp not null,
-    tokenType tinyint not null default 0,
-    dailyReturns double,
-    status tinyint not null default 0,
+    tokenType int not null default 0,
+    finalProfit double,
+    status int not null default 0,
+    profitTokenType int not null,
     primary key(LID,UID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--收益表--
+drop table if exists profit;
+create table profit(
+    UID varchar(100) not null,
+    PID bigint unsigned auto_increment not null,
+    orderID varchar(100),
+    profitType int not null,
+    createTime timestamp not null default now(),
+    profit double not null,
+    primary  key(PID,UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- banner--
@@ -152,6 +181,7 @@ create table banner(
     textOfAd text,
     linkOfAd text,
     type int,
+	status tinyint not null default 0,
     primary key(bid)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -165,7 +195,7 @@ create table if not exists gameList(
     link nvarchar(255),
     type tinyint,
     sort tinyint,
-    createTime timestamp not null default now(),
+    joindate timestamp not null default now(),
     primary key(gid)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -211,7 +241,7 @@ create table feedback(
     UID varchar(100) not null,
     createTime timestamp not null default now(),
     content varchar(255) not null,
-    contact varchar(30) not null,
+    contact varchar(30) ,
     primary key(fid,UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

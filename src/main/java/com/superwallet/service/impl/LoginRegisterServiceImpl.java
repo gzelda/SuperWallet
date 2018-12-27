@@ -3,18 +3,17 @@ package com.superwallet.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.LoginResult;
+import com.superwallet.common.MessageRepresentation;
 import com.superwallet.common.SuperResult;
-import com.superwallet.mapper.EostokenMapper;
-import com.superwallet.mapper.EthtokenMapper;
-import com.superwallet.mapper.UserbasicMapper;
-import com.superwallet.pojo.Eostoken;
-import com.superwallet.pojo.Ethtoken;
-import com.superwallet.pojo.Userbasic;
-import com.superwallet.pojo.UserbasicExample;
+import com.superwallet.mapper.*;
+import com.superwallet.pojo.*;
+import com.superwallet.service.CWalletService;
+import com.superwallet.service.CommonService;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.utils.ByteImageConvert;
 import com.superwallet.utils.CodeGenerator;
 import com.superwallet.utils.HttpUtil;
+import com.superwallet.utils.PushtoSingle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +32,21 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
 
     @Autowired
     private EthtokenMapper ethtokenMapper;
+
+    @Autowired
+    private UserprivateMapper userprivateMapper;
+
+    @Autowired
+    private InviterMapper inviterMapper;
+
+    @Autowired
+    private CWalletService cWalletService;
+
+    @Autowired
+    private CommonService commonService;
+
+    @Autowired
+    private EthtokenMapper bgstokenMapper;
 
     /**
      * 查看手机号是否已经被注册过
@@ -75,8 +89,8 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         byte[] headPhoto = ByteImageConvert.image2byte(path);
         userbasic.setHeadphoto(headPhoto);
         userbasic.setUid(uid);
-        userbasic.setSex(new Byte("0"));
-        userbasic.setIsagency(CodeRepresentation.NOTAGENCY);
+        userbasic.setSex(CodeRepresentation.USER_SEX_MAN);
+        userbasic.setIsagency(CodeRepresentation.USER_AGENT_NOTAGENCY);
         userbasic.setNickname(phoneNum);
         userbasic.setStatus(CodeRepresentation.USER_STATUS_NOIDVALIDATION);
         userbasic.setPhonenumber(phoneNum);
@@ -94,14 +108,25 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
             //用户设置邀请人信息
             userbasic.setInviter(inviter.getUid());
             //邀请人更新邀请的人的列表
-            //邀请人的invitedPeople 存String --- uid,uid,uid,
-            String invitedpeople = inviter.getInvitedpeople();
-            if (invitedpeople == null) invitedpeople = "";
-            invitedpeople += uid + ",";
-            inviter.setInvitedpeople(invitedpeople);
-            userbasicMapper.updateByPrimaryKey(inviter);
+            //插入一条邀请人记录
+            Inviter record = new Inviter();
+            record.setInvitingtime(new Date());
+            record.setInviterid(inviter.getUid());
+            record.setBeinvitedid(uid);
+            inviterMapper.insert(record);
+            //邀请方可以获得一笔BGS收入 更新BGS中心钱包表和生成一条交易记录
+            //更新钱包表
+            cWalletService.updateBGSWalletAmount(inviter.getUid(), CodeRepresentation.INVITING_BGS, CodeRepresentation.CWALLET_MONEY_INC);
+            //生成交易记录
+            //先找出邀请人的地址
+            EthtokenKey bgstokenKey = new EthtokenKey(inviter.getUid(), CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+            Ethtoken bgstoken = bgstokenMapper.selectByPrimaryKey(bgstokenKey);
+            String toAddress = bgstoken.getEthaddress();
+            commonService.generateRecord(inviter.getUid(), CodeRepresentation.TRANSFER_TYPE_INVITINGBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, toAddress, CodeRepresentation.INVITING_BGS);
         }
         userbasicMapper.insert(userbasic);
+        //注册成功后推送一条消息
+        PushtoSingle.pushMessage("test", "test", "http://www.baidu.com");
         return uid;
     }
 
@@ -133,7 +158,8 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     public LoginResult loginByPassWord(String phoneNum, String passWord) {
         boolean registered = isRegistered(phoneNum);
         //如果没注册，0-1代表无此手机号
-        if (!registered) new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, null);
+        if (!registered)
+            new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_1, null);
         UserbasicExample userbasicExample = new UserbasicExample();
         UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
         criteria.andPhonenumberEqualTo(phoneNum);
@@ -141,24 +167,13 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         List<Userbasic> list = userbasicMapper.selectByExample(userbasicExample);
         //如果密码错误，0-0
         if (list == null || list.size() == 0)
-            return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
+            return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_0, null);
         int status = (int) list.get(0).getStatus();
         Userbasic user = list.get(0);
         user.setPaypassword(null);
         user.setPaypassword(null);
-        switch (status) {
-            case 0:
-                //登录成功，但未做身份认证
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user);
-            case 1:
-                //登录成功，但未做人脸识别
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_1, user);
-            case 2:
-                //登录成功，返回UID
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_2, user);
-        }
         //系统错误
-        return new LoginResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
+        return new LoginResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
     }
 
     /**
@@ -178,23 +193,15 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
         criteria.andPhonenumberEqualTo(phoneNum);
         List<Userbasic> list = userbasicMapper.selectByExample(userbasicExample);
-        Userbasic user = list.get(0);
-        user.setPaypassword(null);
-        user.setPaypassword(null);
-        int status = (int) list.get(0).getStatus();
-        switch (status) {
-            case 0:
-                //登录成功，但未做身份认证
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user);
-            case 1:
-                //登录成功，但未做人脸识别
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_1, user);
-            case 2:
-                //登录成功，返回UID
-                return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_2, user);
+        //登录成功返回用户基本信息
+        if (list != null && list.size() != 0) {
+            Userbasic user = list.get(0);
+            user.setPaypassword(null);
+            user.setPaypassword(null);
+            return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_LOGINBYCODE_CODE_1_STATUS_0, user);
         }
         //系统错误
-        return new LoginResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, null);
+        return new LoginResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
     }
 
     /**
@@ -210,7 +217,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         boolean registered = isRegistered(phoneNum);
         if (!registered) {
             //手机号码未注册
-            return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
+            return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.LOGIN_FINDPASSWORD_CODE_0_STATUS_1, null);
         }
         //找到已注册的用户
         UserbasicExample userbasicExample = new UserbasicExample();
@@ -224,7 +231,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         user.setPaypassword(null);
         user.setPassword(null);
         //更新成功后，返回user
-        return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, user);
+        return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_FINDPASSWORD_CODE_1_STATUS_0, user);
     }
 
     /**
@@ -294,16 +301,10 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         bgstoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
         eostoken.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
         ethtoken.setAmount(0d);
-        ethtoken.setAvailableamount(0d);
-        ethtoken.setLockedamount(0d);
         ethtoken.setCanlock(CodeRepresentation.CANNOT_LOCK);
         bgstoken.setAmount(0d);
-        bgstoken.setAvailableamount(0d);
-        bgstoken.setLockedamount(0d);
         bgstoken.setCanlock(CodeRepresentation.CAN_LOCK);
         eostoken.setAmount(0d);
-        eostoken.setAvailableamount(0d);
-        eostoken.setLockedamount(0d);
         eostoken.setCanlock(CodeRepresentation.CANNOT_LOCK);
         ethtokenMapper.insert(ethtoken);
         ethtokenMapper.insert(bgstoken);
@@ -366,5 +367,31 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         String payCode = user.getPaypassword();
         if (payCode == null || payCode.equals("")) return false;
         return true;
+    }
+
+    /**
+     * 用户实名认证信息
+     *
+     * @param UID
+     * @param IDCardNumber
+     * @param realName
+     * @param IDCardFront
+     * @param IDCardBack
+     * @param face
+     */
+    @Override
+    public void verifyUser(String UID, String IDCardNumber, String realName, String IDCardFront, String IDCardBack, String face) {
+        //三张图片（身份证正反面、活体验证）都为url连接，需要下载
+        byte[] idCardFrontImg = ByteImageConvert.getFileStream(IDCardFront);
+        byte[] idCardBackImg = ByteImageConvert.getFileStream(IDCardBack);
+        byte[] faceImg = ByteImageConvert.getFileStream(face);
+        UserprivateWithBLOBs userPrivate = new UserprivateWithBLOBs();
+        userPrivate.setUid(UID);
+        userPrivate.setRealname(realName);
+        userPrivate.setIdcardnumber(IDCardNumber);
+        userPrivate.setIdcardfront(idCardFrontImg);
+        userPrivate.setIdcardback(idCardBackImg);
+        userPrivate.setFace(faceImg);
+        userprivateMapper.insert(userPrivate);
     }
 }

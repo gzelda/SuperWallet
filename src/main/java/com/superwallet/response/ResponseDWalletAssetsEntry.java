@@ -3,70 +3,70 @@ package com.superwallet.response;
 import java.io.Serializable;
 
 public class ResponseDWalletAssetsEntry implements Serializable {
-    private double coinTotal;
-    private double coinRmbTotal;
-    private String coinName;
-    private byte coinCanLock;
-    private double coinLockCount;
-    private double coinLockProfit;
+    private double tokenAmount;
+    private double tokenAmountToRMB;
+    private String tokenName;
+    private int canLock;
+    private double lockedAmount;
+    private double tokenLockedProfit;
 
     public ResponseDWalletAssetsEntry() {
     }
 
-    public ResponseDWalletAssetsEntry(double coinTotal, double coinRmbTotal, String coinName, byte coinCanLock, double coinLockCount, double coinLockProfit) {
-        this.coinTotal = coinTotal;
-        this.coinRmbTotal = coinRmbTotal;
-        this.coinName = coinName;
-        this.coinCanLock = coinCanLock;
-        this.coinLockCount = coinLockCount;
-        this.coinLockProfit = coinLockProfit;
+    public ResponseDWalletAssetsEntry(double tokenAmount, double tokenAmountToRMB, String tokenName, int canLock, double lockedAmount, double tokenLockedProfit) {
+        this.tokenAmount = tokenAmount;
+        this.tokenAmountToRMB = tokenAmountToRMB;
+        this.tokenName = tokenName;
+        this.canLock = canLock;
+        this.lockedAmount = lockedAmount;
+        this.tokenLockedProfit = tokenLockedProfit;
     }
 
-    public double getCoinTotal() {
-        return coinTotal;
+    public double getTokenAmount() {
+        return tokenAmount;
     }
 
-    public void setCoinTotal(double coinTotal) {
-        this.coinTotal = coinTotal;
+    public void setTokenAmount(double tokenAmount) {
+        this.tokenAmount = tokenAmount;
     }
 
-    public double getCoinRmbTotal() {
-        return coinRmbTotal;
+    public double getTokenAmountToRMB() {
+        return tokenAmountToRMB;
     }
 
-    public void setCoinRmbTotal(double coinRmbTotal) {
-        this.coinRmbTotal = coinRmbTotal;
+    public void setTokenAmountToRMB(double tokenAmountToRMB) {
+        this.tokenAmountToRMB = tokenAmountToRMB;
     }
 
-    public String getCoinName() {
-        return coinName;
+    public String getTokenName() {
+        return tokenName;
     }
 
-    public void setCoinName(String coinName) {
-        this.coinName = coinName;
+    public void setTokenName(String tokenName) {
+        this.tokenName = tokenName;
     }
 
-    public byte getCoinCanLock() {
-        return coinCanLock;
+    public int getCanLock() {
+        return canLock;
     }
 
-    public void setCoinCanLock(byte coinCanLock) {
-        this.coinCanLock = coinCanLock;
+    public void setCanLock(int canLock) {
+        this.canLock = canLock;
     }
 
-    public double getCoinLockCount() {
-        return coinLockCount;
+    public double getLockedAmount() {
+        return lockedAmount;
     }
 
-    public void setCoinLockCount(double coinLockCount) {
-        this.coinLockCount = coinLockCount;
+    public void setLockedAmount(double lockedAmount) {
+        this.lockedAmount = lockedAmount;
     }
 
-    public double getCoinLockProfit() {
-        return coinLockProfit;
+    public double getTokenLockedProfit() {
+        return tokenLockedProfit;
     }
 
-    public void setCoinLockProfit(double coinLockProfit) {
-        this.coinLockProfit = coinLockProfit;
+    public void setTokenLockedProfit(double tokenLockedProfit) {
+        this.tokenLockedProfit = tokenLockedProfit;
     }
 }

@@ -1,21 +1,21 @@
 package com.superwallet.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.superwallet.common.CWalletInfo;
-import com.superwallet.common.CodeRepresentation;
-import com.superwallet.common.RequestParams;
-import com.superwallet.common.SuperResult;
+import com.superwallet.common.*;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
+import com.superwallet.response.ResponseCWalletProfit;
+import com.superwallet.response.ResponseCWalletProfitEntry;
+import com.superwallet.response.ResponseCWalletSimProfit;
+import com.superwallet.response.ResponseCWalletSimProfitEntry;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.CommonService;
 import com.superwallet.utils.HttpUtil;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -42,6 +42,12 @@ public class CWalletServiceImpl implements CWalletService {
     @Autowired
     private WithdrawmoneyMapper withdrawmoneyMapper;
 
+    @Autowired
+    private LockwarehouseMapper lockwarehouseMapper;
+
+    @Autowired
+    private ProfitMapper profitMapper;
+
     /**
      * 获取用户的所有中心化钱包信息
      *
@@ -51,32 +57,15 @@ public class CWalletServiceImpl implements CWalletService {
     @Override
     public List<CWalletInfo> listCWalletInfo(String UID) {
         List<CWalletInfo> list = new ArrayList<CWalletInfo>();
-        //TODO 数字货币价格--目前爬虫实现
-        String origin = HttpUtil.get(CodeRepresentation.URL_PRICE);
-        Document document = Jsoup.parse(origin);
-        String eth_price = document.getElementById("id-ethereum").getElementsByClass("price").text();
-        String eos_price = document.getElementById("id-eos").getElementsByClass("price").text();
-        //TODO 缺少BGS价格
-        //以太钱包
-        EthtokenKey ethtokenKey = new EthtokenKey();
-        ethtokenKey.setUid(UID);
-        ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
-        Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-        double HUOBIprice = 1.0;
-        double price_eth = Double.parseDouble(eth_price.substring(1));
-        double price_eos = Double.parseDouble(eos_price.substring(1));
-        CWalletInfo ethInfo = new CWalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), ethtoken.getAmount(),
-                price_eth, ethtoken.getLockedamount(), ethtoken.getAvailableamount());
-        ethtoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
-        Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtoken);
-        CWalletInfo bgsInfo = new CWalletInfo(ethtoken.getEthaddress() == null ? "" : ethtoken.getEthaddress(), bgstoken.getAmount(),
-                HUOBIprice, bgstoken.getLockedamount(), bgstoken.getAvailableamount());
-        EostokenKey eostokenKey = new EostokenKey();
-        eostokenKey.setUid(UID);
-        eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
-        Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
-        CWalletInfo eosInfo = new CWalletInfo(eostoken.getEosaccountname() == null ? "" : eostoken.getEosaccountname(), eostoken.getAmount(),
-                price_eos, eostoken.getLockedamount(), eostoken.getAvailableamount());
+        CommonWalletInfo eth = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
+        CommonWalletInfo eos = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+        CommonWalletInfo bgs = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
+        CWalletInfo ethInfo = new CWalletInfo(eth.getTokenAddress(), eth.getcWalletAmount(),
+                eth.getTokenPrice(), eth.getLockedAmount(), eth.getcWalletAmount());
+        CWalletInfo bgsInfo = new CWalletInfo(bgs.getTokenAddress(), bgs.getcWalletAmount(),
+                bgs.getTokenPrice(), bgs.getLockedAmount(), bgs.getcWalletAmount());
+        CWalletInfo eosInfo = new CWalletInfo(eos.getTokenAddress(), eos.getcWalletAmount(),
+                eos.getTokenPrice(), eos.getLockedAmount(), eos.getcWalletAmount());
         list.add(ethInfo);
         list.add(bgsInfo);
         list.add(eosInfo);
@@ -126,13 +115,10 @@ public class CWalletServiceImpl implements CWalletService {
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 Double amount_eth = ethtoken.getAmount();
-                Double avaAmount_eth = ethtoken.getAvailableamount();
                 //TODO 事务管理
                 //余额转入,钱包更新
                 amount_eth += tokenAmount;
-                avaAmount_eth += tokenAmount;
                 ethtoken.setAmount(amount_eth);
-                ethtoken.setAvailableamount(avaAmount_eth);
                 ethtokenMapper.updateByPrimaryKey(ethtoken);
                 //生成转账记录
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
@@ -154,12 +140,9 @@ public class CWalletServiceImpl implements CWalletService {
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 Double amount_eos = eostoken.getAmount();
-                Double avaAmount_eos = eostoken.getAvailableamount();
                 //余额转入,钱包更新
                 amount_eos += tokenAmount;
-                avaAmount_eos += tokenAmount;
                 eostoken.setAmount(amount_eos);
-                eostoken.setAvailableamount(avaAmount_eos);
                 eostokenMapper.updateByPrimaryKey(eostoken);
                 //生成转账记录
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
@@ -181,12 +164,9 @@ public class CWalletServiceImpl implements CWalletService {
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 Double amount_bgs = bgstoken.getAmount();
-                Double avaAmount_bgs = bgstoken.getAvailableamount();
                 //余额转入,钱包更新
                 amount_bgs += tokenAmount;
-                avaAmount_bgs += tokenAmount;
                 bgstoken.setAmount(amount_bgs);
-                bgstoken.setAvailableamount(avaAmount_bgs);
                 ethtokenMapper.updateByPrimaryKey(bgstoken);
                 //生成转账记录
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
@@ -217,14 +197,11 @@ public class CWalletServiceImpl implements CWalletService {
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
                 //获得可用余额
-                avaAmount = ethtoken.getAvailableamount();
                 amount = ethtoken.getAmount();
                 //余额不足
-                if (avaAmount < tokenAmount) return false;
+                if (amount < tokenAmount) return false;
                 //余额更新
-                avaAmount -= tokenAmount;
                 amount -= tokenAmount;
-                ethtoken.setAvailableamount(avaAmount);
                 ethtoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(ethtoken);
                 commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
@@ -234,14 +211,11 @@ public class CWalletServiceImpl implements CWalletService {
                 eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
                 //获得可用余额
-                avaAmount = eostoken.getAvailableamount();
                 amount = eostoken.getAmount();
                 //余额不足
-                if (avaAmount < tokenAmount) return false;
+                if (amount < tokenAmount) return false;
                 //余额更新
-                avaAmount -= tokenAmount;
                 amount -= tokenAmount;
-                eostoken.setAvailableamount(avaAmount);
                 eostoken.setAmount(amount);
                 eostokenMapper.updateByPrimaryKey(eostoken);
                 commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
@@ -251,14 +225,11 @@ public class CWalletServiceImpl implements CWalletService {
                 ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
                 //获得可用余额
-                avaAmount = bgstoken.getAvailableamount();
                 amount = bgstoken.getAmount();
                 //余额不足
-                if (avaAmount < tokenAmount) return false;
+                if (amount < tokenAmount) return false;
                 //余额更新
-                avaAmount -= tokenAmount;
                 amount -= tokenAmount;
-                bgstoken.setAvailableamount(avaAmount);
                 bgstoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(bgstoken);
                 commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
@@ -394,12 +365,11 @@ public class CWalletServiceImpl implements CWalletService {
         ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
         Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
         //余额不足
-        if (bgstoken.getAvailableamount() < CodeRepresentation.AGENT_PRICE) return false;
+        if (bgstoken.getAmount() < CodeRepresentation.AGENT_PRICE) return false;
         //购买成功
         bgstoken.setAmount(bgstoken.getAmount() - CodeRepresentation.AGENT_PRICE);
-        bgstoken.setAvailableamount(bgstoken.getAvailableamount() - CodeRepresentation.AGENT_PRICE);
         //设置用户为代理人
-        user.setIsagency(CodeRepresentation.ISAGENCY);
+        user.setIsagency(CodeRepresentation.USER_AGENT_ISAGENCY);
         userbasicMapper.updateByPrimaryKey(user);
         ethtokenMapper.updateByPrimaryKey(bgstoken);
         //转账记录
@@ -415,5 +385,355 @@ public class CWalletServiceImpl implements CWalletService {
         transfer.setAmount(CodeRepresentation.AGENT_PRICE);
         transferMapper.insert(transfer);
         return true;
+    }
+
+    /**
+     * 收益列表展示
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public ResponseCWalletSimProfit listProfit(String UID) {
+        double totalProfitToRMB = 0;
+        List<ResponseCWalletSimProfitEntry> list = new ArrayList<ResponseCWalletSimProfitEntry>();
+        ResponseCWalletSimProfitEntry eth = commonService.getCWalletTokenProfit(UID, CodeRepresentation.TOKENTYPE_ETH);
+        ResponseCWalletSimProfitEntry eos = commonService.getCWalletTokenProfit(UID, CodeRepresentation.TOKENTYPE_EOS);
+        ResponseCWalletSimProfitEntry bgs = commonService.getCWalletTokenProfit(UID, CodeRepresentation.TOKENTYPE_BGS);
+        list.add(eth);
+        list.add(eos);
+        list.add(bgs);
+        totalProfitToRMB = eth.getTokenProfitToRMB() + eos.getTokenProfitToRMB() + bgs.getTokenProfitToRMB();
+        ResponseCWalletSimProfit result = new ResponseCWalletSimProfit(totalProfitToRMB, list);
+        return result;
+    }
+
+    /**
+     * 拿到特定币种锁仓的所有收益
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public List<ResponseCWalletProfitEntry> getLockedOrderProfit(String UID, Integer tokenType) {
+        //查询所有锁仓订单
+        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
+        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andProfittokentypeEqualTo(tokenType);
+        List<Lockwarehouse> orders = lockwarehouseMapper.selectByExample(lockwarehouseExample);
+        if (orders == null || orders.size() == 0) return null;
+        List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        for (Lockwarehouse order : orders) {
+            //锁仓订单状态为已结束
+            if (order.getStatus() == CodeRepresentation.LOCK_STATUS_ONOVER || order.getStatus() == CodeRepresentation.LOCK_STATUS_FINISHED) {
+                ResponseCWalletProfitEntry entry = finishedLockedOrderToEntry(order);
+                result.add(entry);
+            } else {//锁仓订单状态为收益中
+                List<ResponseCWalletProfitEntry> list = totalProfitToEntry(UID, tokenType, order.getLid() + "", CodeRepresentation.PROFIT_TYPE_LOCK);
+                result.addAll(list);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 拿到所有划转的收益--查询transfer表
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public List<ResponseCWalletProfitEntry> getWithDrawProfit(String UID, Integer tokenType) {
+        //查询transfer表，拿到所有划转记录
+        TransferExample transferExample = new TransferExample();
+        TransferExample.Criteria criteria = transferExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
+        criteria.andTransfertypeEqualTo(CodeRepresentation.TRANSFER_TYPE_WITHDRAW);
+        double tokenPrice = 1.0;
+        List<Transfer> list = transferMapper.selectByExample(transferExample);
+        List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (Transfer record : list) {
+            result.add(new ResponseCWalletProfitEntry(
+                    CodeRepresentation.PROFIT_TYPE_WITHDRAW + "",
+                    format.format(record.getCreatedtime()),
+                    CodeRepresentation.PROFIT_FINISHED,
+                    CodeRepresentation.PROFIT_STATUS_FINISHED + "",
+                    record.getAmount(),
+                    record.getAmount() * tokenPrice
+            ));
+        }
+        return result;
+    }
+
+    /**
+     * 获取代理人收益
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public List<ResponseCWalletProfitEntry> getAgentProfit(String UID, Integer tokenType) {
+        List<ResponseCWalletProfitEntry> result = totalProfitToEntry(UID, tokenType, null, CodeRepresentation.PROFIT_TYPE_AGENT);
+        return result;
+    }
+
+    /**
+     * 获取邀请人得到的收益
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public List<ResponseCWalletProfitEntry> getInvitingProfit(String UID, Integer tokenType) {
+        //查询transfer表，拿到所有划转记录
+        TransferExample transferExample = new TransferExample();
+        TransferExample.Criteria criteria = transferExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
+        criteria.andTransfertypeEqualTo(CodeRepresentation.TRANSFER_TYPE_INVITINGBGS);
+        double tokenPrice = 1.0;
+        List<Transfer> list = transferMapper.selectByExample(transferExample);
+        List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (Transfer record : list) {
+            result.add(new ResponseCWalletProfitEntry(
+                    CodeRepresentation.PROFIT_TYPE_INVITING + "",
+                    format.format(record.getCreatedtime()),
+                    CodeRepresentation.PROFIT_FINISHED,
+                    CodeRepresentation.PROFIT_STATUS_FINISHED + "",
+                    record.getAmount(),
+                    record.getAmount() * tokenPrice
+            ));
+        }
+        return result;
+    }
+
+    /**
+     * 将已结束的锁仓对象封装
+     *
+     * @param order
+     * @return
+     */
+    @Override
+    public ResponseCWalletProfitEntry finishedLockedOrderToEntry(Lockwarehouse order) {
+        ResponseCWalletProfitEntry result = new ResponseCWalletProfitEntry();
+        //TODO 拿对应货币行情价
+        int profitTokentype = order.getProfittokentype();
+        double tokenPrice = 1.0;
+        result.setIsFinished(CodeRepresentation.PROFIT_FINISHED);
+        result.setProfit(order.getFinalprofit());
+        result.setProfitToRMB(order.getFinalprofit() * tokenPrice);
+        //时间为锁仓结束时间
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        result.setTime(format.format(order.getCreatedtime().getTime() + order.getPeriod() * 24 * 60 * 60 * 1000));
+        //收益状态
+        //TODO 字典树
+        result.setStatus(CodeRepresentation.PROFIT_STATUS_FINISHED + "");
+        //收益类型
+        result.setType(CodeRepresentation.PROFIT_TYPE_LOCK + "");
+        return result;
+    }
+
+    /**
+     * 将未完成的收益进行累加计算
+     *
+     * @param UID
+     * @param orderID
+     * @param profitType
+     * @return
+     */
+    @Override
+    public List<ResponseCWalletProfitEntry> totalProfitToEntry(String UID, Integer tokenType, String orderID, Integer profitType) {
+        ProfitExample profitExample = new ProfitExample();
+        ProfitExample.Criteria criteria = profitExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        if (orderID != null) {
+            criteria.andOrderidEqualTo(orderID);
+        }
+        criteria.andProfittypeEqualTo(profitType);
+        List<Profit> list = profitMapper.selectByExample(profitExample);
+        //如果收益类型是锁仓，得求和
+        List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        //TODO 货币行情价
+        double tokenPrice = 1.0;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (profitType == CodeRepresentation.PROFIT_TYPE_LOCK) {
+            double profit = 0;
+            for (Profit row : list) {
+                profit += row.getProfit();
+            }
+            //TODO 文字字典树
+            result.add(new ResponseCWalletProfitEntry(
+                    profitType + "",
+                    format.format(new Date()),
+                    CodeRepresentation.PROFIT_NOTFINISHED,
+                    CodeRepresentation.PROFIT_STATUS_ONPROFIT + "",
+                    profit,
+                    profit * tokenPrice
+            ));
+        } else {//其他收益类型直接记录每一条收益记录
+            for (Profit row : list) {
+                result.add(new ResponseCWalletProfitEntry(
+                        profitType + "",
+                        format.format(row.getCreatetime()),
+                        CodeRepresentation.PROFIT_FINISHED,
+                        CodeRepresentation.PROFIT_STATUS_FINISHED + "",
+                        row.getProfit(),
+                        row.getProfit() * tokenPrice
+                ));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 币种收益详情展示
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType) {
+        //封装所需所有字段
+        int isLocked = 1, isAgent = 1, listCount = 0;
+        double tokenProfit, tokenProfitToRMB, lockedProfit = 0, lockedProfitToRMB, agentProfit = 0, agentProfitToRMB, mostRollOut;
+        //查询用户的对应货币余额
+        CommonWalletInfo walletInfo = commonService.getMappingCWalletInfo(UID, tokenType);
+        double tokenPrice = walletInfo.getTokenPrice();
+        mostRollOut = walletInfo.getcWalletAmount();
+        tokenProfit = walletInfo.getcWalletAmount();
+        tokenProfitToRMB = tokenProfit * tokenPrice;
+        //先查询用户是否有对于这个货币的锁仓
+        LockwarehouseExample isLockedExample = new LockwarehouseExample();
+        LockwarehouseExample.Criteria criteria = isLockedExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andTokentypeEqualTo(tokenType);
+        List<Lockwarehouse> lockedOrders = lockwarehouseMapper.selectByExample(isLockedExample);
+        if (lockedOrders == null || lockedOrders.size() == 0) isLocked = 0;
+
+        //判断是否是代理人
+        Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
+        if (user.getIsagency() != CodeRepresentation.USER_AGENT_ISAGENCY) isAgent = 0;
+
+        List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        List<ResponseCWalletProfitEntry> lockedOrderProfit = getLockedOrderProfit(UID, tokenType);
+        //拿到用户所有的锁仓收益金额
+        if (lockedOrderProfit != null || lockedOrderProfit.size() != 0) {
+            result.addAll(lockedOrderProfit);
+            listCount += lockedOrderProfit.size();
+            for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
+                lockedProfit += row.getProfit();
+            }
+        }
+        List<ResponseCWalletProfitEntry> agentProfitList = getAgentProfit(UID, tokenType);
+        //拿到用户代理人的收益金额
+        if (agentProfitList != null || agentProfitList.size() != 0) {
+            result.addAll(agentProfitList);
+            listCount += agentProfitList.size();
+            for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
+                agentProfit += row.getProfit();
+            }
+        }
+        List<ResponseCWalletProfitEntry> withDrawProfit = getWithDrawProfit(UID, tokenType);
+        if (withDrawProfit != null || withDrawProfit.size() != 0) {
+            listCount += withDrawProfit.size();
+            result.addAll(withDrawProfit);
+        }
+        List<ResponseCWalletProfitEntry> invitingProfit = getInvitingProfit(UID, tokenType);
+        if (invitingProfit != null || invitingProfit.size() != 0) {
+            listCount += invitingProfit.size();
+            result.addAll(invitingProfit);
+        }
+        //记录做排序
+        Collections.sort(result, new Comparator<ResponseCWalletProfitEntry>() {
+            @Override
+            public int compare(ResponseCWalletProfitEntry o1, ResponseCWalletProfitEntry o2) {
+                return o2.getTime().compareTo(o1.getTime());
+            }
+        });
+        lockedProfitToRMB = lockedProfit * tokenPrice;
+        agentProfitToRMB = agentProfit * tokenPrice;
+        ResponseCWalletProfit out = new ResponseCWalletProfit(
+                listCount,
+                isLocked,
+                isAgent,
+                tokenProfit,
+                tokenProfitToRMB,
+                lockedProfit,
+                lockedProfitToRMB,
+                agentProfit,
+                agentProfitToRMB,
+                mostRollOut,
+                result
+        );
+        return out;
+    }
+
+    /**
+     * 更新ETH中心钱包表余额
+     *
+     * @param UID
+     * @param amount
+     * @param type
+     */
+    @Override
+    public void updateETHWalletAmount(String UID, double amount, Integer type) {
+        EthtokenKey ethtokenKey = new EthtokenKey();
+        ethtokenKey.setUid(UID);
+        ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+        Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+        double remain = ethtoken.getAmount();
+        if (type == CodeRepresentation.CWALLET_MONEY_INC) remain += amount;
+        else if (type == CodeRepresentation.CWALLET_MONEY_DEC) remain -= amount;
+        ethtoken.setAmount(remain);
+        ethtokenMapper.updateByPrimaryKey(ethtoken);
+    }
+
+    /**
+     * 更新EOS中心钱包表余额
+     *
+     * @param UID
+     * @param amount
+     * @param type
+     */
+    @Override
+    public void updateEOSWalletAmount(String UID, double amount, Integer type) {
+        EostokenKey eostokenKey = new EostokenKey();
+        eostokenKey.setUid(UID);
+        eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+        Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+        double remain = eostoken.getAmount();
+        if (type == CodeRepresentation.CWALLET_MONEY_INC) remain += amount;
+        else if (type == CodeRepresentation.CWALLET_MONEY_DEC) remain -= amount;
+        eostoken.setAmount(remain);
+        eostokenMapper.updateByPrimaryKey(eostoken);
+    }
+
+    /**
+     * 更新ETH-BGS中心钱包表余额
+     *
+     * @param UID
+     * @param amount
+     * @param type
+     */
+    @Override
+    public void updateBGSWalletAmount(String UID, double amount, Integer type) {
+        EthtokenKey bgstokenKey = new EthtokenKey();
+        bgstokenKey.setUid(UID);
+        bgstokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+        Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(bgstokenKey);
+        double remain = bgstoken.getAmount();
+        if (type == CodeRepresentation.CWALLET_MONEY_INC) remain += amount;
+        else if (type == CodeRepresentation.CWALLET_MONEY_DEC) remain -= amount;
+        bgstoken.setAmount(remain);
+        ethtokenMapper.updateByPrimaryKey(bgstoken);
     }
 }

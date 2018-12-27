@@ -425,113 +425,113 @@ public class LockwarehouseExample {
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeEqualTo(Byte value) {
+        public Criteria andTokentypeEqualTo(Integer value) {
             addCriterion("tokenType =", value, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeNotEqualTo(Byte value) {
+        public Criteria andTokentypeNotEqualTo(Integer value) {
             addCriterion("tokenType <>", value, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeGreaterThan(Byte value) {
+        public Criteria andTokentypeGreaterThan(Integer value) {
             addCriterion("tokenType >", value, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeGreaterThanOrEqualTo(Byte value) {
+        public Criteria andTokentypeGreaterThanOrEqualTo(Integer value) {
             addCriterion("tokenType >=", value, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeLessThan(Byte value) {
+        public Criteria andTokentypeLessThan(Integer value) {
             addCriterion("tokenType <", value, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeLessThanOrEqualTo(Byte value) {
+        public Criteria andTokentypeLessThanOrEqualTo(Integer value) {
             addCriterion("tokenType <=", value, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeIn(List<Byte> values) {
+        public Criteria andTokentypeIn(List<Integer> values) {
             addCriterion("tokenType in", values, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeNotIn(List<Byte> values) {
+        public Criteria andTokentypeNotIn(List<Integer> values) {
             addCriterion("tokenType not in", values, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeBetween(Byte value1, Byte value2) {
+        public Criteria andTokentypeBetween(Integer value1, Integer value2) {
             addCriterion("tokenType between", value1, value2, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andTokentypeNotBetween(Byte value1, Byte value2) {
+        public Criteria andTokentypeNotBetween(Integer value1, Integer value2) {
             addCriterion("tokenType not between", value1, value2, "tokentype");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsIsNull() {
-            addCriterion("dailyReturns is null");
+        public Criteria andFinalprofitIsNull() {
+            addCriterion("finalProfit is null");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsIsNotNull() {
-            addCriterion("dailyReturns is not null");
+        public Criteria andFinalprofitIsNotNull() {
+            addCriterion("finalProfit is not null");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsEqualTo(Double value) {
-            addCriterion("dailyReturns =", value, "dailyreturns");
+        public Criteria andFinalprofitEqualTo(Double value) {
+            addCriterion("finalProfit =", value, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsNotEqualTo(Double value) {
-            addCriterion("dailyReturns <>", value, "dailyreturns");
+        public Criteria andFinalprofitNotEqualTo(Double value) {
+            addCriterion("finalProfit <>", value, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsGreaterThan(Double value) {
-            addCriterion("dailyReturns >", value, "dailyreturns");
+        public Criteria andFinalprofitGreaterThan(Double value) {
+            addCriterion("finalProfit >", value, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsGreaterThanOrEqualTo(Double value) {
-            addCriterion("dailyReturns >=", value, "dailyreturns");
+        public Criteria andFinalprofitGreaterThanOrEqualTo(Double value) {
+            addCriterion("finalProfit >=", value, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsLessThan(Double value) {
-            addCriterion("dailyReturns <", value, "dailyreturns");
+        public Criteria andFinalprofitLessThan(Double value) {
+            addCriterion("finalProfit <", value, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsLessThanOrEqualTo(Double value) {
-            addCriterion("dailyReturns <=", value, "dailyreturns");
+        public Criteria andFinalprofitLessThanOrEqualTo(Double value) {
+            addCriterion("finalProfit <=", value, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsIn(List<Double> values) {
-            addCriterion("dailyReturns in", values, "dailyreturns");
+        public Criteria andFinalprofitIn(List<Double> values) {
+            addCriterion("finalProfit in", values, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsNotIn(List<Double> values) {
-            addCriterion("dailyReturns not in", values, "dailyreturns");
+        public Criteria andFinalprofitNotIn(List<Double> values) {
+            addCriterion("finalProfit not in", values, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsBetween(Double value1, Double value2) {
-            addCriterion("dailyReturns between", value1, value2, "dailyreturns");
+        public Criteria andFinalprofitBetween(Double value1, Double value2) {
+            addCriterion("finalProfit between", value1, value2, "finalprofit");
             return (Criteria) this;
         }
 
-        public Criteria andDailyreturnsNotBetween(Double value1, Double value2) {
-            addCriterion("dailyReturns not between", value1, value2, "dailyreturns");
+        public Criteria andFinalprofitNotBetween(Double value1, Double value2) {
+            addCriterion("finalProfit not between", value1, value2, "finalprofit");
             return (Criteria) this;
         }
 
@@ -545,53 +545,113 @@ public class LockwarehouseExample {
             return (Criteria) this;
         }
 
-        public Criteria andStatusEqualTo(Byte value) {
+        public Criteria andStatusEqualTo(Integer value) {
             addCriterion("status =", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotEqualTo(Byte value) {
+        public Criteria andStatusNotEqualTo(Integer value) {
             addCriterion("status <>", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusGreaterThan(Byte value) {
+        public Criteria andStatusGreaterThan(Integer value) {
             addCriterion("status >", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusGreaterThanOrEqualTo(Byte value) {
+        public Criteria andStatusGreaterThanOrEqualTo(Integer value) {
             addCriterion("status >=", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLessThan(Byte value) {
+        public Criteria andStatusLessThan(Integer value) {
             addCriterion("status <", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLessThanOrEqualTo(Byte value) {
+        public Criteria andStatusLessThanOrEqualTo(Integer value) {
             addCriterion("status <=", value, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusIn(List<Byte> values) {
+        public Criteria andStatusIn(List<Integer> values) {
             addCriterion("status in", values, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotIn(List<Byte> values) {
+        public Criteria andStatusNotIn(List<Integer> values) {
             addCriterion("status not in", values, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusBetween(Byte value1, Byte value2) {
+        public Criteria andStatusBetween(Integer value1, Integer value2) {
             addCriterion("status between", value1, value2, "status");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotBetween(Byte value1, Byte value2) {
+        public Criteria andStatusNotBetween(Integer value1, Integer value2) {
             addCriterion("status not between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeIsNull() {
+            addCriterion("profitTokenType is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeIsNotNull() {
+            addCriterion("profitTokenType is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeEqualTo(Integer value) {
+            addCriterion("profitTokenType =", value, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeNotEqualTo(Integer value) {
+            addCriterion("profitTokenType <>", value, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeGreaterThan(Integer value) {
+            addCriterion("profitTokenType >", value, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeGreaterThanOrEqualTo(Integer value) {
+            addCriterion("profitTokenType >=", value, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeLessThan(Integer value) {
+            addCriterion("profitTokenType <", value, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeLessThanOrEqualTo(Integer value) {
+            addCriterion("profitTokenType <=", value, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeIn(List<Integer> values) {
+            addCriterion("profitTokenType in", values, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeNotIn(List<Integer> values) {
+            addCriterion("profitTokenType not in", values, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeBetween(Integer value1, Integer value2) {
+            addCriterion("profitTokenType between", value1, value2, "profittokentype");
+            return (Criteria) this;
+        }
+
+        public Criteria andProfittokentypeNotBetween(Integer value1, Integer value2) {
+            addCriterion("profitTokenType not between", value1, value2, "profittokentype");
             return (Criteria) this;
         }
     }

@@ -20,6 +20,28 @@ public class SuperResult implements Serializable {
     // 响应中的数据
     private Object data;
 
+    //响应中的消息
+    private String msg;
+
+    public SuperResult(Integer code, Integer status, String msg, Object data) {
+        this.code = code;
+        this.status = status;
+        this.msg = msg;
+        this.data = data;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public static SuperResult build(Integer code, Integer status, String msg, Object data) {
+        return new SuperResult(code, status, msg, data);
+    }
+
     public static SuperResult build(Integer code, Integer status, Object data) {
         return new SuperResult(code, status, data);
     }
@@ -30,6 +52,12 @@ public class SuperResult implements Serializable {
 
     public static SuperResult ok() {
         return new SuperResult(null);
+    }
+
+    public static SuperResult ok(String msg) {
+        SuperResult result = new SuperResult();
+        result.setMsg(msg);
+        return result;
     }
 
     public SuperResult() {
@@ -77,10 +105,10 @@ public class SuperResult implements Serializable {
     }
 
     /**
-     * 将json结果集转化为TaotaoResult对象
+     * 将json结果集转化为SuperResult对象
      *
      * @param jsonData json数据
-     * @param clazz    TaotaoResult中的object类型
+     * @param clazz    SuperResult中的object类型
      * @return
      */
     public static SuperResult formatToPojo(String jsonData, Class<?> clazz) {

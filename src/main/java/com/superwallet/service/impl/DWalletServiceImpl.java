@@ -12,17 +12,13 @@ import com.superwallet.response.*;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.CommonService;
 import com.superwallet.service.DWalletService;
-import com.superwallet.utils.CoinConvertUtils;
 import com.superwallet.utils.HttpUtil;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,6 +42,48 @@ public class DWalletServiceImpl implements DWalletService {
 
     @Autowired
     private CWalletService cWalletService;
+
+    /**
+     * 展示链上钱包基本信息
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public List<ResponseDWalletSimpleInfo> listDWalletInfo(String UID) {
+        List<ResponseDWalletSimpleInfo> list = new ArrayList<ResponseDWalletSimpleInfo>();
+        CommonWalletInfo eth = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
+        CommonWalletInfo eos = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+        CommonWalletInfo bgs = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
+        //ETH信息
+        list.add(
+                new ResponseDWalletSimpleInfo(
+                        eth.getTokenType(),
+                        eth.getTokenName(),
+                        eth.getTokenAddress(),
+                        eth.getcWalletAmount() * eth.getTokenPrice()
+                )
+        );
+        //EOS信息
+        list.add(
+                new ResponseDWalletSimpleInfo(
+                        eos.getTokenType(),
+                        eos.getTokenName(),
+                        eos.getTokenAddress(),
+                        eos.getcWalletAmount() * eos.getTokenPrice()
+                )
+        );
+        //BGS信息
+        list.add(
+                new ResponseDWalletSimpleInfo(
+                        bgs.getTokenType(),
+                        bgs.getTokenName(),
+                        bgs.getTokenAddress(),
+                        bgs.getcWalletAmount() * bgs.getTokenPrice()
+                )
+        );
+        return list;
+    }
 
     /**
      * 链上钱包详细信息
@@ -79,7 +117,7 @@ public class DWalletServiceImpl implements DWalletService {
         Ethtoken eth = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
         String eth_address = eth.getEthaddress();
         double eth_avaAmount = Double.parseDouble(eth_json.getString("ethBalance"));
-        double eth_lockedAmount = eth.getLockedamount();
+        double eth_lockedAmount = commonService.getLockedAmount(UID, CodeRepresentation.TOKENTYPE_ETH);
         double eth_amount = eth_avaAmount + eth_lockedAmount;
         double eth_price = 1.0;
         ethWalletInfo = new ETHWalletInfo(eth_address,
@@ -98,7 +136,7 @@ public class DWalletServiceImpl implements DWalletService {
         Ethtoken bgs = ethtokenMapper.selectByPrimaryKey(bgsTokenKey);
         String bgs_address = bgs.getEthaddress();
         double bgs_avaAmount = Double.parseDouble(eth_json.getString("bgsBalance"));
-        double bgs_lockedAmount = bgs.getLockedamount();
+        double bgs_lockedAmount = commonService.getLockedAmount(UID, CodeRepresentation.TOKENTYPE_BGS);
         double bgs_amount = bgs_avaAmount + bgs_lockedAmount;
         double bgs_price = 1.0;
         bgsWalletInfo = new ETHWalletInfo(bgs_address,
@@ -117,7 +155,7 @@ public class DWalletServiceImpl implements DWalletService {
         Eostoken eos = eostokenMapper.selectByPrimaryKey(eostokenKey);
         String eos_account = eos.getEosaccountname();
         double eos_avaAmount = Double.parseDouble(eos_json.getString("core_liquid_balance").split(" ")[0]);
-        double eos_lockedAmount = eos.getLockedamount();
+        double eos_lockedAmount = commonService.getLockedAmount(UID, CodeRepresentation.TOKENTYPE_EOS);
         double eos_amount = eos_avaAmount + eos_lockedAmount;
         double eos_price = 1.0;
         JSONObject mortgageEOS_json = JSON.parseObject(eos_json.getString("self_delegated_bandwidth"));
@@ -251,7 +289,7 @@ public class DWalletServiceImpl implements DWalletService {
         //转账币种
         Byte token = new Byte(tokenType + "");
         //锁仓状态
-        Byte status = CodeRepresentation.LOCK_ON;
+        int status = CodeRepresentation.LOCK_ON;
         switch (tokenType) {
             //转入eth钱包
             case 0:
@@ -269,8 +307,6 @@ public class DWalletServiceImpl implements DWalletService {
                 if (result.getCode() == 0) return false;
                 //请求成功--生成1.锁仓记录 2.交易记录 3.更新token表
                 amount = ethtoken.getAmount() + tokenAmount;
-                lockedAmount = ethtoken.getLockedamount() + tokenAmount;
-                ethtoken.setLockedamount(lockedAmount);
                 ethtoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(ethtoken);
                 commonService.lockedRecord(UID, period, tokenAmount, status);
@@ -293,8 +329,6 @@ public class DWalletServiceImpl implements DWalletService {
                 if (result.getCode() == 0) return false;
                 //请求成功--生成1.锁仓记录 2.交易记录 3.更新token表
                 amount = eostoken.getAmount() + tokenAmount;
-                lockedAmount = eostoken.getLockedamount() + tokenAmount;
-                eostoken.setLockedamount(lockedAmount);
                 eostoken.setAmount(amount);
                 eostokenMapper.updateByPrimaryKey(eostoken);
                 commonService.lockedRecord(UID, period, tokenAmount, status);
@@ -317,8 +351,6 @@ public class DWalletServiceImpl implements DWalletService {
                 if (result.getCode() == 0) return false;
                 //请求成功--生成1.锁仓记录 2.交易记录 3.更新token表
                 amount = bgstoken.getAmount() + tokenAmount;
-                lockedAmount = bgstoken.getLockedamount() + tokenAmount;
-                bgstoken.setLockedamount(lockedAmount);
                 bgstoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(bgstoken);
                 commonService.lockedRecord(UID, period, tokenAmount, status);
@@ -326,53 +358,6 @@ public class DWalletServiceImpl implements DWalletService {
                 break;
         }
         return true;
-    }
-
-    /**
-     * 锁仓订单列表展示
-     *
-     * @param UID
-     * @param tokenType
-     * @return
-     */
-    @Override
-    public ResponseDWalletLockedOrder listOrders(String UID, int tokenType) {
-        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
-        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
-        criteria.andUidEqualTo(UID);
-        //TODO 根据货币类型条件查询
-//        criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        lockwarehouseExample.setOrderByClause("createdTime DESC");
-        List<Lockwarehouse> list = lockwarehouseMapper.selectByExample(lockwarehouseExample);
-        int listCount = list.size();
-        List<ResponseDWalletLockedOrderEntry> orders = new ArrayList<ResponseDWalletLockedOrderEntry>();
-        for (Lockwarehouse row : list) {
-            String dealId = String.valueOf(row.getLid());
-            String coinName = CoinConvertUtils.type2nameMapping((int) row.getTokentype());
-            String dealState = row.getStatus() + "";
-            double dealLockCount = row.getAmount();
-            //TODO 收益计算
-            double dealInstanceProfit = 0;
-            double dealTodayProfit = 0;
-            int dealInstanceDay = (int) ((new Date()).getTime() - row.getCreatedtime().getTime()) / (1000 * 60 * 60 * 24);
-            int dealTotalDay = row.getPeriod();
-            int dealLeftDay = dealTotalDay - dealInstanceDay;
-            String dealStartTime = format.format(row.getCreatedtime());
-            String dealEndTime = format.format(row.getCreatedtime().getTime() + row.getPeriod() * 24 * 60 * 60 * 1000);
-            String dealProfitType = CoinConvertUtils.type2nameMapping((int) row.getTokentype());
-            orders.add(
-                    new ResponseDWalletLockedOrderEntry(
-                            dealId, coinName,
-                            dealState, dealLockCount,
-                            dealInstanceProfit, dealTodayProfit,
-                            dealInstanceDay, dealTotalDay,
-                            dealLeftDay, dealStartTime, dealEndTime, dealProfitType
-                    )
-            );
-        }
-        ResponseDWalletLockedOrder result = new ResponseDWalletLockedOrder(listCount, orders);
-        return result;
     }
 
     /**
@@ -446,7 +431,7 @@ public class DWalletServiceImpl implements DWalletService {
         Eostoken eos = eostokenMapper.selectByPrimaryKey(eostokenKey);
         String eos_account = eos.getEosaccountname();
         double eos_avaAmount = Double.parseDouble(eos_json.getString("core_liquid_balance").split(" ")[0]);
-        double eos_lockedAmount = eos.getLockedamount();
+        double eos_lockedAmount = commonService.getLockedAmount(UID, CodeRepresentation.TOKENTYPE_EOS);
         double eos_amount = eos_avaAmount + eos_lockedAmount;
         double eos_price = 1.0;
         JSONObject mortgageEOS_json = JSON.parseObject(eos_json.getString("self_delegated_bandwidth"));
@@ -473,47 +458,6 @@ public class DWalletServiceImpl implements DWalletService {
     }
 
     /**
-     * 展示链上钱包基本信息
-     *
-     * @param UID
-     * @return
-     */
-    @Override
-    public List<ResponseDWalletSimpleInfo> listWalletInfo(String UID) {
-        List<ResponseDWalletSimpleInfo> list = new ArrayList<ResponseDWalletSimpleInfo>();
-        //TODO 数字货币价格--目前爬虫实现
-        String origin = HttpUtil.get(CodeRepresentation.URL_PRICE);
-        Document document = Jsoup.parse(origin);
-        String eth_price = document.getElementById("id-ethereum").getElementsByClass("price").text();
-        String eos_price = document.getElementById("id-eos").getElementsByClass("price").text();
-        //TODO 缺少BGS价格
-        //以太钱包
-        EthtokenKey ethtokenKey = new EthtokenKey();
-        ethtokenKey.setUid(UID);
-        ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
-        Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-        double price_eth = Double.parseDouble(eth_price.substring(1));
-        double price_eos = Double.parseDouble(eos_price.substring(1));
-        double price_bgs = 1.0;
-        ResponseDWalletSimpleInfo ethInfo = new ResponseDWalletSimpleInfo(CodeRepresentation.COINTYPE_ETH, "ETH", ethtoken.getEthaddress() == null ? "default" : ethtoken.getEthaddress(),
-                String.valueOf(price_eth));
-        ethtoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
-        Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtoken);
-        ResponseDWalletSimpleInfo bgsInfo = new ResponseDWalletSimpleInfo(CodeRepresentation.COINTYPE_BGS, "BGS", ethtoken.getEthaddress() == null ? "default" : ethtoken.getEthaddress(),
-                String.valueOf(price_bgs));
-        EostokenKey eostokenKey = new EostokenKey();
-        eostokenKey.setUid(UID);
-        eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
-        Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
-        ResponseDWalletSimpleInfo eosInfo = new ResponseDWalletSimpleInfo(CodeRepresentation.COINTYPE_EOS, "EOS", ethtoken.getEthaddress() == null ? "default" : ethtoken.getEthaddress(),
-                String.valueOf(price_eos));
-        list.add(ethInfo);
-        list.add(bgsInfo);
-        list.add(eosInfo);
-        return list;
-    }
-
-    /**
      * 链上钱包详单展示
      *
      * @param UID
@@ -522,45 +466,11 @@ public class DWalletServiceImpl implements DWalletService {
      * @return
      */
     @Override
-    public ResponseDWalletBill listBills(String UID, Integer tokenType, Integer type) {
-        String coinName = CoinConvertUtils.type2nameMapping(tokenType);
+    public ResponseDWalletBill listDetailDWalletInfo(String UID, Integer tokenType, Integer type) {
         //根据货币类型拿到对应的地址、余额、锁仓余额
-        String coinAddress = "default";
+        CommonWalletInfo walletInfo = commonService.getMappingDAndCWalletInfo(UID, tokenType);
         //TODO 货币价格
-        double coinTotal = 0, lockCount = 0, coinRmbTotal, coinPrice = 1.0;
-        switch (tokenType) {
-            case 0://ETH
-                //拿地址和锁仓余额
-                EthtokenKey ethtokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
-                Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-                coinAddress = ethtoken.getEthaddress();
-                lockCount = ethtoken.getLockedamount();
-                //拿到链上钱包余额
-                JSONObject eth_json = commonService.getETHInfo(UID);
-                coinTotal = Double.parseDouble(eth_json.getString("ethBalance"));
-                break;
-            case 1://EOS
-                //拿到地址和锁仓余额
-                EostokenKey eostokenKey = new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
-                Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
-                coinAddress = eostoken.getEosaccountname();
-                lockCount = eostoken.getLockedamount();
-                //拿到链上钱包余额
-                JSONObject eos_json = commonService.getEOSInfo(UID);
-                coinTotal = Double.parseDouble(eos_json.getString("core_liquid_balance").split(" ")[0]);
-                break;
-            case 2://BGS
-                //拿地址和锁仓余额
-                EthtokenKey bgstokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
-                Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(bgstokenKey);
-                coinAddress = bgstoken.getEthaddress();
-                lockCount = bgstoken.getLockedamount();
-                //拿到链上钱包余额
-                JSONObject bgs_json = commonService.getETHInfo(UID);
-                coinTotal = Double.parseDouble(bgs_json.getString("bgsBalance"));
-                break;
-        }
-        coinRmbTotal = coinPrice * coinTotal;
+        double tokenPrice = 1.0;
         TransferExample transferExample = new TransferExample();
         TransferExample.Criteria criteria = transferExample.createCriteria();
         criteria.andUidEqualTo(UID);
@@ -570,19 +480,28 @@ public class DWalletServiceImpl implements DWalletService {
         int listCount = transfers.size();
         List<ResponseDWalletBillEntry> bills = new ArrayList<ResponseDWalletBillEntry>();
         //TODO 字段转译
-        String dealType, dealState, dealTime;
-        double dealCount, dealRmbCount;
+        String transferType, lockedOrderState, transferTime;
+        double transferAmount, transferAmountToRMB;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        //获取交易记录并封装
         for (Transfer row : transfers) {
-            dealType = row.getTransfertype() + "";
-            dealState = row.getStatus() + "";
-            dealCount = row.getAmount();
-            dealRmbCount = coinPrice * row.getAmount();
-            dealTime = format.format(row.getCreatedtime());
-            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(dealType, dealState, dealCount, dealRmbCount, dealTime);
+            transferType = row.getTransfertype() + "";
+            lockedOrderState = row.getStatus() + "";
+            transferAmount = row.getAmount();
+            transferAmountToRMB = tokenPrice * row.getAmount();
+            transferTime = format.format(row.getCreatedtime());
+            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, lockedOrderState, transferAmount, transferAmountToRMB, transferTime);
             bills.add(bill);
         }
-        ResponseDWalletBill result = new ResponseDWalletBill(coinName, coinTotal, coinRmbTotal, lockCount, coinAddress, listCount, bills);
+        //设置返回信息
+        ResponseDWalletBill result = new ResponseDWalletBill(
+                walletInfo.getTokenName(),
+                walletInfo.getBalance(),
+                walletInfo.getBalance() * tokenPrice,
+                walletInfo.getLockedAmount(),
+                walletInfo.getTokenAddress(),
+                listCount,
+                bills);
         return result;
     }
 
@@ -593,34 +512,37 @@ public class DWalletServiceImpl implements DWalletService {
      * @return
      */
     @Override
-    public ResponseDWalletAssets listDWalletInfo(String UID) {
-        double allCoinTotal;
+    public ResponseDWalletAssets listAssets(String UID) {
+        double allTokenAmountToRMB;
         int listCount;
-        ETHWalletInfo ethWalletInfo = commonService.getETHDetailInfo(UID);
-        ETHWalletInfo bgsWalletInfo = commonService.getBGSDetailInfo(UID);
-        EOSWalletInfo eosWalletInfo = commonService.getEOSDetailInfo(UID);
+        double eth_tokenPrice = 1.0;
+        double eos_tokenPrice = 1.0;
+        double bgs_tokenPrice = 1.0;
+        CommonWalletInfo ethWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
+        CommonWalletInfo eosWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+        CommonWalletInfo bgsWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
         List<ResponseDWalletAssetsEntry> walletInfo = new ArrayList<ResponseDWalletAssetsEntry>();
         //TODO 收益计算
         ResponseDWalletAssetsEntry eth = new ResponseDWalletAssetsEntry(
-                ethWalletInfo.getAvailableAmount(),
-                ethWalletInfo.getAvailableAmount() * ethWalletInfo.getPrice(),
-                "ETH",
+                ethWalletInfo.getBalance(),
+                ethWalletInfo.getBalance() * eth_tokenPrice,
+                ethWalletInfo.getTokenName(),
                 ethWalletInfo.getCanLock(),
                 ethWalletInfo.getLockedAmount(),
                 0
         );
         ResponseDWalletAssetsEntry bgs = new ResponseDWalletAssetsEntry(
-                bgsWalletInfo.getAvailableAmount(),
-                bgsWalletInfo.getAvailableAmount() * bgsWalletInfo.getPrice(),
-                "BGS",
+                bgsWalletInfo.getBalance(),
+                bgsWalletInfo.getBalance() * bgs_tokenPrice,
+                bgsWalletInfo.getTokenName(),
                 bgsWalletInfo.getCanLock(),
                 bgsWalletInfo.getLockedAmount(),
                 0
         );
         ResponseDWalletAssetsEntry eos = new ResponseDWalletAssetsEntry(
-                eosWalletInfo.getAvailableAmount(),
-                eosWalletInfo.getAvailableAmount() * eosWalletInfo.getPrice(),
-                "EOS",
+                eosWalletInfo.getBalance(),
+                eosWalletInfo.getBalance() * eos_tokenPrice,
+                eosWalletInfo.getTokenName(),
                 eosWalletInfo.getCanLock(),
                 eosWalletInfo.getLockedAmount(),
                 0
@@ -628,9 +550,45 @@ public class DWalletServiceImpl implements DWalletService {
         walletInfo.add(eth);
         walletInfo.add(bgs);
         walletInfo.add(eos);
-        allCoinTotal = eth.getCoinRmbTotal() + bgs.getCoinRmbTotal() + eos.getCoinRmbTotal();
+        allTokenAmountToRMB = eth.getTokenAmountToRMB() + bgs.getTokenAmountToRMB() + eos.getTokenAmountToRMB();
         listCount = walletInfo.size();
-        ResponseDWalletAssets result = new ResponseDWalletAssets(allCoinTotal, listCount, walletInfo);
+        ResponseDWalletAssets result = new ResponseDWalletAssets(allTokenAmountToRMB, listCount, walletInfo);
+        return result;
+    }
+
+    /**
+     * 锁仓订单列表展示
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public ResponseDWalletLockedOrder listOrders(String UID, Integer tokenType) {
+        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
+        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        //TODO 根据货币类型条件查询
+//        criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
+        lockwarehouseExample.setOrderByClause("createdTime DESC");
+        List<Lockwarehouse> list = lockwarehouseMapper.selectByExample(lockwarehouseExample);
+        int listCount = list.size();
+        List<ResponseDWalletLockedOrderSimEntry> orders = new ArrayList<ResponseDWalletLockedOrderSimEntry>();
+        for (Lockwarehouse row : list) {
+            ResponseDWalletLockedOrderEntry detailEntry = commonService.lockedOrderToEntry(row);
+            orders.add(
+                    new ResponseDWalletLockedOrderSimEntry(
+                            detailEntry.getLID(),
+                            detailEntry.getTokenName(),
+                            detailEntry.getLockedOrderState(),
+                            detailEntry.getLockedOrderInTimeProfit(),
+                            detailEntry.getPeriod() - detailEntry.getLockedOrderLeftDay(),
+                            detailEntry.getPeriod(),
+                            detailEntry.getLockedOrderStartTime()
+                    )
+            );
+        }
+        ResponseDWalletLockedOrder result = new ResponseDWalletLockedOrder(listCount, orders);
         return result;
     }
 
@@ -646,28 +604,8 @@ public class DWalletServiceImpl implements DWalletService {
         long orderId = Long.parseLong(LID);
         LockwarehouseKey lockwarehouseKey = new LockwarehouseKey(orderId, UID);
         Lockwarehouse row = lockwarehouseMapper.selectByPrimaryKey(lockwarehouseKey);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        //获取锁仓详情
-        String dealId = String.valueOf(row.getLid());
-        String coinName = CoinConvertUtils.type2nameMapping((int) row.getTokentype());
-        String dealState = row.getStatus() + "";
-        double dealLockCount = row.getAmount();
-        //TODO 收益计算
-        double dealInstanceProfit = 0;
-        double dealTodayProfit = 0;
-        int dealInstanceDay = (int) ((new Date()).getTime() - row.getCreatedtime().getTime()) / (1000 * 60 * 60 * 24);
-        int dealTotalDay = row.getPeriod();
-        int dealLeftDay = dealTotalDay - dealInstanceDay;
-        String dealStartTime = format.format(row.getCreatedtime());
-        String dealEndTime = format.format(row.getCreatedtime().getTime() + row.getPeriod() * 24 * 60 * 60 * 1000);
-        String dealProfitType = CoinConvertUtils.type2nameMapping((int) row.getTokentype());
-        ResponseDWalletLockedOrderEntry result = new ResponseDWalletLockedOrderEntry(
-                dealId, coinName,
-                dealState, dealLockCount,
-                dealInstanceProfit, dealTodayProfit,
-                dealInstanceDay, dealTotalDay,
-                dealLeftDay, dealStartTime, dealEndTime, dealProfitType
-        );
+        //拿到锁仓详情
+        ResponseDWalletLockedOrderEntry result = commonService.lockedOrderToEntry(row);
         return result;
     }
 }

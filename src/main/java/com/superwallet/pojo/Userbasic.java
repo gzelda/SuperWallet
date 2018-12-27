@@ -23,8 +23,6 @@ public class Userbasic {
 
     private String invitedcode;
 
-    private String invitedpeople;
-
     private Date registertime;
 
     private byte[] headphoto;
@@ -107,14 +105,6 @@ public class Userbasic {
 
     public void setInvitedcode(String invitedcode) {
         this.invitedcode = invitedcode == null ? null : invitedcode.trim();
-    }
-
-    public String getInvitedpeople() {
-        return invitedpeople;
-    }
-
-    public void setInvitedpeople(String invitedpeople) {
-        this.invitedpeople = invitedpeople == null ? null : invitedpeople.trim();
     }
 
     public Date getRegistertime() {

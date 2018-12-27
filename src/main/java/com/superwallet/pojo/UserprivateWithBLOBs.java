@@ -5,6 +5,8 @@ public class UserprivateWithBLOBs extends Userprivate {
 
     private byte[] idcardback;
 
+    private byte[] face;
+
     public byte[] getIdcardfront() {
         return idcardfront;
     }
@@ -19,5 +21,13 @@ public class UserprivateWithBLOBs extends Userprivate {
 
     public void setIdcardback(byte[] idcardback) {
         this.idcardback = idcardback;
+    }
+
+    public byte[] getFace() {
+        return face;
+    }
+
+    public void setFace(byte[] face) {
+        this.face = face;
     }
 }

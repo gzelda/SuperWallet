@@ -1,124 +1,125 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.superwallet.mapper.LockwarehouseMapper">
-    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Lockwarehouse">
-        <id column="LID" property="lid" jdbcType="BIGINT"/>
+  <resultMap id="BaseResultMap" type="com.superwallet.pojo.Lockwarehouse">
+    <id column="LID" property="lid" jdbcType="BIGINT"/>
     <id column="UID" property="uid" jdbcType="CHAR" />
-        <result column="amount" property="amount" jdbcType="DOUBLE"/>
+    <result column="amount" property="amount" jdbcType="DOUBLE"/>
     <result column="period" property="period" jdbcType="INTEGER" />
-        <result column="createdTime" property="createdtime" jdbcType="TIMESTAMP"/>
-        <result column="tokenType" property="tokentype" jdbcType="TINYINT"/>
-        <result column="dailyReturns" property="dailyreturns" jdbcType="DOUBLE"/>
-    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createdTime" property="createdtime" jdbcType="TIMESTAMP"/>
+    <result column="tokenType" property="tokentype" jdbcType="INTEGER"/>
+    <result column="finalProfit" property="finalprofit" jdbcType="DOUBLE"/>
+    <result column="status" property="status" jdbcType="INTEGER"/>
+    <result column="profitTokenType" property="profittokentype" jdbcType="INTEGER"/>
   </resultMap>
-    <sql id="Example_Where_Clause">
-        <where>
-            <foreach collection="oredCriteria" item="criteria" separator="or">
-                <if test="criteria.valid">
-                    <trim prefix="(" suffix=")" prefixOverrides="and">
-                        <foreach collection="criteria.criteria" item="criterion">
-                            <choose>
-                                <when test="criterion.noValue">
-                                    and ${criterion.condition}
-                                </when>
-                                <when test="criterion.singleValue">
-                                    and ${criterion.condition} #{criterion.value}
-                                </when>
-                                <when test="criterion.betweenValue">
-                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                                </when>
-                                <when test="criterion.listValue">
-                                    and ${criterion.condition}
-                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
-                                             separator=",">
-                                        #{listItem}
-                                    </foreach>
-                                </when>
-                            </choose>
-                        </foreach>
-                    </trim>
-                </if>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" suffix=")" prefixOverrides="and">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
             </foreach>
-        </where>
-    </sql>
-    <sql id="Update_By_Example_Where_Clause">
-        <where>
-            <foreach collection="example.oredCriteria" item="criteria" separator="or">
-                <if test="criteria.valid">
-                    <trim prefix="(" suffix=")" prefixOverrides="and">
-                        <foreach collection="criteria.criteria" item="criterion">
-                            <choose>
-                                <when test="criterion.noValue">
-                                    and ${criterion.condition}
-                                </when>
-                                <when test="criterion.singleValue">
-                                    and ${criterion.condition} #{criterion.value}
-                                </when>
-                                <when test="criterion.betweenValue">
-                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                                </when>
-                                <when test="criterion.listValue">
-                                    and ${criterion.condition}
-                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
-                                             separator=",">
-                                        #{listItem}
-                                    </foreach>
-                                </when>
-                            </choose>
-                        </foreach>
-                    </trim>
-                </if>
-            </foreach>
-        </where>
-    </sql>
-  <sql id="Base_Column_List" >
-    LID, UID, amount, period, createdTime, tokenType, dailyReturns, status
+          </trim>
+        </if>
+      </foreach>
+    </where>
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseExample">
-        select
-        <if test="distinct">
-            distinct
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" suffix=")" prefixOverrides="and">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
         </if>
-        <include refid="Base_Column_List"/>
-        from lockwarehouse
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-        <if test="orderByClause != null">
-            order by ${orderByClause}
-        </if>
-    </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseKey">
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    LID, UID, amount, period, createdTime, tokenType, finalProfit, status, profitTokenType
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseExample">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List"/>
+    from lockwarehouse
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause"/>
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.LockwarehouseKey">
     select 
     <include refid="Base_Column_List" />
-        from lockwarehouse
-        where LID = #{lid,jdbcType=BIGINT}
+    from lockwarehouse
+    where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </select>
-    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.LockwarehouseKey">
+  <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.LockwarehouseKey">
     delete from lockwarehouse
     where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </delete>
-    <delete id="deleteByExample" parameterType="com.superwallet.pojo.LockwarehouseExample">
-        delete from lockwarehouse
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-    </delete>
-    <insert id="insert" parameterType="com.superwallet.pojo.Lockwarehouse">
+  <delete id="deleteByExample" parameterType="com.superwallet.pojo.LockwarehouseExample">
+    delete from lockwarehouse
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause"/>
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.pojo.Lockwarehouse">
     insert into lockwarehouse (LID, UID, amount, 
       period, createdTime, tokenType, 
-      dailyReturns, status)
+      finalProfit, status, profitTokenType
+      )
     values (#{lid,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{amount,jdbcType=DOUBLE}, 
-      #{period,jdbcType=INTEGER}, #{createdtime,jdbcType=TIMESTAMP}, #{tokentype,jdbcType=TINYINT}, 
-      #{dailyreturns,jdbcType=DOUBLE}, #{status,jdbcType=TINYINT})
+      #{period,jdbcType=INTEGER}, #{createdtime,jdbcType=TIMESTAMP}, #{tokentype,jdbcType=INTEGER}, 
+      #{finalprofit,jdbcType=DOUBLE}, #{status,jdbcType=INTEGER}, #{profittokentype,jdbcType=INTEGER}
+      )
   </insert>
-    <insert id="insertSelective" parameterType="com.superwallet.pojo.Lockwarehouse">
-        insert into lockwarehouse
+  <insert id="insertSelective" parameterType="com.superwallet.pojo.Lockwarehouse">
+    insert into lockwarehouse
     <trim prefix="(" suffix=")" suffixOverrides="," >
-        <if test="lid != null">
-            LID,
+      <if test="lid != null">
+        LID,
       </if>
       <if test="uid != null" >
         UID,
@@ -129,132 +130,145 @@
       <if test="period != null" >
         period,
       </if>
-        <if test="createdtime != null">
+      <if test="createdtime != null">
         createdTime,
-        </if>
-        <if test="tokentype != null">
-            tokenType,
-        </if>
-        <if test="dailyreturns != null">
-            dailyReturns,
-        </if>
+      </if>
+      <if test="tokentype != null">
+        tokenType,
+      </if>
+      <if test="finalprofit != null">
+        finalProfit,
+      </if>
       <if test="status != null" >
         status,
       </if>
+      <if test="profittokentype != null">
+        profitTokenType,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
-        <if test="lid != null">
-            #{lid,jdbcType=BIGINT},
+      <if test="lid != null">
+        #{lid,jdbcType=BIGINT},
       </if>
       <if test="uid != null" >
         #{uid,jdbcType=CHAR},
       </if>
       <if test="amount != null" >
-          #{amount,jdbcType=DOUBLE},
+        #{amount,jdbcType=DOUBLE},
       </if>
       <if test="period != null" >
         #{period,jdbcType=INTEGER},
       </if>
-        <if test="createdtime != null">
-            #{createdtime,jdbcType=TIMESTAMP},
-        </if>
-        <if test="tokentype != null">
-            #{tokentype,jdbcType=TINYINT},
-        </if>
-        <if test="dailyreturns != null">
-            #{dailyreturns,jdbcType=DOUBLE},
+      <if test="createdtime != null">
+        #{createdtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tokentype != null">
+        #{tokentype,jdbcType=INTEGER},
+      </if>
+      <if test="finalprofit != null">
+        #{finalprofit,jdbcType=DOUBLE},
       </if>
       <if test="status != null" >
-        #{status,jdbcType=TINYINT},
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="profittokentype != null">
+        #{profittokentype,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
-    <select id="countByExample" parameterType="com.superwallet.pojo.LockwarehouseExample"
-            resultType="java.lang.Integer">
-        select count(*) from lockwarehouse
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-    </select>
-    <update id="updateByExampleSelective" parameterType="map">
-        update lockwarehouse
-        <set>
-            <if test="record.lid != null">
-                LID = #{record.lid,jdbcType=BIGINT},
-            </if>
-            <if test="record.uid != null">
-                UID = #{record.uid,jdbcType=CHAR},
-            </if>
-            <if test="record.amount != null">
-                amount = #{record.amount,jdbcType=DOUBLE},
-            </if>
-            <if test="record.period != null">
-                period = #{record.period,jdbcType=INTEGER},
-            </if>
-            <if test="record.createdtime != null">
-                createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="record.tokentype != null">
-                tokenType = #{record.tokentype,jdbcType=TINYINT},
-            </if>
-            <if test="record.dailyreturns != null">
-                dailyReturns = #{record.dailyreturns,jdbcType=DOUBLE},
-            </if>
-            <if test="record.status != null">
-                status = #{record.status,jdbcType=TINYINT},
-            </if>
-        </set>
-        <if test="_parameter != null">
-            <include refid="Update_By_Example_Where_Clause"/>
-        </if>
-    </update>
-    <update id="updateByExample" parameterType="map">
-        update lockwarehouse
-        set LID = #{record.lid,jdbcType=BIGINT},
+  <select id="countByExample" parameterType="com.superwallet.pojo.LockwarehouseExample" resultType="java.lang.Integer">
+    select count(*) from lockwarehouse
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause"/>
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update lockwarehouse
+    <set>
+      <if test="record.lid != null">
+        LID = #{record.lid,jdbcType=BIGINT},
+      </if>
+      <if test="record.uid != null">
         UID = #{record.uid,jdbcType=CHAR},
+      </if>
+      <if test="record.amount != null">
         amount = #{record.amount,jdbcType=DOUBLE},
+      </if>
+      <if test="record.period != null">
         period = #{record.period,jdbcType=INTEGER},
+      </if>
+      <if test="record.createdtime != null">
         createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
-        tokenType = #{record.tokentype,jdbcType=TINYINT},
-        dailyReturns = #{record.dailyreturns,jdbcType=DOUBLE},
-        status = #{record.status,jdbcType=TINYINT}
-        <if test="_parameter != null">
-            <include refid="Update_By_Example_Where_Clause"/>
-        </if>
-    </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Lockwarehouse">
-        update lockwarehouse
+      </if>
+      <if test="record.tokentype != null">
+        tokenType = #{record.tokentype,jdbcType=INTEGER},
+      </if>
+      <if test="record.finalprofit != null">
+        finalProfit = #{record.finalprofit,jdbcType=DOUBLE},
+      </if>
+      <if test="record.status != null">
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.profittokentype != null">
+        profitTokenType = #{record.profittokentype,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause"/>
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update lockwarehouse
+    set LID = #{record.lid,jdbcType=BIGINT},
+    UID = #{record.uid,jdbcType=CHAR},
+    amount = #{record.amount,jdbcType=DOUBLE},
+    period = #{record.period,jdbcType=INTEGER},
+    createdTime = #{record.createdtime,jdbcType=TIMESTAMP},
+    tokenType = #{record.tokentype,jdbcType=INTEGER},
+    finalProfit = #{record.finalprofit,jdbcType=DOUBLE},
+    status = #{record.status,jdbcType=INTEGER},
+    profitTokenType = #{record.profittokentype,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause"/>
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Lockwarehouse">
+    update lockwarehouse
     <set >
       <if test="amount != null" >
-          amount = #{amount,jdbcType=DOUBLE},
+        amount = #{amount,jdbcType=DOUBLE},
       </if>
       <if test="period != null" >
         period = #{period,jdbcType=INTEGER},
       </if>
-        <if test="createdtime != null">
-            createdTime = #{createdtime,jdbcType=TIMESTAMP},
+      <if test="createdtime != null">
+        createdTime = #{createdtime,jdbcType=TIMESTAMP},
       </if>
-        <if test="tokentype != null">
-            tokenType = #{tokentype,jdbcType=TINYINT},
-        </if>
-        <if test="dailyreturns != null">
-            dailyReturns = #{dailyreturns,jdbcType=DOUBLE},
-        </if>
+      <if test="tokentype != null">
+        tokenType = #{tokentype,jdbcType=INTEGER},
+      </if>
+      <if test="finalprofit != null">
+        finalProfit = #{finalprofit,jdbcType=DOUBLE},
+      </if>
       <if test="status != null" >
-        status = #{status,jdbcType=TINYINT},
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="profittokentype != null">
+        profitTokenType = #{profittokentype,jdbcType=INTEGER},
       </if>
     </set>
-        where LID = #{lid,jdbcType=BIGINT}
+    where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </update>
-    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Lockwarehouse">
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Lockwarehouse">
     update lockwarehouse
     set amount = #{amount,jdbcType=DOUBLE},
       period = #{period,jdbcType=INTEGER},
       createdTime = #{createdtime,jdbcType=TIMESTAMP},
-      tokenType = #{tokentype,jdbcType=TINYINT},
-      dailyReturns = #{dailyreturns,jdbcType=DOUBLE},
-      status = #{status,jdbcType=TINYINT}
+      tokenType = #{tokentype,jdbcType=INTEGER},
+      finalProfit = #{finalprofit,jdbcType=DOUBLE},
+      status = #{status,jdbcType=INTEGER},
+      profitTokenType = #{profittokentype,jdbcType=INTEGER}
     where LID = #{lid,jdbcType=BIGINT}
       and UID = #{uid,jdbcType=CHAR}
   </update>

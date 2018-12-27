@@ -3,51 +3,51 @@ package com.superwallet.response;
 import java.io.Serializable;
 
 public class ResponseDWalletSimpleInfo implements Serializable {
-    private int coinType;
-    private String coinName;
-    private String coinAddress;
-    private String coinPrice;
+    private int tokenType;
+    private String tokenName;
+    private String tokenAddress;
+    private double tokenPriceToRMB;
 
 
     public ResponseDWalletSimpleInfo() {
     }
 
-    public ResponseDWalletSimpleInfo(int coinType, String coinName, String coinAddress, String coinPrice) {
-        this.coinType = coinType;
-        this.coinName = coinName;
-        this.coinAddress = coinAddress;
-        this.coinPrice = coinPrice;
+    public ResponseDWalletSimpleInfo(int tokenType, String tokenName, String tokenAddress, double tokenPriceToRMB) {
+        this.tokenType = tokenType;
+        this.tokenName = tokenName;
+        this.tokenAddress = tokenAddress;
+        this.tokenPriceToRMB = tokenPriceToRMB;
     }
 
-    public int getCoinType() {
-        return coinType;
+    public int getTokenType() {
+        return tokenType;
     }
 
-    public void setCoinType(int coinType) {
-        this.coinType = coinType;
+    public void setTokenType(int tokenType) {
+        this.tokenType = tokenType;
     }
 
-    public String getCoinName() {
-        return coinName;
+    public String getTokenName() {
+        return tokenName;
     }
 
-    public void setCoinName(String coinName) {
-        this.coinName = coinName;
+    public void setTokenName(String tokenName) {
+        this.tokenName = tokenName;
     }
 
-    public String getCoinAddress() {
-        return coinAddress;
+    public String getTokenAddress() {
+        return tokenAddress;
     }
 
-    public void setCoinAddress(String coinAddress) {
-        this.coinAddress = coinAddress;
+    public void setTokenAddress(String tokenAddress) {
+        this.tokenAddress = tokenAddress;
     }
 
-    public String getCoinPrice() {
-        return coinPrice;
+    public double getTokenPriceToRMB() {
+        return tokenPriceToRMB;
     }
 
-    public void setCoinPrice(String coinPrice) {
-        this.coinPrice = coinPrice;
+    public void setTokenPriceToRMB(double tokenPriceToRMB) {
+        this.tokenPriceToRMB = tokenPriceToRMB;
     }
 }

@@ -30,4 +30,6 @@ public interface LoginRegisterService {
     public void modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex);
 
     public boolean isPayCodeExists(String UID);
+
+    public void verifyUser(String UID, String IDCardNumber, String realName, String IDCardFront, String IDCardBack, String face);
 }

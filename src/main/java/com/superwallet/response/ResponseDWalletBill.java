@@ -5,73 +5,74 @@ import java.util.List;
 
 public class ResponseDWalletBill implements Serializable {
 
-    private String coinName;
-    private double coinTotal;
-    private double coinRmbTotal;
-    private double lockCount;
-    private String coinAddress;
+    private String tokenName;
+    private double tokenAmount;
+    private double tokenAmountToRmb;
+    private double lockedAmount;
+    private String tokenAddress;
     private int listCount;
     private List<ResponseDWalletBillEntry> bills;
 
     public ResponseDWalletBill() {
     }
 
-    public ResponseDWalletBill(String coinName, double coinTotal, double coinRmbTotal, double lockCount, String coinAddress, int listCount, List<ResponseDWalletBillEntry> bills) {
-        this.coinName = coinName;
-        this.coinTotal = coinTotal;
-        this.coinRmbTotal = coinRmbTotal;
-        this.lockCount = lockCount;
-        this.coinAddress = coinAddress;
+    public ResponseDWalletBill(String tokenName, double tokenAmount, double tokenAmountToRmb, double lockedAmount, String tokenAddress, int listCount) {
+        this.tokenName = tokenName;
+        this.tokenAmount = tokenAmount;
+        this.tokenAmountToRmb = tokenAmountToRmb;
+        this.lockedAmount = lockedAmount;
+        this.tokenAddress = tokenAddress;
+        this.listCount = listCount;
+    }
+
+    public ResponseDWalletBill(String tokenName, double tokenAmount, double tokenAmountToRmb, double lockedAmount, String tokenAddress, int listCount, List<ResponseDWalletBillEntry> bills) {
+        this.tokenName = tokenName;
+        this.tokenAmount = tokenAmount;
+        this.tokenAmountToRmb = tokenAmountToRmb;
+        this.lockedAmount = lockedAmount;
+        this.tokenAddress = tokenAddress;
         this.listCount = listCount;
         this.bills = bills;
     }
 
-    public List<ResponseDWalletBillEntry> getBills() {
-        return bills;
+    public String getTokenName() {
+        return tokenName;
     }
 
-    public void setBills(List<ResponseDWalletBillEntry> bills) {
-        this.bills = bills;
+    public void setTokenName(String tokenName) {
+        this.tokenName = tokenName;
     }
 
-    public String getCoinName() {
-        return coinName;
+    public double getTokenAmount() {
+        return tokenAmount;
     }
 
-    public void setCoinName(String coinName) {
-        this.coinName = coinName;
+    public void setTokenAmount(double tokenAmount) {
+        this.tokenAmount = tokenAmount;
     }
 
-    public double getCoinTotal() {
-        return coinTotal;
+    public double getTokenAmountToRmb() {
+        return tokenAmountToRmb;
     }
 
-    public void setCoinTotal(double coinTotal) {
-        this.coinTotal = coinTotal;
+    public void setTokenAmountToRmb(double tokenAmountToRmb) {
+        this.tokenAmountToRmb = tokenAmountToRmb;
     }
 
-    public double getCoinRmbTotal() {
-        return coinRmbTotal;
+    public double getLockedAmount() {
+        return lockedAmount;
     }
 
-    public void setCoinRmbTotal(double coinRmbTotal) {
-        this.coinRmbTotal = coinRmbTotal;
+    public void setLockedAmount(double lockedAmount) {
+        this.lockedAmount = lockedAmount;
     }
 
-    public double getLockCount() {
-        return lockCount;
+    public String getTokenAddress() {
+        return tokenAddress;
     }
 
-    public void setLockCount(double lockCount) {
-        this.lockCount = lockCount;
-    }
-
-    public String getCoinAddress() {
-        return coinAddress;
-    }
-
-    public void setCoinAddress(String coinAddress) {
-        this.coinAddress = coinAddress;
+    public void setTokenAddress(String tokenAddress) {
+        this.tokenAddress = tokenAddress;
     }
 
     public int getListCount() {
@@ -80,5 +81,13 @@ public class ResponseDWalletBill implements Serializable {
 
     public void setListCount(int listCount) {
         this.listCount = listCount;
+    }
+
+    public List<ResponseDWalletBillEntry> getBills() {
+        return bills;
+    }
+
+    public void setBills(List<ResponseDWalletBillEntry> bills) {
+        this.bills = bills;
     }
 }

@@ -2,19 +2,20 @@ package com.superwallet.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.superwallet.common.CodeRepresentation;
-import com.superwallet.common.EOSWalletInfo;
-import com.superwallet.common.ETHWalletInfo;
-import com.superwallet.common.SuperResult;
+import com.superwallet.common.*;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
+import com.superwallet.response.ResponseCWalletSimProfitEntry;
+import com.superwallet.response.ResponseDWalletLockedOrderEntry;
 import com.superwallet.service.CommonService;
 import com.superwallet.utils.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * 通用服务
@@ -36,6 +37,12 @@ public class CommonServiceImpl implements CommonService {
 
     @Autowired
     private EostokenMapper eostokenMapper;
+
+    @Autowired
+    private InviterMapper inviterMapper;
+
+    @Autowired
+    private UserbasicMapper userbasicMapper;
 
     /**
      * 转账记录生成
@@ -97,7 +104,7 @@ public class CommonServiceImpl implements CommonService {
      * @param status
      */
     @Override
-    public void lockedRecord(String UID, Integer period, Double tokenAmount, Byte status) {
+    public void lockedRecord(String UID, Integer period, Double tokenAmount, Integer status) {
         Lockwarehouse lockwarehouse = new Lockwarehouse();
         lockwarehouse.setUid(UID);
         lockwarehouse.setCreatedtime(new Date());
@@ -114,16 +121,12 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     @Override
-    public JSONObject getETHInfo(String UID) {
+    public SuperResult getETHInfo(String UID) {
         HashMap<String, Object> eth_params = new HashMap<String, Object>();
         eth_params.put("UID", UID);
         String eth_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETH_ACCOUNTINFO, eth_params);
-        SuperResult response_eth = JSON.parseObject(eth_resp, SuperResult.class);
-        if (response_eth.getCode() == CodeRepresentation.CODE_FAIL) {
-            return null;
-        }
-        JSONObject eth_json = JSON.parseObject(response_eth.getData().toString());
-        return eth_json;
+        SuperResult result = JSON.parseObject(eth_resp, SuperResult.class);
+        return result;
     }
 
     /**
@@ -133,16 +136,12 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     @Override
-    public JSONObject getEOSInfo(String UID) {
+    public SuperResult getEOSInfo(String UID) {
         HashMap<String, Object> eos_params = new HashMap<String, Object>();
         eos_params.put("UID", UID);
         String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_ACCOUNTINFO, eos_params);
-        SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
-        if (response_eos.getCode() == CodeRepresentation.CODE_FAIL) {
-            return null;
-        }
-        JSONObject eos_json = JSON.parseObject(response_eos.getData().toString());
-        return eos_json;
+        SuperResult result = JSON.parseObject(eos_resp, SuperResult.class);
+        return result;
     }
 
     /**
@@ -154,14 +153,18 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public ETHWalletInfo getETHDetailInfo(String UID) {
         ETHWalletInfo ethWalletInfo;
-        JSONObject eth_json = getETHInfo(UID);
+        SuperResult response_eth = getETHInfo(UID);
+        if (response_eth.getCode() == CodeRepresentation.CODE_FAIL) {
+            return null;
+        }
+        JSONObject eth_json = JSON.parseObject(response_eth.getData().toString());
         EthtokenKey ethTokenKey = new EthtokenKey();
         ethTokenKey.setUid(UID);
         ethTokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
         Ethtoken eth = ethtokenMapper.selectByPrimaryKey(ethTokenKey);
         String eth_address = eth.getEthaddress();
         double eth_avaAmount = Double.parseDouble(eth_json.getString("bgsBalance"));
-        double eth_lockedAmount = eth.getLockedamount();
+        double eth_lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_ETH);
         double eth_amount = eth_avaAmount + eth_lockedAmount;
         double eth_price = 1.0;
         ethWalletInfo = new ETHWalletInfo(eth_address,
@@ -182,14 +185,18 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public ETHWalletInfo getBGSDetailInfo(String UID) {
         ETHWalletInfo bgsWalletInfo;
-        JSONObject eth_json = getETHInfo(UID);
+        SuperResult result = getETHInfo(UID);
+        if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+            return null;
+        }
+        JSONObject eth_json = JSON.parseObject(result.getData().toString());
         EthtokenKey bgsTokenKey = new EthtokenKey();
         bgsTokenKey.setUid(UID);
         bgsTokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
         Ethtoken bgs = ethtokenMapper.selectByPrimaryKey(bgsTokenKey);
         String bgs_address = bgs.getEthaddress();
         double bgs_avaAmount = Double.parseDouble(eth_json.getString("bgsBalance"));
-        double bgs_lockedAmount = bgs.getLockedamount();
+        double bgs_lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_BGS);
         double bgs_amount = bgs_avaAmount + bgs_lockedAmount;
         double bgs_price = 1.0;
         bgsWalletInfo = new ETHWalletInfo(bgs_address,
@@ -210,14 +217,18 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public EOSWalletInfo getEOSDetailInfo(String UID) {
         EOSWalletInfo eosWalletInfo;
-        JSONObject eos_json = getEOSInfo(UID);
+        SuperResult result = getEOSInfo(UID);
+        if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+            return null;
+        }
+        JSONObject eos_json = JSON.parseObject(result.getData().toString());
         EostokenKey eostokenKey = new EostokenKey();
         eostokenKey.setUid(UID);
         eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
         Eostoken eos = eostokenMapper.selectByPrimaryKey(eostokenKey);
         String eos_account = eos.getEosaccountname();
         double eos_avaAmount = Double.parseDouble(eos_json.getString("core_liquid_balance").split(" ")[0]);
-        double eos_lockedAmount = eos.getLockedamount();
+        double eos_lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_EOS);
         double eos_amount = eos_avaAmount + eos_lockedAmount;
         double eos_price = 1.0;
         JSONObject mortgageEOS_json = JSON.parseObject(eos_json.getString("self_delegated_bandwidth"));
@@ -240,6 +251,317 @@ public class CommonServiceImpl implements CommonService {
                 eos_price, eos.getCanlock(), eos_account, mortgageEOS_cpu, mortgageEOS_net, total_cpu,
                 total_net, total_ram, used_cpu, used_net, used_ram, remain_cpu, remain_net);
         return eosWalletInfo;
+    }
+
+    /**
+     * 拿到中心钱包所有基本信息--不包括链上钱包信息
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public CommonWalletInfo getMappingCWalletInfo(String UID, Integer tokenType) {
+        CommonWalletInfo result = new CommonWalletInfo();
+        result.setTokenType(tokenType);
+        String tokenName, tokenAddress;
+        double lockedAmount = 0, cWalletAmount = 0;
+        int canLock = 0;
+        switch (tokenType) {
+            case 1://ETH
+                tokenName = "ETH";
+                EthtokenKey ethtokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                //拿地址
+                tokenAddress = ethtoken.getEthaddress();
+                //锁仓金额
+                lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_ETH);
+                //是否可以锁仓
+                canLock = ethtoken.getCanlock();
+                //中心钱包余额
+                cWalletAmount = ethtoken.getAmount();
+                result.setCanLock(canLock);
+                result.setcWalletAmount(cWalletAmount);
+                result.setTokenAddress(tokenAddress);
+                result.setTokenName(tokenName);
+                result.setLockedAmount(lockedAmount);
+                break;
+            case 2://EOS
+                tokenName = "EOS";
+                EostokenKey eostokenKey = new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+                //拿地址
+                tokenAddress = eostoken.getEosaccountname();
+                //锁仓金额
+                lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_EOS);
+                //是否可以锁仓
+                canLock = eostoken.getCanlock();
+                //中心钱包余额
+                cWalletAmount = eostoken.getAmount();
+                result.setCanLock(canLock);
+                result.setcWalletAmount(cWalletAmount);
+                result.setTokenAddress(tokenAddress);
+                result.setTokenName(tokenName);
+                result.setLockedAmount(lockedAmount);
+                break;
+            case 3://BGS
+                tokenName = "BGS";
+                EthtokenKey bgstokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(bgstokenKey);
+                //拿地址
+                tokenAddress = bgstoken.getEthaddress();
+                //锁仓金额
+                lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_BGS);
+                //是否可以锁仓
+                canLock = bgstoken.getCanlock();
+                //中心钱包余额
+                cWalletAmount = bgstoken.getAmount();
+                result.setCanLock(canLock);
+                result.setcWalletAmount(cWalletAmount);
+                result.setTokenAddress(tokenAddress);
+                result.setTokenName(tokenName);
+                result.setLockedAmount(lockedAmount);
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * 拿到中心钱包与链上钱包所有基本信息
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public CommonWalletInfo getMappingDAndCWalletInfo(String UID, Integer tokenType) {
+        SuperResult superResult;
+        CommonWalletInfo result = new CommonWalletInfo();
+        result.setTokenType(tokenType);
+        String tokenName, tokenAddress;
+        double lockedAmount = 0, cWalletAmount = 0;
+        int canLock = 0;
+        switch (tokenType) {
+            case 1://ETH
+                tokenName = "ETH";
+                EthtokenKey ethtokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                //拿地址
+                tokenAddress = ethtoken.getEthaddress();
+                //锁仓金额
+                lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_ETH);
+                //是否可以锁仓
+                canLock = ethtoken.getCanlock();
+                //中心钱包余额
+                cWalletAmount = ethtoken.getAmount();
+                //拿链上钱包余额
+                superResult = getETHInfo(UID);
+                if (superResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
+                    JSONObject eth = JSON.parseObject(superResult.getData().toString());
+                    result.setBalance(Double.parseDouble(eth.getString("ethBalance")));
+                }
+                result.setCanLock(canLock);
+                result.setcWalletAmount(cWalletAmount);
+                result.setTokenAddress(tokenAddress);
+                result.setTokenName(tokenName);
+                result.setLockedAmount(lockedAmount);
+                break;
+            case 2://EOS
+                tokenName = "EOS";
+                EostokenKey eostokenKey = new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+                //拿地址
+                tokenAddress = eostoken.getEosaccountname();
+                //锁仓金额
+                lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_EOS);
+                //是否可以锁仓
+                canLock = eostoken.getCanlock();
+                //中心钱包余额
+                cWalletAmount = eostoken.getAmount();
+                //拿链上钱包余额
+                superResult = getETHInfo(UID);
+                if (superResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
+                    JSONObject eos = JSON.parseObject(superResult.getData().toString());
+                    result.setBalance(Double.parseDouble(eos.getString("core_liquid_balance").split(" ")[0]));
+                }
+                result.setCanLock(canLock);
+                result.setcWalletAmount(cWalletAmount);
+                result.setTokenAddress(tokenAddress);
+                result.setTokenName(tokenName);
+                result.setLockedAmount(lockedAmount);
+                break;
+            case 3://BGS
+                tokenName = "BGS";
+                EthtokenKey bgstokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(bgstokenKey);
+                //拿地址
+                tokenAddress = bgstoken.getEthaddress();
+                //锁仓金额
+                lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_BGS);
+                //是否可以锁仓
+                canLock = bgstoken.getCanlock();
+                //中心钱包余额
+                cWalletAmount = bgstoken.getAmount();
+                //拿链上钱包余额
+                superResult = getETHInfo(UID);
+                if (superResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
+                    JSONObject bgs = JSON.parseObject(superResult.getData().toString());
+                    result.setBalance(Double.parseDouble(bgs.getString("bgsBalance")));
+                }
+                result.setCanLock(canLock);
+                result.setcWalletAmount(cWalletAmount);
+                result.setTokenAddress(tokenAddress);
+                result.setTokenName(tokenName);
+                result.setLockedAmount(lockedAmount);
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * 将锁仓订单转换为对应类
+     *
+     * @param row
+     * @return
+     */
+    @Override
+    public ResponseDWalletLockedOrderEntry lockedOrderToEntry(Lockwarehouse row) {
+        String LID, lockedOrderProfitTokenName, lockedOrderStartTime, lockedOrderEndTime, lockedOrderState, tokenName;
+        double lockedOrderTodayProfitToRMB, lockedAmount, lockedOrderInTimeProfit, tokenPrice = 1.0;
+        int period, lockedOrderLeftDay;
+        LID = String.valueOf(row.getLid());
+        //TODO 货币名称字典
+        lockedOrderProfitTokenName = row.getProfittokentype() + "";
+        //TODO 收益计算与货币行情
+        lockedOrderTodayProfitToRMB = row.getFinalprofit() * tokenPrice;
+        lockedAmount = row.getAmount();
+        lockedOrderInTimeProfit = 0;
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        lockedOrderStartTime = format.format(row.getCreatedtime());
+        lockedOrderEndTime = format.format(row.getCreatedtime().getTime() + row.getPeriod() * 24 * 60 * 60 * 1000);
+        period = row.getPeriod();
+        lockedOrderLeftDay = period - (int) ((new Date()).getTime() - row.getCreatedtime().getTime()) / (1000 * 60 * 60 * 24);
+        //TODO 锁仓状态字典
+        lockedOrderState = row.getStatus() + "";
+        tokenName = row.getTokentype() + "";
+        ResponseDWalletLockedOrderEntry result = new ResponseDWalletLockedOrderEntry(LID,
+                lockedOrderProfitTokenName,
+                lockedOrderTodayProfitToRMB,
+                lockedAmount,
+                lockedOrderInTimeProfit,
+                lockedOrderStartTime,
+                lockedOrderEndTime,
+                period,
+                lockedOrderLeftDay,
+                lockedOrderState,
+                tokenName
+        );
+        return result;
+    }
+
+    /**
+     * 获取用户某个币种的锁仓金额
+     *
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public double getLockedAmount(String UID, Integer tokenType) {
+        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
+        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andTokentypeEqualTo(tokenType);
+        criteria.andStatusEqualTo(CodeRepresentation.LOCK_STAUTS_ONPROFIT);
+        //获取状态为正在收益中的锁仓记录
+        List<Lockwarehouse> list = lockwarehouseMapper.selectByExample(lockwarehouseExample);
+        double result = 0;
+        for (Lockwarehouse row : list) {
+            result += row.getAmount();
+        }
+        return result;
+    }
+
+    /**
+     * 拿到用户的邀请人总数--二级
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public int getInvitingCount(String UID) {
+        int result = 0;
+        //拿到一级邀请人数
+        InviterExample inviterExample = new InviterExample();
+        InviterExample.Criteria criteria = inviterExample.createCriteria();
+        criteria.andInviteridEqualTo(UID);
+        List<Inviter> firstInvitingPeople = inviterMapper.selectByExample(inviterExample);
+        //拿到二级邀请人数
+        if (firstInvitingPeople != null) {
+            result += firstInvitingPeople.size();
+            for (Inviter inviter : firstInvitingPeople) {
+                inviterExample = new InviterExample();
+                criteria = inviterExample.createCriteria();
+                criteria.andInviteridEqualTo(inviter.getInviterid());
+                List<Inviter> secondInvitingPeople = inviterMapper.selectByExample(inviterExample);
+                if (secondInvitingPeople != null) result += secondInvitingPeople.size();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获得代理人下级人数
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public int getAgentInvitingCount(String UID) {
+        Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
+        //如果用户不是代理人，没有下级人数
+        if (user.getStatus() != CodeRepresentation.USER_AGENT_ISAGENCY) {
+            return 0;
+        }
+        int lowerCount = 0;
+        InviterExample inviterExample = new InviterExample();
+        InviterExample.Criteria criteria = inviterExample.createCriteria();
+        criteria.andInviteridEqualTo(UID);
+        List<Inviter> list = inviterMapper.selectByExample(inviterExample);
+        if (list != null) lowerCount = list.size();
+        return lowerCount;
+    }
+
+    /**
+     * 获取代理人总数
+     *
+     * @return
+     */
+    @Override
+    public int getAgentCount() {
+        UserbasicExample userbasicExample = new UserbasicExample();
+        UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
+        criteria.andIsagencyEqualTo(CodeRepresentation.USER_AGENT_ISAGENCY);
+        List<Userbasic> list = userbasicMapper.selectByExample(userbasicExample);
+        int result = 0;
+        if (list != null) result = list.size();
+        return result;
+    }
+
+    /**
+     * 获取对应token的收益基本信息
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public ResponseCWalletSimProfitEntry getCWalletTokenProfit(String UID, Integer tokenType) {
+        CommonWalletInfo walletInfo = getMappingCWalletInfo(UID, tokenType);
+        ResponseCWalletSimProfitEntry entry = new ResponseCWalletSimProfitEntry();
+        entry.setTokenName(walletInfo.getTokenName());
+        entry.setTokenProfit(walletInfo.getcWalletAmount());
+        entry.setTokenProfitToRMB(walletInfo.getcWalletAmount() * walletInfo.getTokenPrice());
+        return entry;
     }
 
 }

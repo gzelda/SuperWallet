@@ -4,11 +4,18 @@ import java.util.Date;
 
 public class Lockwarehouse extends LockwarehouseKey {
     private Double amount;
+
     private Integer period;
+
     private Date createdtime;
-    private Byte tokentype;
-    private Double dailyreturns;
-    private Byte status;
+
+    private Integer tokentype;
+
+    private Double finalprofit;
+
+    private Integer status;
+
+    private Integer profittokentype;
 
     public Double getAmount() {
         return amount;
@@ -34,27 +41,35 @@ public class Lockwarehouse extends LockwarehouseKey {
         this.createdtime = createdtime;
     }
 
-    public Byte getTokentype() {
+    public Integer getTokentype() {
         return tokentype;
     }
 
-    public void setTokentype(Byte tokentype) {
+    public void setTokentype(Integer tokentype) {
         this.tokentype = tokentype;
     }
 
-    public Double getDailyreturns() {
-        return dailyreturns;
+    public Double getFinalprofit() {
+        return finalprofit;
     }
 
-    public void setDailyreturns(Double dailyreturns) {
-        this.dailyreturns = dailyreturns;
+    public void setFinalprofit(Double finalprofit) {
+        this.finalprofit = finalprofit;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getProfittokentype() {
+        return profittokentype;
+    }
+
+    public void setProfittokentype(Integer profittokentype) {
+        this.profittokentype = profittokentype;
     }
 }

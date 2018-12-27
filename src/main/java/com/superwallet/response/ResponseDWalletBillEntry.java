@@ -3,60 +3,60 @@ package com.superwallet.response;
 import java.io.Serializable;
 
 public class ResponseDWalletBillEntry implements Serializable {
-    private String dealType;
-    private String dealState;
-    private double dealCount;
-    private double dealRmbCount;
-    private String dealTime;
+    private String transferType;
+    private String transferState;
+    private double transferAmount;
+    private double transferAmountToRMB;
+    private String transferTime;
 
     public ResponseDWalletBillEntry() {
     }
 
-    public ResponseDWalletBillEntry(String dealType, String dealState, double dealCount, double dealRmbCount, String dealTime) {
-        this.dealType = dealType;
-        this.dealState = dealState;
-        this.dealCount = dealCount;
-        this.dealRmbCount = dealRmbCount;
-        this.dealTime = dealTime;
+    public ResponseDWalletBillEntry(String transferType, String transferState, double transferAmount, double transferAmountToRMB, String transferTime) {
+        this.transferType = transferType;
+        this.transferState = transferState;
+        this.transferAmount = transferAmount;
+        this.transferAmountToRMB = transferAmountToRMB;
+        this.transferTime = transferTime;
     }
 
-    public String getDealType() {
-        return dealType;
+    public String getTransferType() {
+        return transferType;
     }
 
-    public void setDealType(String dealType) {
-        this.dealType = dealType;
+    public void setTransferType(String transferType) {
+        this.transferType = transferType;
     }
 
-    public String getDealState() {
-        return dealState;
+    public String getTransferState() {
+        return transferState;
     }
 
-    public void setDealState(String dealState) {
-        this.dealState = dealState;
+    public void setTransferState(String transferState) {
+        this.transferState = transferState;
     }
 
-    public double getDealCount() {
-        return dealCount;
+    public double getTransferAmount() {
+        return transferAmount;
     }
 
-    public void setDealCount(double dealCount) {
-        this.dealCount = dealCount;
+    public void setTransferAmount(double transferAmount) {
+        this.transferAmount = transferAmount;
     }
 
-    public double getDealRmbCount() {
-        return dealRmbCount;
+    public double getTransferAmountToRMB() {
+        return transferAmountToRMB;
     }
 
-    public void setDealRmbCount(double dealRmbCount) {
-        this.dealRmbCount = dealRmbCount;
+    public void setTransferAmountToRMB(double transferAmountToRMB) {
+        this.transferAmountToRMB = transferAmountToRMB;
     }
 
-    public String getDealTime() {
-        return dealTime;
+    public String getTransferTime() {
+        return transferTime;
     }
 
-    public void setDealTime(String dealTime) {
-        this.dealTime = dealTime;
+    public void setTransferTime(String transferTime) {
+        this.transferTime = transferTime;
     }
 }

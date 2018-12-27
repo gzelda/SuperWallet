@@ -5,6 +5,9 @@ public class WithdrawmoneyKey {
 
     private String wid;
 
+    public WithdrawmoneyKey() {
+    }
+
     public WithdrawmoneyKey(String uid, String wid) {
         this.uid = uid;
         this.wid = wid;

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.mapper.InviterMapper">
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Inviter">
+        <id column="inviterID" property="inviterid" jdbcType="VARCHAR"/>
+        <id column="beinvitedID" property="beinvitedid" jdbcType="VARCHAR"/>
+        <result column="invitingTime" property="invitingtime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
+    <sql id="Base_Column_List">
+    inviterID, beinvitedID, invitingTime
+  </sql>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.InviterExample">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from inviter
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.InviterKey">
+        select
+        <include refid="Base_Column_List"/>
+        from inviter
+        where inviterID = #{inviterid,jdbcType=VARCHAR}
+        and beinvitedID = #{beinvitedid,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.InviterKey">
+    delete from inviter
+    where inviterID = #{inviterid,jdbcType=VARCHAR}
+      and beinvitedID = #{beinvitedid,jdbcType=VARCHAR}
+  </delete>
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.InviterExample">
+        delete from inviter
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.superwallet.pojo.Inviter">
+    insert into inviter (inviterID, beinvitedID, invitingTime
+      )
+    values (#{inviterid,jdbcType=VARCHAR}, #{beinvitedid,jdbcType=VARCHAR}, #{invitingtime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Inviter">
+        insert into inviter
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="inviterid != null">
+                inviterID,
+            </if>
+            <if test="beinvitedid != null">
+                beinvitedID,
+            </if>
+            <if test="invitingtime != null">
+                invitingTime,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="inviterid != null">
+                #{inviterid,jdbcType=VARCHAR},
+            </if>
+            <if test="beinvitedid != null">
+                #{beinvitedid,jdbcType=VARCHAR},
+            </if>
+            <if test="invitingtime != null">
+                #{invitingtime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <select id="countByExample" parameterType="com.superwallet.pojo.InviterExample" resultType="java.lang.Integer">
+        select count(*) from inviter
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
+        update inviter
+        <set>
+            <if test="record.inviterid != null">
+                inviterID = #{record.inviterid,jdbcType=VARCHAR},
+            </if>
+            <if test="record.beinvitedid != null">
+                beinvitedID = #{record.beinvitedid,jdbcType=VARCHAR},
+            </if>
+            <if test="record.invitingtime != null">
+                invitingTime = #{record.invitingtime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByExample" parameterType="map">
+        update inviter
+        set inviterID = #{record.inviterid,jdbcType=VARCHAR},
+        beinvitedID = #{record.beinvitedid,jdbcType=VARCHAR},
+        invitingTime = #{record.invitingtime,jdbcType=TIMESTAMP}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Inviter">
+        update inviter
+        <set>
+            <if test="invitingtime != null">
+                invitingTime = #{invitingtime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where inviterID = #{inviterid,jdbcType=VARCHAR}
+        and beinvitedID = #{beinvitedid,jdbcType=VARCHAR}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Inviter">
+    update inviter
+    set invitingTime = #{invitingtime,jdbcType=TIMESTAMP}
+    where inviterID = #{inviterid,jdbcType=VARCHAR}
+      and beinvitedID = #{beinvitedid,jdbcType=VARCHAR}
+  </update>
+</mapper>

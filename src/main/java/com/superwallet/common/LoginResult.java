@@ -7,6 +7,7 @@ import java.io.Serializable;
 public class LoginResult implements Serializable {
     private int code;
     private int status;
+    private String msg;
     private Userbasic user;
 
     public LoginResult() {
@@ -16,6 +17,21 @@ public class LoginResult implements Serializable {
         this.code = code;
         this.status = status;
         this.user = user;
+    }
+
+    public LoginResult(int code, int status, String msg, Userbasic user) {
+        this.code = code;
+        this.status = status;
+        this.msg = msg;
+        this.user = user;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
     public int getCode() {

@@ -13,7 +13,7 @@ public interface DWalletService {
 
     public boolean lock(String UID, Integer tokenType, Double tokenAmount, Integer period);
 
-    public ResponseDWalletLockedOrder listOrders(String UID, int tokenType);
+    public ResponseDWalletLockedOrder listOrders(String UID, Integer tokenType);
 
     public boolean buyOrSellEOSCPUNET(String UID, Double cpuAmount, Double netAmount, Integer actionType);
 
@@ -21,11 +21,11 @@ public interface DWalletService {
 
     public EOSWalletInfo listEOSBasic(String UID);
 
-    public List<ResponseDWalletSimpleInfo> listWalletInfo(String UID);
+    public List<ResponseDWalletSimpleInfo> listDWalletInfo(String UID);
 
-    public ResponseDWalletBill listBills(String UID, Integer tokenType, Integer type);
+    public ResponseDWalletBill listDetailDWalletInfo(String UID, Integer tokenType, Integer type);
 
-    public ResponseDWalletAssets listDWalletInfo(String UID);
+    public ResponseDWalletAssets listAssets(String UID);
 
     public ResponseDWalletLockedOrderEntry getOrder(String UID, String LID);
 }

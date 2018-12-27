@@ -5,18 +5,17 @@ import java.io.Serializable;
 public class CWalletInfo implements Serializable {
     private String address;
     private double amount;
-    private double HUOBIprice;
+    private double tokenPrice;
     private double lockedAmount;
     private double availableAmount;
 
     public CWalletInfo() {
     }
 
-
-    public CWalletInfo(String address, double amount, double HUOBIprice, double lockedAmount, double availableAmount) {
+    public CWalletInfo(String address, double amount, double tokenPrice, double lockedAmount, double availableAmount) {
         this.address = address;
         this.amount = amount;
-        this.HUOBIprice = HUOBIprice;
+        this.tokenPrice = tokenPrice;
         this.lockedAmount = lockedAmount;
         this.availableAmount = availableAmount;
     }
@@ -37,12 +36,12 @@ public class CWalletInfo implements Serializable {
         this.amount = amount;
     }
 
-    public double getHUOBIprice() {
-        return HUOBIprice;
+    public double getTokenPrice() {
+        return tokenPrice;
     }
 
-    public void setHUOBIprice(double HUOBIprice) {
-        this.HUOBIprice = HUOBIprice;
+    public void setTokenPrice(double tokenPrice) {
+        this.tokenPrice = tokenPrice;
     }
 
     public double getLockedAmount() {

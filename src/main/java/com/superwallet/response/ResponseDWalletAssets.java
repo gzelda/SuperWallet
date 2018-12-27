@@ -4,25 +4,30 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ResponseDWalletAssets implements Serializable {
-    private double allCoinTotal;
+    private double allTokenAmountToRMB;
     private int listCount;
     List<ResponseDWalletAssetsEntry> wallets;
 
     public ResponseDWalletAssets() {
     }
 
-    public ResponseDWalletAssets(double allCoinTotal, int listCount, List<ResponseDWalletAssetsEntry> wallets) {
-        this.allCoinTotal = allCoinTotal;
+    public ResponseDWalletAssets(double allTokenAmountToRMB, int listCount) {
+        this.allTokenAmountToRMB = allTokenAmountToRMB;
+        this.listCount = listCount;
+    }
+
+    public ResponseDWalletAssets(double allTokenAmountToRMB, int listCount, List<ResponseDWalletAssetsEntry> wallets) {
+        this.allTokenAmountToRMB = allTokenAmountToRMB;
         this.listCount = listCount;
         this.wallets = wallets;
     }
 
-    public double getAllCoinTotal() {
-        return allCoinTotal;
+    public double getAllTokenAmountToRMB() {
+        return allTokenAmountToRMB;
     }
 
-    public void setAllCoinTotal(double allCoinTotal) {
-        this.allCoinTotal = allCoinTotal;
+    public void setAllTokenAmountToRMB(double allTokenAmountToRMB) {
+        this.allTokenAmountToRMB = allTokenAmountToRMB;
     }
 
     public int getListCount() {

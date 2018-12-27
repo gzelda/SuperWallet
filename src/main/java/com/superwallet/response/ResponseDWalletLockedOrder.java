@@ -5,12 +5,12 @@ import java.util.List;
 
 public class ResponseDWalletLockedOrder implements Serializable {
     private int listCount;
-    List<ResponseDWalletLockedOrderEntry> orders;
+    List<ResponseDWalletLockedOrderSimEntry> orders;
 
     public ResponseDWalletLockedOrder() {
     }
 
-    public ResponseDWalletLockedOrder(int listCount, List<ResponseDWalletLockedOrderEntry> orders) {
+    public ResponseDWalletLockedOrder(int listCount, List<ResponseDWalletLockedOrderSimEntry> orders) {
         this.listCount = listCount;
         this.orders = orders;
     }
@@ -23,11 +23,11 @@ public class ResponseDWalletLockedOrder implements Serializable {
         this.listCount = listCount;
     }
 
-    public List<ResponseDWalletLockedOrderEntry> getOrders() {
+    public List<ResponseDWalletLockedOrderSimEntry> getOrders() {
         return orders;
     }
 
-    public void setOrders(List<ResponseDWalletLockedOrderEntry> orders) {
+    public void setOrders(List<ResponseDWalletLockedOrderSimEntry> orders) {
         this.orders = orders;
     }
 }
