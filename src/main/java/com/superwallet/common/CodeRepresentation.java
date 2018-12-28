@@ -1,20 +1,20 @@
 package com.superwallet.common;
 
-import com.superwallet.utils.JedisClient;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 public class CodeRepresentation {
-
-    @Autowired
-    private JedisClient jedisClient;
 
     //返回矩阵信息
     public static final int CODE_FAIL = 0;
     public static final int CODE_SUCCESS = 1;
     public static final int CODE_ERROR = 2;
+    public static final int CODE_TIMEOUT = 8;
     public static final int STATUS_0 = 0;
     public static final int STATUS_1 = 1;
     public static final int STATUS_2 = 2;
+    public static final int STATUS_TIMEOUT = 8;
     public static final int STATUS_3 = 3;
 
     //----------userbasic表开始--------------
@@ -80,13 +80,26 @@ public class CodeRepresentation {
     public static final int PROFIT_TYPE_INVITING = 4;//邀请人收益
     //----------profit收益记录表结束--------------
 
-    //SuperResult里的UID
-    public static final String UID = "UID";
+    //保存session时sessionId的前缀
+    public static final String SESSIONID_PREFIX = "SESSIONID:";
+
+    //短信验证码保存时间
+    public static final int MESSAGECODE_EXPIRE = 300;
+
+    //转账的主链
+    public static final int TRANSFER_CHAIN_ETH = 1;//ETH主链
+    public static final int TRANSFER_CHAIN_EOS = 2;//EOS主链
+
+    //货币名称
+    public static final String ETH = "ETH";
+    public static final String EOS = "EOS";
+    public static final String BGS = "BGS";
 
     //钱包
     public static final String ETHINFO = "ethInfo";
     public static final String EOSINFO = "eosInfo";
     public static final String BGSINFO = "bgsInfo";
+
     //现有币种总数
     public static final int COUNT_WALLETS = 3;
 
@@ -96,45 +109,18 @@ public class CodeRepresentation {
     //Cookie名称
     public static final String TOKEN_KEY = "token";
 
-    //代理人价格 --BGS
-    public static final double AGENT_PRICE = 10000;
-
-    //默认地址
-    public static final String DEFAULT_ADDRESS = "default";
-
-    //超级账户
-    public static final String SUPER_UID = "10000";
-
-    //转账记录的transferType
-    public static final Byte CHAIN_ON2ON = 0;
-    public static final Byte CHAIN_ON2OFF = 1;
-    public static final Byte CHAIN_OFF2ON = 2;
-
     //转账记录的状态值status
-    public static final Byte TRANSFER_FAIL = 0;
-    public static final Byte TRANSFER_SUCCESS = 1;
-
-    //锁仓状态
-    public static final Byte LOCK_ON = 0;
-    public static final Byte LOCK_OFF = 1;
-
-
-    //这个币是否可以锁仓 0-不可以 1-可以
-    public static final Byte CANNOT_LOCK = 0;
-    public static final Byte CAN_LOCK = 1;
-
+    public static final byte TRANSFER_FAIL = 0;
+    public static final byte TRANSFER_SUCCESS = 1;
 
     //提现申请表的状态
-    public static final Byte WITHDRAW_WAIT = 0;
-    public static final Byte WITHDRAW_SUCCESS = 1;
-    public static final Byte WITHDRAW_FAIL = 2;
-
-    //用户邀请人之后可以获得的BGS
-    public static final double INVITING_BGS = 50;
+    public static final byte WITHDRAW_WAIT = 1;
+    public static final byte WITHDRAW_SUCCESS = 2;
+    public static final byte WITHDRAW_FAIL = 3;
 
     //中心钱包余额加或者减
-    public static final int CWALLET_MONEY_INC = 0;
-    public static final int CWALLET_MONEY_DEC = 1;
+    public static final int CWALLET_MONEY_INC = 0;//加
+    public static final int CWALLET_MONEY_DEC = 1;//减
 
     //超级账户的Address
     public static final String SUPER_ETH = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
@@ -153,6 +139,82 @@ public class CodeRepresentation {
     public static final String NODE_ACTION_EOS_ACCOUNTINFO = "/eos/getAccount";
     public static final String NODE_ACTION_ETH_ACCOUNTINFO = "/eth/getBalance";
 
-    //爬取数字货币价格的网站
-    public static final String URL_PRICE = "https://coinmarketcap.com/zh/";
+    static {
+        JedisPool jedisPool = new JedisPool("localhost", 6379);
+        Jedis jedis = jedisPool.getResource();
+        //加载基本
+        jedis.hget("developerCode", "CODE_FAIL");
+        jedis.hget("developerCode", "CODE_SUCCESS");
+        jedis.hget("developerCode", "CODE_ERROR");
+        jedis.hget("developerCode", "STATUS_0");
+        jedis.hget("developerCode", "STATUS_1");
+        jedis.hget("developerCode", "STATUS_2");
+        jedis.hget("developerCode", "STATUS_3");
+        jedis.hget("developerCode", "USER_SEX_WOMAN");
+        jedis.hget("developerCode", "USER_SEX_MAN");
+        jedis.hget("developerCode", "USER_STATUS_NOIDVALIDATION");
+        jedis.hget("developerCode", "USER_STATUS_VERIFIED");
+        jedis.hget("developerCode", "USER_AGENT_NOTAGENCY");
+        jedis.hget("developerCode", "USER_AGENT_ISAGENCY");
+        jedis.hget("developerCode", "TOKEN_CANNOTLOCK");
+        jedis.hget("developerCode", "TOKEN_CANLOCK");
+        jedis.hget("developerCode", "TOKENTYPE_ETH");
+        jedis.hget("developerCode", "TOKENTYPE_EOS");
+        jedis.hget("developerCode", "TOKENTYPE_BGS");
+        jedis.hget("developerCode", "ETH_TOKEN_TYPE_ETH");
+        jedis.hget("developerCode", "ETH_TOKEN_TYPE_BGS");
+        jedis.hget("developerCode", "EOS_TOKEN_TYPE_EOS");
+        jedis.hget("developerCode", "TRANSFER_TYPE_ON2OFF");
+        jedis.hget("developerCode", "TRANSFER_TYPE_ON2ON");
+        jedis.hget("developerCode", "TRANSFER_TYPE_PAYLOCK");
+        jedis.hget("developerCode", "TRANSFER_TYPE_PAYGAME");
+        jedis.hget("developerCode", "TRANSFER_TYPE_BUYAGENT");
+        jedis.hget("developerCode", "TRANSFER_TYPE_BUYEOSRAM");
+        jedis.hget("developerCode", "TRANSFER_TYPE_BUYEOSCPUNET");
+        jedis.hget("developerCode", "TRANSFER_TYPE_WITHDRAW");
+        jedis.hget("developerCode", "TRANSFER_TYPE_REGISTERBGS");
+        jedis.hget("developerCode", "TRANSFER_TYPE_INVITINGBGS");
+        jedis.hget("developerCode", "TRANSFER_TYPE_LOCKPROFIT");
+        jedis.hget("developerCode", "TRANSFER_TYPE_AGENTPROFIT");
+        jedis.hget("developerCode", "LOCK_STAUTS_ONPROFIT");
+        jedis.hget("developerCode", "LOCK_STATUS_ONOVER");
+        jedis.hget("developerCode", "LOCK_STATUS_FINISHED");
+        jedis.hget("developerCode", "PROFIT_STATUS_ONPROFIT");
+        jedis.hget("developerCode", "PROFIT_STATUS_FINISHED");
+        jedis.hget("developerCode", "PROFIT_NOTFINISHED");
+        jedis.hget("developerCode", "PROFIT_FINISHED");
+        jedis.hget("developerCode", "PROFIT_TYPE_LOCK");
+        jedis.hget("developerCode", "PROFIT_TYPE_AGENT");
+        jedis.hget("developerCode", "PROFIT_TYPE_WITHDRAW");
+        jedis.hget("developerCode", "PROFIT_TYPE_INVITING");
+        jedis.hget("developerCode", "ETHINFO");
+        jedis.hget("developerCode", "EOSINFO");
+        jedis.hget("developerCode", "BGSINFO");
+        jedis.hget("developerCode", "COUNT_WALLETS");
+        jedis.hget("developerCode", "SESSION_EXPIRE");
+        jedis.hget("developerCode", "TOKEN_KEY");
+        jedis.hget("developerCode", "DEFAULT_ADDRESS");
+        jedis.hget("developerCode", "SUPER_UID");
+        jedis.hget("developerCode", "TRANSFER_FAIL");
+        jedis.hget("developerCode", "TRANSFER_SUCCESS");
+        jedis.hget("developerCode", "WITHDRAW_WAIT");
+        jedis.hget("developerCode", "WITHDRAW_SUCCESS");
+        jedis.hget("developerCode", "WITHDRAW_FAIL");
+        jedis.hget("developerCode", "CWALLET_MONEY_INC");
+        jedis.hget("developerCode", "CWALLET_MONEY_DEC");
+        jedis.hget("developerCode", "SUPER_ETH");
+        jedis.hget("developerCode", "SUPER_BGS");
+        jedis.hget("developerCode", "SUPER_EOS");
+        jedis.hget("developerCode", "NODE_URL_ETH");
+        jedis.hget("developerCode", "NODE_URL_EOS");
+        jedis.hget("developerCode", "NODE_ACTION_CREATEETH");
+        jedis.hget("developerCode", "NODE_ACTION_CREATEEOS");
+        jedis.hget("developerCode", "NODE_ACTION_ETHTRANSFER");
+        jedis.hget("developerCode", "NODE_ACTION_EOSTRANSFER");
+        jedis.hget("developerCode", "NODE_ACTION_EOS_NETCPU");
+        jedis.hget("developerCode", "NODE_ACTION_EOS_RAM");
+        jedis.hget("developerCode", "NODE_ACTION_EOS_ACCOUNTINFO");
+        jedis.hget("developerCode", "NODE_ACTION_ETH_ACCOUNTINFO");
+
+    }
 }

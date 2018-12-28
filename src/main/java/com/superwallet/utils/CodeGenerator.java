@@ -11,10 +11,10 @@ public class CodeGenerator {
     //生成用户邀请码
     public static String getInvitedCode(String phoneNum) {
         //根据手机号码
-        char mapping[] = new char[]{'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'};
+        char mapping[] = new char[]{'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H'};
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < phoneNum.length(); i++) {
-            sb.append(mapping[phoneNum.charAt(i)]);
+            sb.append(mapping[i]);
         }
         return sb.toString();
     }

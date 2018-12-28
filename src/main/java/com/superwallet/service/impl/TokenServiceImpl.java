@@ -1,20 +1,17 @@
 package com.superwallet.service.impl;
 
-import com.superwallet.common.CodeRepresentation;
-import com.superwallet.common.MessageRepresentation;
-import com.superwallet.common.SuperResult;
-import com.superwallet.mapper.InviterMapper;
+import com.superwallet.common.*;
 import com.superwallet.mapper.UserbasicMapper;
 import com.superwallet.pojo.Userbasic;
 import com.superwallet.response.ResponseUserAgentInfo;
 import com.superwallet.response.ResponseUserInvitingInfo;
 import com.superwallet.service.CommonService;
 import com.superwallet.service.TokenService;
+import com.superwallet.utils.JedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 @Service
 public class TokenServiceImpl implements TokenService {
@@ -23,31 +20,38 @@ public class TokenServiceImpl implements TokenService {
     private UserbasicMapper userbasicMapper;
 
     @Autowired
-    private InviterMapper inviterMapper;
-
-    @Autowired
     private CommonService commonService;
 
+    @Autowired
+    private JedisClient jedisClient;
+
     /**
-     * 根据cookie当中的token获取UserBasic数据
+     * 获取用户基本信息
      *
-     * @param token
+     * @param UID
      * @return
      */
     @Override
-    public SuperResult getUserByToken(String token, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        Userbasic user = (Userbasic) session.getAttribute(token);
-        //登录过期
-        if (user == null) {
-            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.USER_USER_CODE_0_STATUS_0, null);
-        }
-        //若没过期 更新session时间
-        session.setAttribute(user.getUid(), user);
-        session.setMaxInactiveInterval(CodeRepresentation.SESSION_EXPIRE);
-        SuperResult result = SuperResult.ok(user);
-        result.setMsg(MessageRepresentation.USER_USER_CODE_1_STATUS_0);
-        return result;
+    public SuperResult getUserBasic(String UID) {
+        Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
+        user.setPassword(null);
+        user.setPaypassword(null);
+        return new SuperResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.SUCCESS_CODE_1_STATUS_0, user);
+    }
+
+    /**
+     * 根据request拿到用户的UID
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public String getUID(HttpServletRequest request) {
+        String token = CookieUtils.getCookieValue(request, CodeRepresentation.TOKEN_KEY);
+        String uid = jedisClient.get(CodeRepresentation.SESSIONID_PREFIX + token);
+        if (uid == null || uid.equals("")) return null;
+        jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + token, CodeRepresentation.SESSION_EXPIRE);
+        return uid;
     }
 
     /**
@@ -58,10 +62,16 @@ public class TokenServiceImpl implements TokenService {
      */
     @Override
     public ResponseUserInvitingInfo getInvitingInfo(String UID) {
+        double PROFIT_INVITING_BGS;
+        try {
+            PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_INVITING_BGS"));
+        } catch (Exception e) {
+            PROFIT_INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;
+        }
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
         String invitedCode = user.getInvitedcode();
         int hasInvitedPeopleCount = commonService.getInvitingCount(UID);
-        double bgsHasGot = hasInvitedPeopleCount * CodeRepresentation.INVITING_BGS;
+        double bgsHasGot = hasInvitedPeopleCount * PROFIT_INVITING_BGS;
         //TODO 邀请链接
         String inviteUrl = invitedCode;
         ResponseUserInvitingInfo result = new ResponseUserInvitingInfo(

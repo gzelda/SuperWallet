@@ -13,7 +13,7 @@ public interface CommonService {
 
     public void withdrawRecord(String UID, String WID, Byte tokenType, Byte status, Double tokenAmount);
 
-    public void lockedRecord(String UID, Integer period, Double tokenAmount, Integer status);
+    public void lockedRecord(String UID, Integer tokenType, Integer period, Double tokenAmount, Integer status);
 
     public SuperResult getETHInfo(String UID);
 
@@ -40,4 +40,11 @@ public interface CommonService {
     public int getAgentCount();
 
     public ResponseCWalletSimProfitEntry getCWalletTokenProfit(String UID, Integer tokenType);
+
+    public void initToken(String UID, Integer tokenType);
+
+    public SuperResult transferOnChain(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type, Integer chain);
+
+    public Object getToken(String UID, Integer tokenType);
+
 }

@@ -11,7 +11,7 @@ public class MessageRepresentation implements Serializable {
     public static final String REG_REGCONFIRM_CODE_0_STATUS_0 = "验证码错误";
     public static final String REG_REGCONFIRM_CODE_0_STATUS_1 = "邀请码错误";
     public static final String REG_REGCONFIRM_CODE_0_STATUS_2 = "短信验证码发送失败";
-    public static final String REG_REGCONFIRM_CODE_1_STATUS_0 = "验证码、邀请码正确";
+    public static final String REG_REGCONFIRM_CODE_1_STATUS_0 = "请求成功";
     //3.注册
     public static final String REG_REG_CODE_0_STATUS_0 = "用户已注册";
     public static final String REG_REG_CODE_1_STATUS_0 = "用户注册成功";
@@ -43,12 +43,12 @@ public class MessageRepresentation implements Serializable {
     //13.登出
     public static final String LOGIN_LOGOUT_CODE_1_STATUS_0 = "登出成功";
     //14.支付密码是否存在
-    public static final String LOGIN_PAYCODEEXISTS_CODE_0_STATUS_0 = "登录密码不存在";
-    public static final String LOGIN_PAYCODEEXISTS_CODE_1_STATUS_0 = "登录密码存在";
+    public static final String LOGIN_PAYCODEEXISTS_CODE_0_STATUS_0 = "支付密码不存在";
+    public static final String LOGIN_PAYCODEEXISTS_CODE_1_STATUS_0 = "支付密码存在";
     //----------注册登录模块结束-----------------
     //----------用户基本信息模块开始--------------
     //1.用户基本信息
-    public static final String USER_USER_CODE_0_STATUS_0 = "登录过期";
+    public static final String USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT = "登录超时";
     public static final String USER_USER_CODE_1_STATUS_0 = "用户基本信息返回成功";
     //2.用户作为邀请人的信息
     public static final String SUCCESS_CODE_1_STATUS_0 = "请求成功";

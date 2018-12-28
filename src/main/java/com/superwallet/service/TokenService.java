@@ -7,7 +7,9 @@ import com.superwallet.response.ResponseUserInvitingInfo;
 import javax.servlet.http.HttpServletRequest;
 
 public interface TokenService {
-    public SuperResult getUserByToken(String token, HttpServletRequest request);
+    public SuperResult getUserBasic(String UID);
+
+    public String getUID(HttpServletRequest request);
 
     public ResponseUserInvitingInfo getInvitingInfo(String UID);
 

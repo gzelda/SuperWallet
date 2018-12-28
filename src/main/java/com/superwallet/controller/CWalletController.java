@@ -9,6 +9,7 @@ import com.superwallet.response.ResponseCWalletProfit;
 import com.superwallet.response.ResponseCWalletSimProfit;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.LoginRegisterService;
+import com.superwallet.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,16 +29,22 @@ public class CWalletController {
     @Autowired
     private LoginRegisterService loginRegisterService;
 
+    @Autowired
+    private TokenService tokenService;
+
     /**
      * 请求中心钱包信息列表
      *
-     * @param UID
      * @param request
      * @return
      */
     @RequestMapping(value = "/cWallet/listCWalletInfo", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult listCWalletInfo(String UID, HttpServletRequest request) {
+    public SuperResult listCWalletInfo(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         List<CWalletInfo> walletInfos = cWalletService.listCWalletInfo(UID);
         //如果钱包返回总量信息不对，将返回系统异常
         if (walletInfos.size() != CodeRepresentation.COUNT_WALLETS)
@@ -55,14 +62,17 @@ public class CWalletController {
     /**
      * 中心钱包转入
      *
-     * @param UID
      * @param tokenType
      * @param tokenAmount
      * @return
      */
     @RequestMapping(value = "/cWallet/transferMoney", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult transferMoney(String UID, int tokenType, double tokenAmount) {
+    public SuperResult transferMoney(int tokenType, double tokenAmount, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount);
         if (result) {
             SuperResult out = SuperResult.ok();
@@ -75,14 +85,17 @@ public class CWalletController {
     /**
      * 中心钱包提现请求
      *
-     * @param UID
      * @param tokenType
      * @param tokenAmount
      * @return
      */
     @RequestMapping(value = "/cWallet/withdrawRequest", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult withdrawRequest(String UID, int tokenType, double tokenAmount) {
+    public SuperResult withdrawRequest(int tokenType, double tokenAmount, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         boolean result = cWalletService.withdrawRequest(UID, tokenType, tokenAmount);
         if (result) return SuperResult.ok(MessageRepresentation.CWALLET_WITHDRAWREQUEST_CODE_1_STATUS_0);
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_WITHDRAWREQUEST_CODE_0_STATUS_0, null);
@@ -91,14 +104,17 @@ public class CWalletController {
     /**
      * 中心钱包提现
      *
-     * @param UID
      * @param tokenType
      * @param tokenAmount
      * @return
      */
     @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult withdraw(String UID, String WID, int tokenType, double tokenAmount) {
+    public SuperResult withdraw(String WID, int tokenType, double tokenAmount, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         boolean result = cWalletService.withdraw(UID, WID, tokenType, tokenAmount);
         if (result) return SuperResult.ok(MessageRepresentation.CWALLET_WITHDRAW_CODE_1_STATUS_0);
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_WITHDRAW_CODE_0_STATUS_0, null);
@@ -107,13 +123,16 @@ public class CWalletController {
     /**
      * 交易记录查询
      *
-     * @param UID
      * @param tokenType
      * @return
      */
     @RequestMapping(value = "/cWallet/listHistoryBills", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult listHistoryBills(String UID, int tokenType) {
+    public SuperResult listHistoryBills(int tokenType, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         //获取历史交易
         List<Transfer> list = cWalletService.listHistoryBills(UID, tokenType);
         SuperResult result = SuperResult.ok(list);
@@ -124,12 +143,15 @@ public class CWalletController {
     /**
      * 用户在中心钱包购买代理人
      *
-     * @param UID
      * @return
      */
     @RequestMapping(value = "/cWallet/buyAgent", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult buyAgent(String UID) {
+    public SuperResult buyAgent(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         boolean result = cWalletService.buyAgent(UID);
         if (!result)
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_0, null);
@@ -139,12 +161,15 @@ public class CWalletController {
     /**
      * 中心钱包收益列表展示
      *
-     * @param UID
      * @return
      */
     @RequestMapping(value = "/cWallet/listProfit", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult listProfit(String UID) {
+    public SuperResult listProfit(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         ResponseCWalletSimProfit result = cWalletService.listProfit(UID);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -154,13 +179,16 @@ public class CWalletController {
     /**
      * 特定币种收益详单查询
      *
-     * @param UID
      * @param tokenType
      * @return
      */
     @RequestMapping(value = "/cWallet/listDetailProfit", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult listProfit(String UID, int tokenType) {
+    public SuperResult listProfit(int tokenType, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         ResponseCWalletProfit result = cWalletService.listDetailProfit(UID, tokenType);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);

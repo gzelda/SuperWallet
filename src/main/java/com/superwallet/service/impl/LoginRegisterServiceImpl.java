@@ -1,24 +1,16 @@
 package com.superwallet.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.superwallet.common.CodeRepresentation;
-import com.superwallet.common.LoginResult;
-import com.superwallet.common.MessageRepresentation;
-import com.superwallet.common.SuperResult;
+import com.superwallet.common.*;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.CommonService;
 import com.superwallet.service.LoginRegisterService;
-import com.superwallet.utils.ByteImageConvert;
-import com.superwallet.utils.CodeGenerator;
-import com.superwallet.utils.HttpUtil;
-import com.superwallet.utils.PushtoSingle;
+import com.superwallet.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @Service
@@ -47,6 +39,9 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
 
     @Autowired
     private EthtokenMapper bgstokenMapper;
+
+    @Autowired
+    private JedisClient jedisClient;
 
     /**
      * 查看手机号是否已经被注册过
@@ -77,6 +72,12 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      */
     @Override
     public String register(String phoneNum, String passWord, String invitedCode, String rootPath) {
+        double PROFIT_INVITING_BGS;
+        try {
+            PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_INVITING_BGS"));
+        } catch (Exception e) {
+            PROFIT_INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;
+        }
         //再次判断一下手机号是否已被注册
         boolean registered = isRegistered(phoneNum);
         if (registered)
@@ -116,13 +117,13 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
             inviterMapper.insert(record);
             //邀请方可以获得一笔BGS收入 更新BGS中心钱包表和生成一条交易记录
             //更新钱包表
-            cWalletService.updateBGSWalletAmount(inviter.getUid(), CodeRepresentation.INVITING_BGS, CodeRepresentation.CWALLET_MONEY_INC);
+            cWalletService.updateBGSWalletAmount(inviter.getUid(), PROFIT_INVITING_BGS, CodeRepresentation.CWALLET_MONEY_INC);
             //生成交易记录
             //先找出邀请人的地址
             EthtokenKey bgstokenKey = new EthtokenKey(inviter.getUid(), CodeRepresentation.ETH_TOKEN_TYPE_BGS);
             Ethtoken bgstoken = bgstokenMapper.selectByPrimaryKey(bgstokenKey);
             String toAddress = bgstoken.getEthaddress();
-            commonService.generateRecord(inviter.getUid(), CodeRepresentation.TRANSFER_TYPE_INVITINGBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, toAddress, CodeRepresentation.INVITING_BGS);
+            commonService.generateRecord(inviter.getUid(), CodeRepresentation.TRANSFER_TYPE_INVITINGBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, toAddress, PROFIT_INVITING_BGS);
         }
         userbasicMapper.insert(userbasic);
         //注册成功后推送一条消息
@@ -168,10 +169,13 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //如果密码错误，0-0
         if (list == null || list.size() == 0)
             return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_0, null);
-        int status = (int) list.get(0).getStatus();
-        Userbasic user = list.get(0);
-        user.setPaypassword(null);
-        user.setPaypassword(null);
+        //登录成功返回用户基本信息
+        if (list != null && list.size() != 0) {
+            Userbasic user = list.get(0);
+            user.setPaypassword(null);
+            user.setPaypassword(null);
+            return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0, user);
+        }
         //系统错误
         return new LoginResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
     }
@@ -184,11 +188,6 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      */
     @Override
     public LoginResult loginByCode(String phoneNum) {
-        boolean registered = isRegistered(phoneNum);
-        if (!registered) {
-            //手机号码未注册
-            return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, null);
-        }
         UserbasicExample userbasicExample = new UserbasicExample();
         UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
         criteria.andPhonenumberEqualTo(phoneNum);
@@ -266,20 +265,6 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         return true;
     }
 
-    /**
-     * 判断用户是否超时
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    public boolean isTimeOut(String UID, HttpServletRequest request) {
-        //根据session看是否过期
-        HttpSession session = request.getSession();
-        String attribute = (String) session.getAttribute(UID);
-        if (attribute == null || attribute.equals("")) return true;
-        return false;
-    }
 
     /**
      * 当新用户注册成功时，初始化钱包信息
@@ -289,26 +274,9 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Override
     public boolean initWallet(String UID) {
         //初始化钱包信息
-        Ethtoken ethtoken = new Ethtoken();
-        Ethtoken bgstoken = new Ethtoken();
-        Eostoken eostoken = new Eostoken();
-        //UID
-        ethtoken.setUid(UID);
-        bgstoken.setUid(UID);
-        eostoken.setUid(UID);
-        //TYPE
-        ethtoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_ETH);
-        bgstoken.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
-        eostoken.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
-        ethtoken.setAmount(0d);
-        ethtoken.setCanlock(CodeRepresentation.CANNOT_LOCK);
-        bgstoken.setAmount(0d);
-        bgstoken.setCanlock(CodeRepresentation.CAN_LOCK);
-        eostoken.setAmount(0d);
-        eostoken.setCanlock(CodeRepresentation.CANNOT_LOCK);
-        ethtokenMapper.insert(ethtoken);
-        ethtokenMapper.insert(bgstoken);
-        eostokenMapper.insert(eostoken);
+        commonService.initToken(UID, CodeRepresentation.TOKENTYPE_ETH);
+        commonService.initToken(UID, CodeRepresentation.TOKENTYPE_EOS);
+        commonService.initToken(UID, CodeRepresentation.TOKENTYPE_BGS);
         Map<String, Object> eth_params = new HashMap<String, Object>();
         Map<String, Object> eos_params = new HashMap<String, Object>();
         //传UID

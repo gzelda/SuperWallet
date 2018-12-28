@@ -4,7 +4,9 @@ import com.superwallet.common.*;
 import com.superwallet.pojo.Userbasic;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.service.PhoneMessageService;
+import com.superwallet.service.TokenService;
 import com.superwallet.utils.CodeGenerator;
+import com.superwallet.utils.JedisClient;
 import com.superwallet.utils.SHA1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
 
 @Controller
 public class LoginController {
@@ -27,6 +28,12 @@ public class LoginController {
     //注册登录Service
     @Autowired
     private LoginRegisterService loginRegisterService;
+
+    @Autowired
+    private JedisClient jedisClient;
+
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * 注册时获取手机验证码
@@ -51,7 +58,7 @@ public class LoginController {
         HttpSession session = request.getSession();
         String phoneCode = CodeGenerator.smsCode();
         session.setAttribute(phoneNum, phoneCode);
-        session.setMaxInactiveInterval(60);
+        session.setMaxInactiveInterval(CodeRepresentation.MESSAGECODE_EXPIRE);
         int code = phoneMessageService.sendMessage(phoneNum, phoneCode);
         if (code == CodeRepresentation.CODE_FAIL) {
             return new SuperResult(code, CodeRepresentation.STATUS_2, MessageRepresentation.REG_REGCONFIRM_CODE_0_STATUS_2, null);
@@ -94,10 +101,9 @@ public class LoginController {
     @RequestMapping(value = "/register/registerConfirm", method = RequestMethod.POST)
     @ResponseBody
     public SuperResult registerConfirm(String phoneNum, String phoneIDCode, String invitedCode, HttpServletRequest request) {
-        SuperResult result;
         //判断验证码是否正确
-        result = isValidMessageCode(phoneNum, phoneIDCode, request);
-        if (result.getCode() != CodeRepresentation.CODE_SUCCESS) return result;
+        SuperResult result = isValidMessageCode(phoneNum, phoneIDCode, request);
+        if (result == null || result.getCode() != CodeRepresentation.CODE_SUCCESS) return result;
         //判断邀请码是否正确
         boolean isValidInvitedCode = loginRegisterService.isValidInvitedCode(invitedCode);
         if (!isValidInvitedCode) {
@@ -119,7 +125,7 @@ public class LoginController {
      */
     @RequestMapping(value = "/register/register", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult register(String phoneNum, String passWord, String invitedCode, HttpServletRequest request) {
+    public SuperResult register(String phoneNum, String passWord, String invitedCode, HttpServletRequest request, HttpServletResponse response) {
         SuperResult result;
         //获取项目路径
         String headPhotoPath = request.getSession().getServletContext().getRealPath("/");
@@ -136,17 +142,19 @@ public class LoginController {
         boolean res = loginRegisterService.initWallet(uid);
         if (!res)
             return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
-        HashMap<String, String> map = new HashMap();
-        map.put("UID", uid);
-        result = new SuperResult(map);
-        result.setMsg(MessageRepresentation.REG_REG_CODE_1_STATUS_0);
+        String sessionId = SHA1.encode(uid);
+        //添加session,并设置过期时间
+        jedisClient.set(CodeRepresentation.SESSIONID_PREFIX + sessionId, uid);
+        jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + sessionId, CodeRepresentation.SESSION_EXPIRE);
+        //写cookie
+        CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId);
+        result = SuperResult.ok(MessageRepresentation.REG_REG_CODE_1_STATUS_0);
         return result;
     }
 
     /**
      * 用户实名认证
      *
-     * @param UID
      * @param IDCardNumber
      * @param realName
      * @param IDCardFront
@@ -156,7 +164,11 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/verifyUser", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult verifyUser(String UID, String IDCardNumber, String realName, String IDCardFront, String IDCardBack, String face) {
+    public SuperResult verifyUser(String IDCardNumber, String realName, String IDCardFront, String IDCardBack, String face, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         loginRegisterService.verifyUser(UID, IDCardNumber, realName, IDCardFront, IDCardBack, face);
         return SuperResult.ok(MessageRepresentation.LOGIN_VERIFYUSER_CODE_1_STATUS_0);
     }
@@ -175,16 +187,15 @@ public class LoginController {
         LoginResult loginResult = loginRegisterService.loginByPassWord(phoneNum, passWord);
         //当登录成功时传UID
         if (loginResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
-            HashMap<String, String> map = new HashMap<String, String>();
             Userbasic user = loginResult.getUser();
-            map.put(CodeRepresentation.UID, user.getUid());
             //添加session
-            HttpSession session = request.getSession();
-            session.setAttribute(user.getUid(), user);
-            session.setMaxInactiveInterval(CodeRepresentation.SESSION_EXPIRE);
+            String uid = user.getUid();
+            String sessionId = SHA1.encode(uid);
+            jedisClient.set(CodeRepresentation.SESSIONID_PREFIX + sessionId, uid);
+            jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + sessionId, CodeRepresentation.SESSION_EXPIRE);
             //写cookie
-            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, user.getUid());
-            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0, map);
+            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId);
+            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0, null);
         }
         //其他任何失败情况不传UID
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), null);
@@ -212,7 +223,7 @@ public class LoginController {
         HttpSession session = request.getSession();
         String phoneCode = CodeGenerator.smsCode();
         session.setAttribute(phoneNum, phoneCode);
-        session.setMaxInactiveInterval(60);
+        session.setMaxInactiveInterval(CodeRepresentation.MESSAGECODE_EXPIRE);
         int code = phoneMessageService.sendMessage(phoneNum, phoneCode);
         if (code == CodeRepresentation.CODE_FAIL)
             return new SuperResult(code, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_GETIDCODE_CODE_0_STATUS_1, null);
@@ -237,20 +248,20 @@ public class LoginController {
         //如果验证码错误
         if (result.getCode() == CodeRepresentation.CODE_FAIL) return result;
         LoginResult loginResult = loginRegisterService.loginByCode(phoneNum);
-        HttpSession session = request.getSession();
         //当登录成功时传UID
         if (loginResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
-            HashMap<String, String> map = new HashMap<String, String>();
             //登录成功存session
             Userbasic user = loginResult.getUser();
-            session.setAttribute(user.getUid(), user);
-            session.setMaxInactiveInterval(CodeRepresentation.SESSION_EXPIRE);
+            //添加session
+            String uid = user.getUid();
+            String sessionId = SHA1.encode(uid);
+            jedisClient.set(CodeRepresentation.SESSIONID_PREFIX + sessionId, uid);
+            jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + sessionId, CodeRepresentation.SESSION_EXPIRE);
             //写cookie
-            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, user.getUid());
+            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId);
             String cookieValue = CookieUtils.getCookieValue(request, CodeRepresentation.TOKEN_KEY);
             System.out.println(cookieValue);
-            map.put(CodeRepresentation.UID, user.getUid());
-            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), map);
+            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), null);
         }
         //其他任何失败情况不传UID
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), null);
@@ -286,13 +297,16 @@ public class LoginController {
     /**
      * 用户设置支付密码
      *
-     * @param UID
      * @param payCode
      * @return
      */
     @RequestMapping(value = "/login/setPayCode", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult setPayPassword(String UID, String payCode) {
+    public SuperResult setPayPassword(String payCode, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         //加密支付密码
         payCode = SHA1.encode(payCode);
         //更新userBasic表
@@ -303,13 +317,16 @@ public class LoginController {
     /**
      * 判断旧支付密码
      *
-     * @param UID
      * @param payCode
      * @return
      */
     @RequestMapping(value = "/login/payCodeValidation", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult payCodeValidation(String UID, String payCode) {
+    public SuperResult payCodeValidation(String payCode, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         payCode = SHA1.encode(payCode);
         //判断旧支付密码
         boolean res = loginRegisterService.payCodeValidation(UID, payCode);
@@ -321,7 +338,6 @@ public class LoginController {
     /**
      * 修改密码
      *
-     * @param UID
      * @param phoneNum
      * @param oldPassWord
      * @param newPassWord
@@ -329,7 +345,11 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/changePassword", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult changePassword(String UID, String phoneNum, String phoneIDCode, String oldPassWord, String newPassWord, HttpServletRequest request) {
+    public SuperResult changePassword(String phoneNum, String phoneIDCode, String oldPassWord, String newPassWord, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         SuperResult result;
         result = isValidMessageCode(phoneNum, phoneIDCode, request);
         if (result.getCode() == CodeRepresentation.CODE_FAIL) return result;
@@ -354,7 +374,6 @@ public class LoginController {
     /**
      * 修改用户基本信息
      *
-     * @param UID
      * @param headPhoto
      * @param nickName
      * @param sex
@@ -362,7 +381,11 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/modifyUserBasic", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
+    public SuperResult modifyUserBasic(byte[] headPhoto, String nickName, Byte sex, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex);
         return SuperResult.ok(MessageRepresentation.LOGIN_MODIFYUSERBASIC_CODE_1_STATUS_0);
     }
@@ -370,30 +393,36 @@ public class LoginController {
     /**
      * 登出
      *
-     * @param UID
      * @param request
      * @param response
      * @return
      */
     @RequestMapping(value = "/login/logout", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult logout(String UID, HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession();
-        //TODO 关闭session 清除cookie
-        session.removeAttribute(UID);
-        CookieUtils.deleteCookie(request, response, "token");
+    public SuperResult logout(HttpServletRequest request, HttpServletResponse response) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        //清除session和cookie
+        String sessionId = SHA1.encode(UID);
+        jedisClient.del(sessionId);
+        CookieUtils.deleteCookie(request, response, CodeRepresentation.TOKEN_KEY);
         return SuperResult.ok(MessageRepresentation.LOGIN_LOGOUT_CODE_1_STATUS_0);
     }
 
     /**
      * 判断支付密码是否存在
      *
-     * @param UID
      * @return
      */
     @RequestMapping(value = "/login/isPayCodeExists", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult isPayCodeExists(String UID) {
+    public SuperResult isPayCodeExists(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         boolean exists = loginRegisterService.isPayCodeExists(UID);
         SuperResult result = new SuperResult();
         if (!exists) {

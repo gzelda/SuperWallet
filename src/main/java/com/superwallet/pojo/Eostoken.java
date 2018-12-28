@@ -7,6 +7,15 @@ public class Eostoken extends EostokenKey {
 
     private Byte canlock;
 
+    public Eostoken() {
+    }
+
+    public Eostoken(String uid, Integer type, Double amount, Byte canlock) {
+        super(uid, type);
+        this.amount = amount;
+        this.canlock = canlock;
+    }
+
     public String getEosaccountname() {
         return eosaccountname;
     }

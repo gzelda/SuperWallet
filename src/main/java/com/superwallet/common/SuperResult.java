@@ -55,7 +55,7 @@ public class SuperResult implements Serializable {
     }
 
     public static SuperResult ok(String msg) {
-        SuperResult result = new SuperResult();
+        SuperResult result = SuperResult.ok();
         result.setMsg(msg);
         return result;
     }

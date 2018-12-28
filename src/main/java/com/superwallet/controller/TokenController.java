@@ -1,5 +1,6 @@
 package com.superwallet.controller;
 
+import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.MessageRepresentation;
 import com.superwallet.common.SuperResult;
 import com.superwallet.response.ResponseUserAgentInfo;
@@ -7,7 +8,6 @@ import com.superwallet.response.ResponseUserInvitingInfo;
 import com.superwallet.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,14 +25,17 @@ public class TokenController {
     /**
      * 获取用户基本信息
      *
-     * @param token
      * @param request
      * @return
      */
-    @RequestMapping(value = "/user/token/{token}")
+    @RequestMapping(value = "/user/getUserBasic")
     @ResponseBody
-    public SuperResult getUserByToken(@PathVariable String token, HttpServletRequest request) {
-        SuperResult result = tokenService.getUserByToken(token, request);
+    public SuperResult getUserByToken(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        SuperResult result = tokenService.getUserBasic(UID);
         return result;
     }
 

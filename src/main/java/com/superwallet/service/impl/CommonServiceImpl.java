@@ -99,18 +99,22 @@ public class CommonServiceImpl implements CommonService {
      * 生成锁仓记录
      *
      * @param UID
+     * @param tokenType
      * @param period
      * @param tokenAmount
      * @param status
      */
     @Override
-    public void lockedRecord(String UID, Integer period, Double tokenAmount, Integer status) {
+    public void lockedRecord(String UID, Integer tokenType, Integer period, Double tokenAmount, Integer status) {
         Lockwarehouse lockwarehouse = new Lockwarehouse();
         lockwarehouse.setUid(UID);
         lockwarehouse.setCreatedtime(new Date());
         lockwarehouse.setPeriod(period);
         lockwarehouse.setAmount(tokenAmount);
         lockwarehouse.setStatus(status);
+        lockwarehouse.setTokentype(tokenType);
+        //TODO 锁仓利润币种
+        lockwarehouse.setProfittokentype(CodeRepresentation.TOKENTYPE_BGS);
         lockwarehouseMapper.insert(lockwarehouse);
     }
 
@@ -267,9 +271,10 @@ public class CommonServiceImpl implements CommonService {
         String tokenName, tokenAddress;
         double lockedAmount = 0, cWalletAmount = 0;
         int canLock = 0;
+        //TODO 货币价值
         switch (tokenType) {
-            case 1://ETH
-                tokenName = "ETH";
+            case CodeRepresentation.TOKENTYPE_ETH://ETH
+                tokenName = CodeRepresentation.ETH;
                 EthtokenKey ethtokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
                 //拿地址
@@ -285,9 +290,10 @@ public class CommonServiceImpl implements CommonService {
                 result.setTokenAddress(tokenAddress);
                 result.setTokenName(tokenName);
                 result.setLockedAmount(lockedAmount);
+                result.setTokenPrice(1.0);
                 break;
-            case 2://EOS
-                tokenName = "EOS";
+            case CodeRepresentation.TOKENTYPE_EOS://EOS
+                tokenName = CodeRepresentation.EOS;
                 EostokenKey eostokenKey = new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
                 //拿地址
@@ -303,9 +309,10 @@ public class CommonServiceImpl implements CommonService {
                 result.setTokenAddress(tokenAddress);
                 result.setTokenName(tokenName);
                 result.setLockedAmount(lockedAmount);
+                result.setTokenPrice(1.0);
                 break;
-            case 3://BGS
-                tokenName = "BGS";
+            case CodeRepresentation.TOKENTYPE_BGS://BGS
+                tokenName = CodeRepresentation.BGS;
                 EthtokenKey bgstokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(bgstokenKey);
                 //拿地址
@@ -321,6 +328,7 @@ public class CommonServiceImpl implements CommonService {
                 result.setTokenAddress(tokenAddress);
                 result.setTokenName(tokenName);
                 result.setLockedAmount(lockedAmount);
+                result.setTokenPrice(1.0);
                 break;
         }
         return result;
@@ -379,10 +387,16 @@ public class CommonServiceImpl implements CommonService {
                 //中心钱包余额
                 cWalletAmount = eostoken.getAmount();
                 //拿链上钱包余额
-                superResult = getETHInfo(UID);
+                superResult = getEOSInfo(UID);
                 if (superResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
                     JSONObject eos = JSON.parseObject(superResult.getData().toString());
-                    result.setBalance(Double.parseDouble(eos.getString("core_liquid_balance").split(" ")[0]));
+                    double balance;
+                    try {
+                        balance = Double.parseDouble(eos.getString("core_liquid_balance").split(" ")[0]);
+                    } catch (Exception e) {
+                        balance = 0;
+                    }
+                    result.setBalance(balance);
                 }
                 result.setCanLock(canLock);
                 result.setcWalletAmount(cWalletAmount);
@@ -562,6 +576,87 @@ public class CommonServiceImpl implements CommonService {
         entry.setTokenProfit(walletInfo.getcWalletAmount());
         entry.setTokenProfitToRMB(walletInfo.getcWalletAmount() * walletInfo.getTokenPrice());
         return entry;
+    }
+
+    /**
+     * 根据货币种类初始化中心化钱包信息
+     *
+     * @param UID
+     * @param tokenType
+     */
+    @Override
+    public void initToken(String UID, Integer tokenType) {
+        switch (tokenType) {
+            case CodeRepresentation.TOKENTYPE_ETH://ETH
+                Ethtoken ethtoken = new Ethtoken(UID, CodeRepresentation.ETH_TOKEN_TYPE_ETH, 0d, CodeRepresentation.TOKEN_CANNOTLOCK);
+                //TODO 获得地址再更新
+                ethtokenMapper.insert(ethtoken);
+                break;
+            case CodeRepresentation.TOKENTYPE_EOS://EOS
+                Eostoken eostoken = new Eostoken(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS, 0d, CodeRepresentation.TOKEN_CANNOTLOCK);
+                eostokenMapper.insert(eostoken);
+                break;
+            case CodeRepresentation.TOKENTYPE_BGS://BGS
+                Ethtoken bgstoken = new Ethtoken(UID, CodeRepresentation.ETH_TOKEN_TYPE_BGS, 0d, CodeRepresentation.TOKEN_CANLOCK);
+                ethtokenMapper.insert(bgstoken);
+                break;
+        }
+    }
+
+    /**
+     * 链上转账
+     *
+     * @param UID
+     * @param tokenAmount
+     * @param fromAddress
+     * @param toAddress
+     * @param type
+     * @param chain
+     * @return
+     */
+    @Override
+    public SuperResult transferOnChain(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type, Integer chain) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        params.put(RequestParams.AMOUNT, tokenAmount);
+        params.put(RequestParams.FROMADDRESS, fromAddress);
+        params.put(RequestParams.TOADDRESS, toAddress);
+        params.put(RequestParams.TYPE, type);
+        String requestUrl;
+        if (chain == CodeRepresentation.TRANSFER_CHAIN_ETH) {
+            requestUrl = CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETHTRANSFER;
+        } else {
+            requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOSTRANSFER;
+        }
+        String resp = HttpUtil.post(requestUrl, params);
+        SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        return result;
+    }
+
+    /**
+     * 根据币种拿到对应的货币类
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public Object getToken(String UID, Integer tokenType) {
+        switch (tokenType) {
+            case CodeRepresentation.TOKENTYPE_ETH://ETH
+                EthtokenKey ethtokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
+                Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+                return ethtoken;
+            case CodeRepresentation.TOKENTYPE_EOS://EOS
+                EostokenKey eostokenKey = new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+                return eostoken;
+            case CodeRepresentation.TOKENTYPE_BGS://BGS
+                EthtokenKey bgstokenKey = new EthtokenKey(UID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(bgstokenKey);
+                return bgstoken;
+        }
+        return null;
     }
 
 }

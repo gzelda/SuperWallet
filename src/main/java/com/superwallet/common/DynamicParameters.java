@@ -32,7 +32,7 @@ public class DynamicParameters implements Serializable {
     //每日邀请好友上限
     public static final double MAX_DAILY_INVITING_COUNT = 2;//邀请数量
     //邀请好友奖励BGS数量
-    public static final double PROFIT_INVITING_BGS = 5;//BGS
+    public static final double PROFIT_INVITING_BGS = 50;//BGS
 
     //Dapp返现分配
     public static final double PROFIT_DAPP_LOCK = 0.1;//锁仓分配比例
