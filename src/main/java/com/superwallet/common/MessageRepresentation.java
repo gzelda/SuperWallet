@@ -65,7 +65,9 @@ public class MessageRepresentation implements Serializable {
     public static final String CWALLET_WITHDRAW_CODE_0_STATUS_0 = "提币确认失败";
     public static final String CWALLET_WITHDRAW_CODE_1_STATUS_0 = "提币确认成功";
     //4.购买代理人
-    public static final String CWALLET_BUYAGENT_CODE_0_STATUS_0 = "余额不足";
+    public static final String CWALLET_BUYAGENT_CODE_0_STATUS_0 = "您已是代理人";
+    public static final String CWALLET_BUYAGENT_CODE_0_STATUS_1 = "余额不足";
+    public static final String CWALLET_BUYAGENT_CODE_1_STATUS_0 = "购买代理人成功";
     //----------中心钱包模块结束-------------
     //----------链上钱包模块开始-------------
     //1.展示链上钱包信息

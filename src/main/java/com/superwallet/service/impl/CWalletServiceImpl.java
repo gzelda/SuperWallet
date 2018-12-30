@@ -342,7 +342,7 @@ public class CWalletServiceImpl implements CWalletService {
      */
     @Override
     @Transactional
-    public boolean buyAgent(String UID) {
+    public SuperResult buyAgent(String UID) {
         double PRICE_BUYAGENT_BGS;
         try {
             PRICE_BUYAGENT_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PRICE_BUYAGENT_BGS"));
@@ -350,14 +350,16 @@ public class CWalletServiceImpl implements CWalletService {
             PRICE_BUYAGENT_BGS = DynamicParameters.PRICE_BUYAGENT_BGS;
         }
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
-        if (user.getIsagency() == CodeRepresentation.USER_AGENT_ISAGENCY) return false;
+        if (user.getIsagency() == CodeRepresentation.USER_AGENT_ISAGENCY) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_0, null);
+        }
         EthtokenKey ethtokenKey = new EthtokenKey();
         ethtokenKey.setUid(UID);
         ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
         Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
         //余额不足
         if (bgstoken.getAmount() < PRICE_BUYAGENT_BGS) {
-            return false;
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_1, null);
         }
         //购买成功
         updateBGSWalletAmount(UID, PRICE_BUYAGENT_BGS, CodeRepresentation.CWALLET_MONEY_DEC);
@@ -371,7 +373,7 @@ public class CWalletServiceImpl implements CWalletService {
                 CodeRepresentation.TRANSFER_SUCCESS, bgstoken.getEthaddress(),
                 CodeRepresentation.SUPER_BGS,
                 PRICE_BUYAGENT_BGS);
-        return true;
+        return SuperResult.ok(MessageRepresentation.CWALLET_BUYAGENT_CODE_1_STATUS_0);
     }
 
     /**

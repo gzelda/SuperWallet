@@ -1,6 +1,7 @@
 package com.superwallet.service;
 
 import com.superwallet.common.CWalletInfo;
+import com.superwallet.common.SuperResult;
 import com.superwallet.pojo.Lockwarehouse;
 import com.superwallet.pojo.Transfer;
 import com.superwallet.response.ResponseCWalletProfit;
@@ -14,13 +15,13 @@ public interface CWalletService {
 
     public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice);
 
-    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice);
-
     public boolean withdrawRequest(String UID, Integer tokenType, Double tokenAmount);
+
+    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice);
 
     public List<Transfer> listHistoryBills(String UID, Integer tokenType);
 
-    public boolean buyAgent(String UID);
+    public SuperResult buyAgent(String UID);
 
     public ResponseCWalletSimProfit listProfit(String UID);
 
