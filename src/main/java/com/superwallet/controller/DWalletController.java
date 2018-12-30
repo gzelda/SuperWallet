@@ -125,17 +125,17 @@ public class DWalletController {
      * @param tokenType
      * @param tokenAmount
      * @param addressTo
-     * @param description
+     * @param memo
      * @return
      */
     @RequestMapping(value = "/dWallet/transferMoney", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult transferMoney(Integer tokenType, double tokenAmount, double gasPrice, String addressTo, String description, HttpServletRequest request) {
+    public SuperResult transferMoney(Integer tokenType, double tokenAmount, double gasPrice, String addressTo, String memo, HttpServletRequest request) {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        SuperResult res = dWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice, addressTo, description);
+        SuperResult res = dWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice, addressTo, memo);
         return res;
     }
 

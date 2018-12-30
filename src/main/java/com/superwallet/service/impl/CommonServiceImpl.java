@@ -692,14 +692,14 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     @Override
-    public SuperResult EOSTransfer(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type) {
+    public SuperResult EOSTransfer(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type, String memo) {
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(RequestParams.UID, UID);
         params.put(RequestParams.AMOUNT, tokenAmount);
         params.put(RequestParams.FROMACCOUNT, fromAddress);
         params.put(RequestParams.TOACCOUNT, toAddress);
         params.put(RequestParams.TYPE, type);
-        params.put(RequestParams.MEMO, "");
+        params.put(RequestParams.MEMO, memo == null ? "" : memo);
         String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOSTRANSFER;
         String resp = HttpUtil.post(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);

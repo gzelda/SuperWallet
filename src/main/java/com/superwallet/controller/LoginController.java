@@ -65,7 +65,7 @@ public class LoginController {
         if (code == CodeRepresentation.CODE_FAIL) {
             return new SuperResult(code, CodeRepresentation.STATUS_2, MessageRepresentation.REG_REGCONFIRM_CODE_0_STATUS_2, null);
         }
-        result = new SuperResult(code, CodeRepresentation.STATUS_0, MessageRepresentation.REG_REGCONFIRM_CODE_1_STATUS_0, null);
+        result = new SuperResult(code, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_GETIDCODE_CODE_1_STATUS_0, null);
         return result;
     }
 

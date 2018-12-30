@@ -122,7 +122,7 @@ public class CWalletServiceImpl implements CWalletService {
                 addressFrom = CodeRepresentation.SUPER_EOS;
                 addressTo = eostoken.getEosaccountname();
                 //链上请求
-                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, null);
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 //余额转入,钱包更新
@@ -274,7 +274,7 @@ public class CWalletServiceImpl implements CWalletService {
                 //从中心转到链上
                 addressFrom = CodeRepresentation.SUPER_EOS;
                 addressTo = eostoken.getEosaccountname();
-                result = commonService.EOSTransfer(CodeRepresentation.SUPER_UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                result = commonService.EOSTransfer(CodeRepresentation.SUPER_UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, "提现");
                 //链上转账请求失败
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     //提现失败则退回金额，并记录一笔转账记录，此单作废

@@ -45,7 +45,7 @@ public interface CommonService {
 
     public SuperResult ETHTransfer(String UID, Double tokenAmount, Double gasPrice, String fromAddress, String toAddress, Integer type);
 
-    public SuperResult EOSTransfer(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type);
+    public SuperResult EOSTransfer(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type, String memo);
 
     public Object getToken(String UID, Integer tokenType);
 

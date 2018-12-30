@@ -93,17 +93,18 @@ public class DWalletServiceImpl implements DWalletService {
      * @param tokenType
      * @param tokenAmount
      * @param addressTo
-     * @param description
+     * @param memo
      * @return
      */
     @Override
     @Transactional
-    public SuperResult transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, String addressTo, String description) {
+    public SuperResult transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, String addressTo, String memo) {
         CommonWalletInfo wallet = commonService.getMappingDAndCWalletInfo(UID, tokenType);
         //余额不足 直接返回
         if (wallet.getBalance() < tokenAmount) {
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_0, null);
         }
+        if (gasPrice == null) gasPrice = 0d;
         String addressFrom;
         String resp;
         SuperResult result;
@@ -128,7 +129,7 @@ public class DWalletServiceImpl implements DWalletService {
                 Eostoken eostoken = (Eostoken) commonService.getToken(UID, tokenType);
                 addressFrom = eostoken.getEosaccountname();
                 //链上请求
-                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, memo);
                 //链上转账请求失败
                 if (result.getCode() == 0) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
@@ -165,6 +166,7 @@ public class DWalletServiceImpl implements DWalletService {
     @Override
     @Transactional
     public SuperResult lock(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, Integer period) {
+        if (gasPrice == null) gasPrice = 0d;
         CommonWalletInfo walletInfo = commonService.getMappingDAndCWalletInfo(UID, tokenType);
         //余额不足 直接失败
         if (walletInfo.getBalance() < tokenAmount) {
@@ -202,7 +204,7 @@ public class DWalletServiceImpl implements DWalletService {
                 addressFrom = eostoken.getEosaccountname();
                 addressTo = CodeRepresentation.SUPER_EOS;
                 //链上请求
-                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, "锁仓");
                 //链上转账请求失败
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);

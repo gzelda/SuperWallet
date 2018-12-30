@@ -6,7 +6,7 @@ import com.superwallet.response.*;
 import java.util.List;
 
 public interface DWalletService {
-    public SuperResult transferMoney(String UID, Integer tokenType, Double tokenAmount, Double tokenPrice, String addressTo, String description);
+    public SuperResult transferMoney(String UID, Integer tokenType, Double tokenAmount, Double tokenPrice, String addressTo, String memo);
 
     public SuperResult lock(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, Integer period);
 

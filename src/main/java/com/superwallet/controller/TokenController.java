@@ -42,12 +42,15 @@ public class TokenController {
     /**
      * 获取用户作为邀请人的信息
      *
-     * @param UID
      * @return
      */
     @RequestMapping(value = "/user/invitingInfo", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult getInvitingInfo(String UID) {
+    public SuperResult getInvitingInfo(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         ResponseUserInvitingInfo result = tokenService.getInvitingInfo(UID);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -57,12 +60,15 @@ public class TokenController {
     /**
      * 获取用户作为代理人的信息
      *
-     * @param UID
      * @return
      */
     @RequestMapping(value = "/user/agentInfo", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult getAgentInfo(String UID) {
+    public SuperResult getAgentInfo(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         ResponseUserAgentInfo result = tokenService.getAgentInfo(UID);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
