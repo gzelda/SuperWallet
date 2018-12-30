@@ -1,6 +1,7 @@
 package com.superwallet.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.superwallet.common.*;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
@@ -10,6 +11,7 @@ import com.superwallet.service.LoginRegisterService;
 import com.superwallet.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -71,7 +73,8 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      * @param invitedCode
      */
     @Override
-    public String register(String phoneNum, String passWord, String invitedCode, String rootPath) {
+    @Transactional
+    public SuperResult register(String phoneNum, String passWord, String invitedCode, String rootPath) {
         double PROFIT_INVITING_BGS;
         try {
             PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_INVITING_BGS"));
@@ -81,12 +84,12 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //再次判断一下手机号是否已被注册
         boolean registered = isRegistered(phoneNum);
         if (registered)
-            return "registered";
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.REG_GETIDCODE_CODE_0_STATUS_0, null);
         //如果邀请码不为空并且合法，根据邀请码找到邀请人
         String uid = UUID.randomUUID().toString();
         Userbasic userbasic = new Userbasic();
         //默认头像设置
-        String path = rootPath + "WEB-INF\\imgs\\default.jpg";
+        String path = rootPath + "WEB-INF/imgs/default.jpg";
         byte[] headPhoto = ByteImageConvert.image2byte(path);
         userbasic.setHeadphoto(headPhoto);
         userbasic.setUid(uid);
@@ -123,12 +126,31 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
             EthtokenKey bgstokenKey = new EthtokenKey(inviter.getUid(), CodeRepresentation.ETH_TOKEN_TYPE_BGS);
             Ethtoken bgstoken = bgstokenMapper.selectByPrimaryKey(bgstokenKey);
             String toAddress = bgstoken.getEthaddress();
-            commonService.generateRecord(inviter.getUid(), CodeRepresentation.TRANSFER_TYPE_INVITINGBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, toAddress, PROFIT_INVITING_BGS);
+            boolean res = commonService.generateRecord(inviter.getUid(), CodeRepresentation.TRANSFER_TYPE_INVITINGBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, toAddress, PROFIT_INVITING_BGS);
+            if (!res) {
+                try {
+                    throw new Exception();
+                } catch (Exception e) {
+                    System.out.println("邀请获得奖励交易记录生成失败");
+                    new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
+                }
+            }
         }
-        userbasicMapper.insert(userbasic);
+        boolean res = initWallet(uid);
+        if (!res) {
+            return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
+        }
+        int rows = userbasicMapper.insert(userbasic);
+        if (rows == 0) {
+            try {
+                throw new Exception();
+            } catch (Exception e) {
+                System.out.println("注册用户失败");
+            }
+        }
         //注册成功后推送一条消息
         PushtoSingle.pushMessage("test", "test", "http://www.baidu.com");
-        return uid;
+        return new SuperResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.REG_REG_CODE_1_STATUS_0, uid);
     }
 
     /**
@@ -227,10 +249,8 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //更新密码
         user.setPassword(newPassWord);
         userbasicMapper.updateByPrimaryKey(user);
-        user.setPaypassword(null);
-        user.setPassword(null);
         //更新成功后，返回user
-        return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_FINDPASSWORD_CODE_1_STATUS_0, user);
+        return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_FINDPASSWORD_CODE_1_STATUS_0, null);
     }
 
     /**
@@ -240,12 +260,16 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      * @param payCode
      */
     @Override
-    public void setPayCode(String UID, String payCode) {
+    public boolean setPayCode(String UID, String payCode) {
         //根据UID找到用户
         Userbasic userbasic = userbasicMapper.selectByPrimaryKey(UID);
         //设置支付密码
         userbasic.setPaypassword(payCode);
-        userbasicMapper.updateByPrimaryKey(userbasic);
+        int rows = userbasicMapper.updateByPrimaryKey(userbasic);
+        if (rows == 0) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -272,23 +296,31 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      * @param UID
      */
     @Override
+    @Transactional
     public boolean initWallet(String UID) {
-        //初始化钱包信息
-        commonService.initToken(UID, CodeRepresentation.TOKENTYPE_ETH);
-        commonService.initToken(UID, CodeRepresentation.TOKENTYPE_EOS);
-        commonService.initToken(UID, CodeRepresentation.TOKENTYPE_BGS);
         Map<String, Object> eth_params = new HashMap<String, Object>();
         Map<String, Object> eos_params = new HashMap<String, Object>();
         //传UID
-        eth_params.put("UID", UID);
-        eos_params.put("UID", UID);
+        eth_params.put(RequestParams.UID, UID);
+        eos_params.put(RequestParams.UID, UID);
         String eth_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEETH, eth_params);
         String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_CREATEEOS, eos_params);
         SuperResult response_eth = JSON.parseObject(eth_resp, SuperResult.class);
         SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
+//        System.out.println("请求得到的数据:" + response_eth.getData().toString());
+//        System.out.println("请求得到的数据:" + response_eos.getData().toString());
         if (response_eth.getCode() == CodeRepresentation.CODE_FAIL || response_eos.getCode() == CodeRepresentation.CODE_FAIL) {
             return false;
         }
+        String ethAddress = JSONObject.parseObject(response_eth.getData().toString()).getString("address");
+        if (ethAddress == null || ethAddress.equals("")) return false;
+        String eosAccountName = JSONObject.parseObject(response_eos.getData().toString()).getString("accountName");
+        if (eosAccountName == null || eosAccountName.equals("")) return false;
+        //初始化钱包信息
+        boolean initETH = commonService.initToken(UID, ethAddress, CodeRepresentation.TOKENTYPE_ETH);
+        boolean initEOS = commonService.initToken(UID, eosAccountName, CodeRepresentation.TOKENTYPE_EOS);
+        boolean initBGS = commonService.initToken(UID, ethAddress, CodeRepresentation.TOKENTYPE_BGS);
+        if (!(initETH && initEOS && initBGS)) return false;
         return true;
     }
 
@@ -315,12 +347,17 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      * @param sex
      */
     @Override
-    public void modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
+    public boolean modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
-        user.setHeadphoto(headPhoto);
-        user.setNickname(nickName);
-        user.setSex(sex);
-        userbasicMapper.updateByPrimaryKey(user);
+        if (headPhoto != null)
+            user.setHeadphoto(headPhoto);
+        if (nickName != null && !nickName.equals(""))
+            user.setNickname(nickName);
+        if (sex != null)
+            user.setSex(sex);
+        int rows = userbasicMapper.updateByPrimaryKey(user);
+        if (rows == 0) return false;
+        return true;
     }
 
     /**
@@ -348,7 +385,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      * @param face
      */
     @Override
-    public void verifyUser(String UID, String IDCardNumber, String realName, String IDCardFront, String IDCardBack, String face) {
+    public boolean verifyUser(String UID, String IDCardNumber, String realName, String IDCardFront, String IDCardBack, String face) {
         //三张图片（身份证正反面、活体验证）都为url连接，需要下载
         byte[] idCardFrontImg = ByteImageConvert.getFileStream(IDCardFront);
         byte[] idCardBackImg = ByteImageConvert.getFileStream(IDCardBack);
@@ -360,6 +397,8 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         userPrivate.setIdcardfront(idCardFrontImg);
         userPrivate.setIdcardback(idCardBackImg);
         userPrivate.setFace(faceImg);
-        userprivateMapper.insert(userPrivate);
+        int rows = userprivateMapper.insert(userPrivate);
+        if (rows == 0) return false;
+        return true;
     }
 }

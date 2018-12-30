@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class LoginController {
@@ -81,7 +83,7 @@ public class LoginController {
         HttpSession session = request.getSession();
         String code = (String) session.getAttribute(phoneNum);
         //验证码错误
-        if (code == null || code.equals("")) {
+        if (code == null || code.equals("") || !phoneIDCode.equals(code)) {
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.REG_REGCONFIRM_CODE_0_STATUS_0, null);
         } else if (phoneIDCode.equals(code)) {//验证码正确
             return SuperResult.ok("手机验证码正确");
@@ -125,30 +127,32 @@ public class LoginController {
      */
     @RequestMapping(value = "/register/register", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult register(String phoneNum, String passWord, String invitedCode, HttpServletRequest request, HttpServletResponse response) {
+    public SuperResult register(final String phoneNum, String passWord, String invitedCode, HttpServletRequest request, HttpServletResponse response) {
         SuperResult result;
         //获取项目路径
-        String headPhotoPath = request.getSession().getServletContext().getRealPath("/");
+        String headPhotoPath = request.getContextPath();
+//        String headPhotoPath = request.getSession().getServletContext().getRealPath("/");
         //加密密码
         passWord = SHA1.encode(passWord);
         //注册
-        String uid = loginRegisterService.register(phoneNum, passWord, invitedCode, headPhotoPath);
-        if (uid.equals("registered")) {
-            result = new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
-            result.setMsg(MessageRepresentation.REG_REG_CODE_0_STATUS_0);
+        result = loginRegisterService.register(phoneNum, passWord, invitedCode, headPhotoPath);
+        //注册失败
+        if (result.getCode() != CodeRepresentation.CODE_SUCCESS) {
             return result;
         }
+        String uid = result.getData().toString();
         //注册成功后初始化钱包信息
-        boolean res = loginRegisterService.initWallet(uid);
-        if (!res)
-            return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
         String sessionId = SHA1.encode(uid);
         //添加session,并设置过期时间
         jedisClient.set(CodeRepresentation.SESSIONID_PREFIX + sessionId, uid);
         jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + sessionId, CodeRepresentation.SESSION_EXPIRE);
         //写cookie
-        CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId);
+        CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId, CodeRepresentation.COOKIE_EXPIRE);
         result = SuperResult.ok(MessageRepresentation.REG_REG_CODE_1_STATUS_0);
+        //注册或登录成功传手机号用来做推送用--绑定的唯一ID
+        Map<String, String> returnKV = new HashMap<String, String>();
+        returnKV.put("phoneNum", phoneNum);
+        result.setData(returnKV);
         return result;
     }
 
@@ -169,7 +173,9 @@ public class LoginController {
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        loginRegisterService.verifyUser(UID, IDCardNumber, realName, IDCardFront, IDCardBack, face);
+        boolean res = loginRegisterService.verifyUser(UID, IDCardNumber, realName, IDCardFront, IDCardBack, face);
+        if (!res)
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_VERIFYUSER_CODE_0_STATUS_0, null);
         return SuperResult.ok(MessageRepresentation.LOGIN_VERIFYUSER_CODE_1_STATUS_0);
     }
 
@@ -194,8 +200,12 @@ public class LoginController {
             jedisClient.set(CodeRepresentation.SESSIONID_PREFIX + sessionId, uid);
             jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + sessionId, CodeRepresentation.SESSION_EXPIRE);
             //写cookie
-            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId);
-            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0, null);
+            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId, CodeRepresentation.COOKIE_EXPIRE);
+//            System.out.println("CookieID: " + CookieUtils.getCookieValue(request, CodeRepresentation.TOKEN_KEY));
+            //注册或登录成功传手机号用来做推送用--绑定的唯一ID
+            Map<String, String> returnKV = new HashMap<String, String>();
+            returnKV.put("phoneNum", phoneNum);
+            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0, returnKV);
         }
         //其他任何失败情况不传UID
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), null);
@@ -258,10 +268,11 @@ public class LoginController {
             jedisClient.set(CodeRepresentation.SESSIONID_PREFIX + sessionId, uid);
             jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + sessionId, CodeRepresentation.SESSION_EXPIRE);
             //写cookie
-            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId);
-            String cookieValue = CookieUtils.getCookieValue(request, CodeRepresentation.TOKEN_KEY);
-            System.out.println(cookieValue);
-            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), null);
+            CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId, CodeRepresentation.COOKIE_EXPIRE);
+            //注册或登录成功传手机号用来做推送用--绑定的唯一ID
+            Map<String, String> returnKV = new HashMap<String, String>();
+            returnKV.put("phoneNum", phoneNum);
+            return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), returnKV);
         }
         //其他任何失败情况不传UID
         return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), null);
@@ -287,7 +298,7 @@ public class LoginController {
         newPassWord = SHA1.encode(newPassWord);
         LoginResult loginResult = loginRegisterService.findPassword(phoneNum, newPassWord);
         //当修改成功时候
-        if (loginResult.getCode() == 1) {
+        if (loginResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
             return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), null);
         }
         //其他任何失败情况
@@ -310,7 +321,9 @@ public class LoginController {
         //加密支付密码
         payCode = SHA1.encode(payCode);
         //更新userBasic表
-        loginRegisterService.setPayCode(UID, payCode);
+        boolean res = loginRegisterService.setPayCode(UID, payCode);
+        if (!res)
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_SETPAYCODE_CODE_0_STATUS_0, null);
         return SuperResult.ok(MessageRepresentation.LOGIN_SETPAYCODE_CODE_1_STATUS_0);
     }
 
@@ -386,7 +399,9 @@ public class LoginController {
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex);
+        boolean res = loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex);
+        if (!res)
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_MODIFYUSERBASIC_CODE_0_STATUS_0, null);
         return SuperResult.ok(MessageRepresentation.LOGIN_MODIFYUSERBASIC_CODE_1_STATUS_0);
     }
 
@@ -429,8 +444,9 @@ public class LoginController {
             result.setCode(CodeRepresentation.CODE_FAIL);
             result.setStatus(CodeRepresentation.STATUS_0);
             result.setMsg(MessageRepresentation.LOGIN_PAYCODEEXISTS_CODE_0_STATUS_0);
+        } else {
+            result = SuperResult.ok(MessageRepresentation.LOGIN_PAYCODEEXISTS_CODE_1_STATUS_0);
         }
-        result.setMsg(MessageRepresentation.LOGIN_PAYCODEEXISTS_CODE_1_STATUS_0);
         return result;
     }
 

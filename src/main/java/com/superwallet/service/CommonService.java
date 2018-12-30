@@ -9,11 +9,11 @@ import com.superwallet.response.ResponseCWalletSimProfitEntry;
 import com.superwallet.response.ResponseDWalletLockedOrderEntry;
 
 public interface CommonService {
-    public void generateRecord(String UID, Byte transferType, Byte tokenType, Byte status, String addressFrom, String addressTo, Double tokenAmount);
+    public boolean generateRecord(String UID, Byte transferType, Byte tokenType, Byte status, String addressFrom, String addressTo, Double tokenAmount);
 
-    public void withdrawRecord(String UID, String WID, Byte tokenType, Byte status, Double tokenAmount);
+    public boolean withdrawRecord(String UID, String WID, Byte tokenType, Byte status, Double tokenAmount);
 
-    public void lockedRecord(String UID, Integer tokenType, Integer period, Double tokenAmount, Integer status);
+    public boolean lockedRecord(String UID, Integer tokenType, Integer period, Double tokenAmount, Integer status);
 
     public SuperResult getETHInfo(String UID);
 
@@ -41,10 +41,16 @@ public interface CommonService {
 
     public ResponseCWalletSimProfitEntry getCWalletTokenProfit(String UID, Integer tokenType);
 
-    public void initToken(String UID, Integer tokenType);
+    public boolean initToken(String UID, String address, Integer tokenType);
 
-    public SuperResult transferOnChain(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type, Integer chain);
+    public SuperResult ETHTransfer(String UID, Double tokenAmount, Double gasPrice, String fromAddress, String toAddress, Integer type);
+
+    public SuperResult EOSTransfer(String UID, Double tokenAmount, String fromAddress, String toAddress, Integer type);
 
     public Object getToken(String UID, Integer tokenType);
+
+    public double getTokenPriceByType(Integer tokenType);
+
+    public String parseEOSJson(String value);
 
 }

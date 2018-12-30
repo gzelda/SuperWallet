@@ -8,7 +8,7 @@ public class RedisInit {
 
     @Test
     public void initRedis() {
-        Jedis jedis = new Jedis("localhost", 6379);
+        Jedis jedis = new Jedis("ec2-18-222-109-30.us-east-2.compute.amazonaws.com", 6379);
         //初始化开发人员专用数据信息
 //        jedis.hset("developerCode", "CODE_FAIL", "0");
 //        jedis.hset("developerCode", "CODE_SUCCESS", "1");

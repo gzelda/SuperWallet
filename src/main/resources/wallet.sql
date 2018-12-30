@@ -5,13 +5,13 @@ use superWallet;
 
 -- 用户基本资料表--
 --status：0-未实名认证 1-已实名认证--
-drop table if exists userBasic;
-create table userBasic(
+drop table if exists userbasic;
+create table userbasic(
     UID char(100) not null,
     nickName varchar(20) not null,
     sex tinyint not null,
     isAgency tinyint not null,
-    headPhoto blob not null,
+    headPhoto blob,
     phoneNumber char(15) not null,
     inviter char(20),
     status tinyint,
@@ -32,19 +32,18 @@ create table inviter(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 用户状态信息表--
-drop table if exists userStatus;
-create table userStatus(
+drop table if exists userstatus;
+create table userstatus(
     UID char(100) not null,
     lastOpTime timestamp,
     lastOpDevice varchar(70),
-    invitedTime timestamp ,
     state tinyint,
     primary key(UID)
-/* /* )ENGINE=InnoDB DEFAULT CHARSET=utf8; */ */
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 用户隐私资料表--
-drop table if exists userPrivate;
-create table userPrivate(
+drop table if exists userprivate;
+create table userprivate(
     UID char(100) not null,
     realName varchar(20) not null,
     IDCardNumber char(20) not null,
@@ -71,8 +70,8 @@ create table agent(
 -- 中心化钱包--
 --canLock 0-不可以 1-可以--
 -- ETH--
-drop table if exists ETHWALLET,ETHTOKEN;
-create table ETHTOKEN(
+drop table if exists ethtoken;
+create table ethtoken(
     UID char(100) not null,
     ETHAddress varchar(50),
     amount double not null,
@@ -82,8 +81,8 @@ create table ETHTOKEN(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- EOS--
-drop table if exists EOSWallet,EOSTOKEN;
-create table EOSTOKEN(
+drop table if exists eostoken;
+create table eostoken(
     UID char(100) not null,
     EOSAccountName varchar(50),
     amount double not null,
@@ -146,15 +145,15 @@ status类型：
 2.归仓中
 3.已结束
 */
-drop table if exists lockWarehouse;
-create table lockWarehouse(
+drop table if exists lockwarehouse;
+create table lockwarehouse(
     UID char(100) not null,
     LID bigint unsigned auto_increment not null,
     amount double not null,
     period int unsigned not null,
     createdTime timestamp not null,
-    tokenType int not null default 0,
-    finalProfit double,
+    tokenType int not null,
+    finalProfit double default 0,
     status int not null default 0,
     profitTokenType int not null,
     primary key(LID,UID)
@@ -170,6 +169,21 @@ create table profit(
     createTime timestamp not null default now(),
     profit double not null,
     primary  key(PID,UID)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--提现表--
+drop table if exists withdrawmoney;
+create table withdrawmoney(
+    UID char(100) not null,
+    WID char(100) not null,
+    tokenType tinyint not null,
+    amount double not null,
+    createdTime timestamp not null,
+    status tinyint not null,
+    auditor varchar(100),
+    auditTime timestamp default now(),
+    remark varchar(255),
+    primary key(UID,WID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- banner--
@@ -208,20 +222,6 @@ create table notification(
     primary key(nid)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---提现表--
-drop table if exists withdrawMoney;
-create table withdrawMoney(
-    UID char(100) not null,
-    WID char(100) not null,
-    tokenType tinyint not null,
-    amount double not null,
-    createdTime timestamp not null,
-    status tinyint not null,
-    auditor varchar(100),
-    auditTime timestamp,
-    remark varchar(255),
-    primary key(UID,WID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --后台操作日志--
 drop table if exists systemlog;

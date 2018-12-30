@@ -12,9 +12,9 @@ import java.util.List;
 public interface CWalletService {
     public List<CWalletInfo> listCWalletInfo(String UID);
 
-    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount);
+    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice);
 
-    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount);
+    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice);
 
     public boolean withdrawRequest(String UID, Integer tokenType, Double tokenAmount);
 
@@ -38,10 +38,10 @@ public interface CWalletService {
 
     public ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType);
 
-    public void updateETHWalletAmount(String UID, double amount, Integer type);
+    public boolean updateETHWalletAmount(String UID, double amount, Integer type);
 
-    public void updateEOSWalletAmount(String UID, double amount, Integer type);
+    public boolean updateEOSWalletAmount(String UID, double amount, Integer type);
 
-    public void updateBGSWalletAmount(String UID, double amount, Integer type);
+    public boolean updateBGSWalletAmount(String UID, double amount, Integer type);
 
 }

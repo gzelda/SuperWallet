@@ -52,7 +52,6 @@ public class ContentServiceImpl implements ContentService {
         GamelistExample.Criteria criteria = gamelistExample.createCriteria();
         //0-普通游戏 1-广告游戏
         criteria.andTypeEqualTo(new Byte("0"));
-        //TODO 游戏列表排序展示 rankLeft rankRight
         List<Gamelist> gamelists = gamelistMapper.selectByExample(gamelistExample);
         return gamelists;
     }

@@ -8,14 +8,28 @@ public class RequestParams {
     //fromAddress
     public static final String FROMADDRESS = "fromAddress";
 
+    //fromAccount
+    public static final String FROMACCOUNT = "fromAccount";
+
     //toAddress
     public static final String TOADDRESS = "toAddress";
+
+    //toAccount
+    public static final String TOACCOUNT = "toAccount";
 
     //Amount
     public static final String AMOUNT = "amount";
 
     //Amount
     public static final String TYPE = "type";
+
+    //memo
+    public static final String MEMO = "memo";
+
+
+    //gasPrice
+    public static final String GASPRICE = "gasPrice";
+
 
     //cpuAmount
     public static final String CPUAMOUNT = "cpuAmount";

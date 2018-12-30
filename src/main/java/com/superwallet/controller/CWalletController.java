@@ -68,12 +68,12 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/transferMoney", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult transferMoney(int tokenType, double tokenAmount, HttpServletRequest request) {
+    public SuperResult transferMoney(int tokenType, double tokenAmount, double gasPrice, HttpServletRequest request) {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount);
+        boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice);
         if (result) {
             SuperResult out = SuperResult.ok();
             out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -110,12 +110,12 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult withdraw(String WID, int tokenType, double tokenAmount, HttpServletRequest request) {
+    public SuperResult withdraw(String WID, int tokenType, double tokenAmount, double gasPrice, HttpServletRequest request) {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        boolean result = cWalletService.withdraw(UID, WID, tokenType, tokenAmount);
+        boolean result = cWalletService.withdraw(UID, WID, tokenType, tokenAmount, gasPrice);
         if (result) return SuperResult.ok(MessageRepresentation.CWALLET_WITHDRAW_CODE_1_STATUS_0);
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_WITHDRAW_CODE_0_STATUS_0, null);
     }

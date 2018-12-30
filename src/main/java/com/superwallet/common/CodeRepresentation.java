@@ -1,8 +1,8 @@
 package com.superwallet.common;
 
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CodeRepresentation {
 
@@ -37,6 +37,7 @@ public class CodeRepresentation {
     public static final int TOKENTYPE_ETH = 1;//ETH
     public static final int TOKENTYPE_EOS = 2;//EOS
     public static final int TOKENTYPE_BGS = 3;//BGS
+    public static final Integer TOKENTYPE_ALL = 0;//全部
     //货币类型-分表
     //ETHTOKEN-type
     public static final int ETH_TOKEN_TYPE_ETH = 0;//ETH
@@ -58,26 +59,35 @@ public class CodeRepresentation {
     public static final byte TRANSFER_TYPE_INVITINGBGS = 10;//邀请人得到的BGS记录
     public static final byte TRANSFER_TYPE_LOCKPROFIT = 11;//锁仓收益
     public static final byte TRANSFER_TYPE_AGENTPROFIT = 12;//代理人收益
+    //转账类型字典树
+    public static Map<Byte, String> TRANSFER_TYPE_MAPPING = new HashMap<Byte, String>();
+
     //----------transfer转账记录表结束--------------
 
     //----------lockWarehouse锁仓记录表开始--------------
     public static final int LOCK_STAUTS_ONPROFIT = 1;//收益中
     public static final int LOCK_STATUS_ONOVER = 2;//归仓中
     public static final int LOCK_STATUS_FINISHED = 3;//已结束
+    public static Map<Integer, String> LOCK_STATUS_MAPPING = new HashMap<Integer, String>();
     //----------lockWarehouse锁仓记录表结束--------------
 
     //----------profit收益记录表开始--------------
     //中心钱包收益状态
     public static final int PROFIT_STATUS_ONPROFIT = 0;//正在收益
     public static final int PROFIT_STATUS_FINISHED = 1;//已结束
+    public static Map<Integer, String> PROFIT_STATUS_MAPPING = new HashMap<Integer, String>();//收益状态字典树
+
     //中心钱包收益是否完成
     public static final int PROFIT_NOTFINISHED = 0;//尚未完成
     public static final int PROFIT_FINISHED = 1;//已完成
+
     //中心钱包收益类型
     public static final int PROFIT_TYPE_LOCK = 1;//锁仓收益
     public static final int PROFIT_TYPE_AGENT = 2;//代理人收益
     public static final int PROFIT_TYPE_WITHDRAW = 3;//提现收益
     public static final int PROFIT_TYPE_INVITING = 4;//邀请人收益
+    //收益类型字典树
+    public static Map<Integer, String> PROFIT_TYPE_MAPPING = new HashMap<Integer, String>();
     //----------profit收益记录表结束--------------
 
     //保存session时sessionId的前缀
@@ -86,14 +96,15 @@ public class CodeRepresentation {
     //短信验证码保存时间
     public static final int MESSAGECODE_EXPIRE = 300;
 
-    //转账的主链
-    public static final int TRANSFER_CHAIN_ETH = 1;//ETH主链
-    public static final int TRANSFER_CHAIN_EOS = 2;//EOS主链
+    //超级账户名称
+    public static final String SUPER_UID = "SuperUID";
 
     //货币名称
     public static final String ETH = "ETH";
     public static final String EOS = "EOS";
     public static final String BGS = "BGS";
+    public static Map<Integer, String> TOKENNAME_MAPPING = new HashMap<Integer, String>();
+
 
     //钱包
     public static final String ETHINFO = "ethInfo";
@@ -105,6 +116,8 @@ public class CodeRepresentation {
 
     //Session过期时间
     public static final int SESSION_EXPIRE = 1800;
+    //Cookie过期时间
+    public static final int COOKIE_EXPIRE = 36000;
 
     //Cookie名称
     public static final String TOKEN_KEY = "token";
@@ -112,6 +125,8 @@ public class CodeRepresentation {
     //转账记录的状态值status
     public static final byte TRANSFER_FAIL = 0;
     public static final byte TRANSFER_SUCCESS = 1;
+    //转账状态字典树
+    public static Map<Byte, String> TRANSFER_STATUS_MAPPING = new HashMap<Byte, String>();
 
     //提现申请表的状态
     public static final byte WITHDRAW_WAIT = 1;
@@ -122,14 +137,21 @@ public class CodeRepresentation {
     public static final int CWALLET_MONEY_INC = 0;//加
     public static final int CWALLET_MONEY_DEC = 1;//减
 
+    //货币价格--redis
+    public static final String TOKENPRICE_KEY = "tokenprice";
+    public static final String TOKENPRICE_ETH = "eth";
+    public static final String TOKENPRICE_EOS = "eos";
+    public static final String TOKENPRICE_BGS = "bgs";
+
+
     //超级账户的Address
     public static final String SUPER_ETH = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
     public static final String SUPER_BGS = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
     public static final String SUPER_EOS = "tygavingavin";
 
     //链上HTTP请求地址
-    public static final String NODE_URL_ETH = "http://localhost:4000";
-    public static final String NODE_URL_EOS = "http://localhost:3000";
+    public static final String NODE_URL_ETH = "http://3.17.163.147:4000";
+    public static final String NODE_URL_EOS = "http://3.17.163.147:3000";
     public static final String NODE_ACTION_CREATEETH = "/eth/createAccount";
     public static final String NODE_ACTION_CREATEEOS = "/eos/createAccount";
     public static final String NODE_ACTION_ETHTRANSFER = "/eth/transfer";
@@ -140,81 +162,36 @@ public class CodeRepresentation {
     public static final String NODE_ACTION_ETH_ACCOUNTINFO = "/eth/getBalance";
 
     static {
-        JedisPool jedisPool = new JedisPool("localhost", 6379);
-        Jedis jedis = jedisPool.getResource();
-        //加载基本
-        jedis.hget("developerCode", "CODE_FAIL");
-        jedis.hget("developerCode", "CODE_SUCCESS");
-        jedis.hget("developerCode", "CODE_ERROR");
-        jedis.hget("developerCode", "STATUS_0");
-        jedis.hget("developerCode", "STATUS_1");
-        jedis.hget("developerCode", "STATUS_2");
-        jedis.hget("developerCode", "STATUS_3");
-        jedis.hget("developerCode", "USER_SEX_WOMAN");
-        jedis.hget("developerCode", "USER_SEX_MAN");
-        jedis.hget("developerCode", "USER_STATUS_NOIDVALIDATION");
-        jedis.hget("developerCode", "USER_STATUS_VERIFIED");
-        jedis.hget("developerCode", "USER_AGENT_NOTAGENCY");
-        jedis.hget("developerCode", "USER_AGENT_ISAGENCY");
-        jedis.hget("developerCode", "TOKEN_CANNOTLOCK");
-        jedis.hget("developerCode", "TOKEN_CANLOCK");
-        jedis.hget("developerCode", "TOKENTYPE_ETH");
-        jedis.hget("developerCode", "TOKENTYPE_EOS");
-        jedis.hget("developerCode", "TOKENTYPE_BGS");
-        jedis.hget("developerCode", "ETH_TOKEN_TYPE_ETH");
-        jedis.hget("developerCode", "ETH_TOKEN_TYPE_BGS");
-        jedis.hget("developerCode", "EOS_TOKEN_TYPE_EOS");
-        jedis.hget("developerCode", "TRANSFER_TYPE_ON2OFF");
-        jedis.hget("developerCode", "TRANSFER_TYPE_ON2ON");
-        jedis.hget("developerCode", "TRANSFER_TYPE_PAYLOCK");
-        jedis.hget("developerCode", "TRANSFER_TYPE_PAYGAME");
-        jedis.hget("developerCode", "TRANSFER_TYPE_BUYAGENT");
-        jedis.hget("developerCode", "TRANSFER_TYPE_BUYEOSRAM");
-        jedis.hget("developerCode", "TRANSFER_TYPE_BUYEOSCPUNET");
-        jedis.hget("developerCode", "TRANSFER_TYPE_WITHDRAW");
-        jedis.hget("developerCode", "TRANSFER_TYPE_REGISTERBGS");
-        jedis.hget("developerCode", "TRANSFER_TYPE_INVITINGBGS");
-        jedis.hget("developerCode", "TRANSFER_TYPE_LOCKPROFIT");
-        jedis.hget("developerCode", "TRANSFER_TYPE_AGENTPROFIT");
-        jedis.hget("developerCode", "LOCK_STAUTS_ONPROFIT");
-        jedis.hget("developerCode", "LOCK_STATUS_ONOVER");
-        jedis.hget("developerCode", "LOCK_STATUS_FINISHED");
-        jedis.hget("developerCode", "PROFIT_STATUS_ONPROFIT");
-        jedis.hget("developerCode", "PROFIT_STATUS_FINISHED");
-        jedis.hget("developerCode", "PROFIT_NOTFINISHED");
-        jedis.hget("developerCode", "PROFIT_FINISHED");
-        jedis.hget("developerCode", "PROFIT_TYPE_LOCK");
-        jedis.hget("developerCode", "PROFIT_TYPE_AGENT");
-        jedis.hget("developerCode", "PROFIT_TYPE_WITHDRAW");
-        jedis.hget("developerCode", "PROFIT_TYPE_INVITING");
-        jedis.hget("developerCode", "ETHINFO");
-        jedis.hget("developerCode", "EOSINFO");
-        jedis.hget("developerCode", "BGSINFO");
-        jedis.hget("developerCode", "COUNT_WALLETS");
-        jedis.hget("developerCode", "SESSION_EXPIRE");
-        jedis.hget("developerCode", "TOKEN_KEY");
-        jedis.hget("developerCode", "DEFAULT_ADDRESS");
-        jedis.hget("developerCode", "SUPER_UID");
-        jedis.hget("developerCode", "TRANSFER_FAIL");
-        jedis.hget("developerCode", "TRANSFER_SUCCESS");
-        jedis.hget("developerCode", "WITHDRAW_WAIT");
-        jedis.hget("developerCode", "WITHDRAW_SUCCESS");
-        jedis.hget("developerCode", "WITHDRAW_FAIL");
-        jedis.hget("developerCode", "CWALLET_MONEY_INC");
-        jedis.hget("developerCode", "CWALLET_MONEY_DEC");
-        jedis.hget("developerCode", "SUPER_ETH");
-        jedis.hget("developerCode", "SUPER_BGS");
-        jedis.hget("developerCode", "SUPER_EOS");
-        jedis.hget("developerCode", "NODE_URL_ETH");
-        jedis.hget("developerCode", "NODE_URL_EOS");
-        jedis.hget("developerCode", "NODE_ACTION_CREATEETH");
-        jedis.hget("developerCode", "NODE_ACTION_CREATEEOS");
-        jedis.hget("developerCode", "NODE_ACTION_ETHTRANSFER");
-        jedis.hget("developerCode", "NODE_ACTION_EOSTRANSFER");
-        jedis.hget("developerCode", "NODE_ACTION_EOS_NETCPU");
-        jedis.hget("developerCode", "NODE_ACTION_EOS_RAM");
-        jedis.hget("developerCode", "NODE_ACTION_EOS_ACCOUNTINFO");
-        jedis.hget("developerCode", "NODE_ACTION_ETH_ACCOUNTINFO");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2OFF, "链上转入中心");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2ON, "链上转账");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_PAYLOCK, "锁仓付费");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_PAYGAME, "游戏付费");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYAGENT, "买代理人");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYEOSRAM, "买EOS的RAM");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYEOSCPUNET, "买EOS的CPU和NET");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_WITHDRAW, "中心钱包提现");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_REGISTERBGS, "注册送的BGS记录");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_INVITINGBGS, "邀请人得到的BGS记录");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_LOCKPROFIT, "锁仓收益");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_AGENTPROFIT, "代理人收益");
 
+        TRANSFER_STATUS_MAPPING.put(TRANSFER_FAIL, "交易失败");
+        TRANSFER_STATUS_MAPPING.put(TRANSFER_SUCCESS, "交易成功");
+
+        LOCK_STATUS_MAPPING.put(LOCK_STAUTS_ONPROFIT, "收益中");
+        LOCK_STATUS_MAPPING.put(LOCK_STATUS_ONOVER, "归仓中");
+        LOCK_STATUS_MAPPING.put(LOCK_STATUS_FINISHED, "已结束");
+
+        PROFIT_STATUS_MAPPING.put(PROFIT_STATUS_ONPROFIT, "正在收益");
+        PROFIT_STATUS_MAPPING.put(PROFIT_STATUS_FINISHED, "已完成");
+
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_LOCK, "锁仓收益");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_AGENT, "代理人收益");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_WITHDRAW, "提现收益");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_INVITING, "邀请人收益");
+
+        TOKENNAME_MAPPING.put(TOKENTYPE_ETH, ETH);
+        TOKENNAME_MAPPING.put(TOKENTYPE_EOS, EOS);
+        TOKENNAME_MAPPING.put(TOKENTYPE_BGS, BGS);
     }
 }

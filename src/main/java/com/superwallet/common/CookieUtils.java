@@ -153,6 +153,7 @@ public final class CookieUtils {
             }
             cookie.setPath("/");
             response.addCookie(cookie);
+//            System.out.println("Cookie Name: " + cookie.getName() + " Cookie Value: " + cookie.getValue());
         } catch (Exception e) {
             e.printStackTrace();
         }

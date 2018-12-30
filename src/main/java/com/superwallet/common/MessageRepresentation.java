@@ -16,6 +16,7 @@ public class MessageRepresentation implements Serializable {
     public static final String REG_REG_CODE_0_STATUS_0 = "用户已注册";
     public static final String REG_REG_CODE_1_STATUS_0 = "用户注册成功";
     //4.实名认证
+    public static final String LOGIN_VERIFYUSER_CODE_0_STATUS_0 = "实名认证登记失败";
     public static final String LOGIN_VERIFYUSER_CODE_1_STATUS_0 = "实名认证登记成功";
     //5.密码登录
     public static final String LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_0 = "密码错误";
@@ -31,6 +32,7 @@ public class MessageRepresentation implements Serializable {
     public static final String LOGIN_FINDPASSWORD_CODE_0_STATUS_1 = "无此手机号";
     public static final String LOGIN_FINDPASSWORD_CODE_1_STATUS_0 = "修改成功";
     //9.设置支付密码
+    public static final String LOGIN_SETPAYCODE_CODE_0_STATUS_0 = "设置支付密码失败";
     public static final String LOGIN_SETPAYCODE_CODE_1_STATUS_0 = "设置支付密码成功";
     //10.支付密码验证
     public static final String LOGIN_PAYCODEVALIDATION_CODE_0_STATUS_0 = "支付密码错误";
@@ -39,6 +41,7 @@ public class MessageRepresentation implements Serializable {
     public static final String LOGIN_CHANGEPASSWORD_CODE_0_STATUS_2 = "旧密码错误";
     public static final String LOGIN_CHANGEPASSWORD_CODE_1_STATUS_0 = "修改密码成功";
     //12.修改用户基本信息
+    public static final String LOGIN_MODIFYUSERBASIC_CODE_0_STATUS_0 = "修改用户基本信息失败";
     public static final String LOGIN_MODIFYUSERBASIC_CODE_1_STATUS_0 = "修改用户基本信息成功";
     //13.登出
     public static final String LOGIN_LOGOUT_CODE_1_STATUS_0 = "登出成功";
@@ -68,6 +71,7 @@ public class MessageRepresentation implements Serializable {
     //1.展示链上钱包信息
     //2.链上钱包转账
     public static final String DWALLET_TRANSFER_CODE_0_STATUS_0 = "余额不足";
+    public static final String DWALLET_TRANSFER_CODE_0_STATUS_1 = "转账失败";
     public static final String DWALLET_TRANSFER_CODE_1_STATUS_0 = "转账请求成功";
     //3.锁仓
     public static final String DWALLET_LOCK_CODE_0_STATUS_0 = "锁仓失败";

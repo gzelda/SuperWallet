@@ -130,12 +130,12 @@ public class DWalletController {
      */
     @RequestMapping(value = "/dWallet/transferMoney", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult transferMoney(Integer tokenType, double tokenAmount, String addressTo, String description, HttpServletRequest request) {
+    public SuperResult transferMoney(Integer tokenType, double tokenAmount, double gasPrice, String addressTo, String description, HttpServletRequest request) {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        boolean res = dWalletService.transferMoney(UID, tokenType, tokenAmount, addressTo, description);
+        boolean res = dWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice, addressTo, description);
         if (!res) {
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_0, null);
         }
@@ -152,15 +152,30 @@ public class DWalletController {
      */
     @RequestMapping(value = "/dWallet/lock", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult lock(Integer tokenType, Double tokenAmount, int period, HttpServletRequest request) {
+    public SuperResult lock(Integer tokenType, Double tokenAmount, Double gasPrice, int period, HttpServletRequest request) {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        boolean res = dWalletService.lock(UID, tokenType, tokenAmount, period);
-        if (!res)
-            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
-        return SuperResult.ok(MessageRepresentation.DWALLET_LOCK_CODE_1_STATUS_0);
+        SuperResult res = dWalletService.lock(UID, tokenType, tokenAmount, gasPrice, period);
+        return res;
+    }
+
+    /**
+     * 展示用户EOS账户的详情
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/dWallet/listEOSDetailInfo")
+    @ResponseBody
+    public SuperResult listEOSDetailInfo(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        ResponseDWalletEOSDetailInfo result = dWalletService.listEOSDetailInfo(UID);
+        return SuperResult.ok(result);
     }
 
     /**

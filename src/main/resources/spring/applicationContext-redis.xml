@@ -8,7 +8,7 @@
         <property name="jedisPool" ref="jedisPool"></property>
     </bean>
     <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
-        <constructor-arg name="host" value="localhost"/>
+        <constructor-arg name="host" value="ec2-18-222-109-30.us-east-2.compute.amazonaws.com"/>
         <constructor-arg name="port" value="6379"/>
     </bean>
     <!-- 连接redis集群 -->

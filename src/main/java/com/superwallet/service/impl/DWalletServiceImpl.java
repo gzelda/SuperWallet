@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class DWalletServiceImpl implements DWalletService {
                         eth.getTokenType(),
                         eth.getTokenName(),
                         eth.getTokenAddress(),
-                        eth.getcWalletAmount() * eth.getTokenPrice()
+                        eth.getBalance() * eth.getTokenPrice()
                 )
         );
         //EOS信息
@@ -70,7 +71,7 @@ public class DWalletServiceImpl implements DWalletService {
                         eos.getTokenType(),
                         eos.getTokenName(),
                         eos.getTokenAddress(),
-                        eos.getcWalletAmount() * eos.getTokenPrice()
+                        eos.getBalance() * eos.getTokenPrice()
                 )
         );
         //BGS信息
@@ -79,7 +80,7 @@ public class DWalletServiceImpl implements DWalletService {
                         bgs.getTokenType(),
                         bgs.getTokenName(),
                         bgs.getTokenAddress(),
-                        bgs.getcWalletAmount() * bgs.getTokenPrice()
+                        bgs.getBalance() * bgs.getTokenPrice()
                 )
         );
         return list;
@@ -97,7 +98,7 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     @Transactional
-    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount, String addressTo, String description) {
+    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, String addressTo, String description) {
         String addressFrom;
         String resp;
         SuperResult result;
@@ -109,7 +110,7 @@ public class DWalletServiceImpl implements DWalletService {
             case CodeRepresentation.TOKENTYPE_ETH:
                 Ethtoken ethtoken = (Ethtoken) commonService.getToken(UID, tokenType);
                 addressFrom = ethtoken.getEthaddress();
-                result = commonService.transferOnChain(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH, CodeRepresentation.TRANSFER_CHAIN_ETH);
+                result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 //请求成功则记录一笔交易记录
@@ -120,7 +121,7 @@ public class DWalletServiceImpl implements DWalletService {
                 Eostoken eostoken = (Eostoken) commonService.getToken(UID, tokenType);
                 addressFrom = eostoken.getEosaccountname();
                 //链上请求
-                result = commonService.transferOnChain(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, CodeRepresentation.TRANSFER_CHAIN_EOS);
+                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 //请求成功则记录一笔交易记录
@@ -131,7 +132,7 @@ public class DWalletServiceImpl implements DWalletService {
                 Ethtoken bgstoken = (Ethtoken) commonService.getToken(UID, tokenType);
                 addressFrom = bgstoken.getEthaddress();
                 //链上请求
-                result = commonService.transferOnChain(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS, CodeRepresentation.TRANSFER_CHAIN_ETH);
+                result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 //链上转账请求失败
                 if (result.getCode() == 0) return false;
                 //请求成功则记录一笔交易记录
@@ -152,7 +153,12 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     @Transactional
-    public boolean lock(String UID, Integer tokenType, Double tokenAmount, Integer period) {
+    public SuperResult lock(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, Integer period) {
+        CommonWalletInfo walletInfo = commonService.getMappingDAndCWalletInfo(UID, tokenType);
+        //余额不足 直接失败
+        if (walletInfo.getBalance() < tokenAmount) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_0, null);
+        }
         String addressFrom, addressTo;
         SuperResult result;
         Double amount;
@@ -168,9 +174,11 @@ public class DWalletServiceImpl implements DWalletService {
                 Ethtoken ethtoken = (Ethtoken) commonService.getToken(UID, tokenType);
                 addressFrom = ethtoken.getEthaddress();
                 addressTo = CodeRepresentation.SUPER_ETH;
-                result = commonService.transferOnChain(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH, CodeRepresentation.TRANSFER_CHAIN_ETH);
+                result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 //链上转账请求失败
-                if (result.getCode() == 0) return false;
+                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
                 //请求成功--生成1.锁仓记录 2.更新token表
                 amount = ethtoken.getAmount() + tokenAmount;
                 ethtoken.setAmount(amount);
@@ -183,9 +191,11 @@ public class DWalletServiceImpl implements DWalletService {
                 addressFrom = eostoken.getEosaccountname();
                 addressTo = CodeRepresentation.SUPER_EOS;
                 //链上请求
-                result = result = commonService.transferOnChain(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, CodeRepresentation.TRANSFER_CHAIN_EOS);
+                result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 //链上转账请求失败
-                if (result.getCode() == 0) return false;
+                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
                 //请求成功--生成1.锁仓记录 2.更新token表
                 amount = eostoken.getAmount() + tokenAmount;
                 eostoken.setAmount(amount);
@@ -198,9 +208,11 @@ public class DWalletServiceImpl implements DWalletService {
                 addressFrom = bgstoken.getEthaddress();
                 addressTo = CodeRepresentation.SUPER_BGS;
                 //链上请求
-                result = result = commonService.transferOnChain(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS, CodeRepresentation.TRANSFER_CHAIN_ETH);
+                result = result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 //链上转账请求失败
-                if (result.getCode() == 0) return false;
+                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
                 //请求成功--生成1.锁仓记录 2.更新token表
                 amount = bgstoken.getAmount() + tokenAmount;
                 bgstoken.setAmount(amount);
@@ -208,7 +220,7 @@ public class DWalletServiceImpl implements DWalletService {
                 commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
                 break;
         }
-        return true;
+        return SuperResult.ok(MessageRepresentation.DWALLET_TRANSFER_CODE_1_STATUS_0);
     }
 
     /**
@@ -265,47 +277,60 @@ public class DWalletServiceImpl implements DWalletService {
      * @return
      */
     @Override
-    public EOSWalletInfo listEOSBasic(String UID) {
-        EOSWalletInfo eosWalletInfo;
-        String resp;
-        SuperResult result;
+    public ResponseDWalletEOSDetailInfo listEOSDetailInfo(String UID) {
+        DecimalFormat format = new DecimalFormat("#.##");
+        ResponseDWalletEOSDetailInfo eosInfo;
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(RequestParams.UID, UID);
         String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_ACCOUNTINFO, params);
         SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
         JSONObject eos_json = JSON.parseObject(response_eos.getData().toString());
-        //-----开始设置EOS链上钱包信息-----
-        //拿到EOS账户信息
-        EostokenKey eostokenKey = new EostokenKey();
-        eostokenKey.setUid(UID);
-        eostokenKey.setType(CodeRepresentation.EOS_TOKEN_TYPE_EOS);
-        Eostoken eos = eostokenMapper.selectByPrimaryKey(eostokenKey);
-        String eos_account = eos.getEosaccountname();
-        double eos_avaAmount = Double.parseDouble(eos_json.getString("core_liquid_balance").split(" ")[0]);
-        double eos_lockedAmount = commonService.getLockedAmount(UID, CodeRepresentation.TOKENTYPE_EOS);
-        double eos_amount = eos_avaAmount + eos_lockedAmount;
-        double eos_price = 1.0;
+        //-----开始设置EOS详细信息-----
+        String balance = commonService.parseEOSJson(eos_json.getString("core_liquid_balance"));
         JSONObject mortgageEOS_json = JSON.parseObject(eos_json.getString("self_delegated_bandwidth"));
-        double mortgageEOS_cpu = Double.parseDouble(mortgageEOS_json.getString("cpu_weight").split(" ")[0]);
-        double mortgageEOS_net = Double.parseDouble(mortgageEOS_json.getString("net_weight").split(" ")[0]);
+        String mortgageEOS_cpu = "0";
+        String mortgageEOS_net = "0";
+        if (mortgageEOS_json != null) {
+            mortgageEOS_cpu = mortgageEOS_json.getString("cpu_weight");
+            mortgageEOS_net = mortgageEOS_json.getString("net_weight");
+        }
         JSONObject cpu_json = JSON.parseObject(eos_json.getString("cpu_limit"));
         JSONObject net_json = JSON.parseObject(eos_json.getString("net_limit"));
-        double total_cpu = cpu_json.getDouble("max");
-        double used_cpu = cpu_json.getDouble("used");
-        double remain_cpu = cpu_json.getDouble("available");
-        double total_net = net_json.getDouble("max");
-        double used_net = net_json.getDouble("used");
-        double remain_net = net_json.getDouble("available");
-        double total_ram = eos_json.getDouble("ram_quota");
-        double used_ram = eos_json.getDouble("ram_usage");
+        String used_cpu = cpu_json.getString("used") + " ms";
+        String total_cpu = cpu_json.getString("max") + " ms";
+        String used_net = net_json.getString("used") + " KB";
+        String total_net = net_json.getString("max") + " KB";
+        //TODO CPU、NET、RAM价格
+        String price_cpu = "0.2 EOS/ms/天";
+        String price_net = "0.2 EOS/KB/天";
+        String cpu_can_redemption = "0";
+        String net_can_redemption = "0";
+        String price_ram = "0";
+        String used_ram = eos_json.getString("ram_usage") + " KB";
+        String total_ram = eos_json.getString("ram_quota") + " KB";
         //TODO 全网RAM总量
-        double EOSRAM;
-        double EOSRAM_USED;
-        eosWalletInfo = new EOSWalletInfo(eos_amount, eos_lockedAmount, eos_avaAmount,
-                eos_price, eos.getCanlock(), eos_account, mortgageEOS_cpu, mortgageEOS_net, total_cpu,
-                total_net, total_ram, used_cpu, used_net, used_ram, remain_cpu, remain_net);
+        String used_ram_chain = "10MB";
+        String total_ram_chain = "100MB";
+        eosInfo = new ResponseDWalletEOSDetailInfo(
+                mortgageEOS_cpu,
+                used_cpu,
+                total_cpu,
+                mortgageEOS_net,
+                used_net,
+                total_net,
+                balance,
+                price_cpu,
+                price_net,
+                cpu_can_redemption,
+                net_can_redemption,
+                used_ram,
+                total_ram,
+                price_ram,
+                used_ram_chain,
+                total_ram_chain
+        );
         //-----设置EOS链上钱包信息结束-----
-        return eosWalletInfo;
+        return eosInfo;
     }
 
     /**
@@ -321,7 +346,7 @@ public class DWalletServiceImpl implements DWalletService {
         //根据货币类型拿到对应的地址、余额、锁仓余额
         CommonWalletInfo walletInfo = commonService.getMappingDAndCWalletInfo(UID, tokenType);
         //TODO 货币价格
-        double tokenPrice = 1.0;
+        double tokenPrice = commonService.getTokenPriceByType(tokenType);
         TransferExample transferExample = new TransferExample();
         TransferExample.Criteria criteria = transferExample.createCriteria();
         criteria.andUidEqualTo(UID);
@@ -330,18 +355,17 @@ public class DWalletServiceImpl implements DWalletService {
         List<Transfer> transfers = transferMapper.selectByExample(transferExample);
         int listCount = transfers.size();
         List<ResponseDWalletBillEntry> bills = new ArrayList<ResponseDWalletBillEntry>();
-        //TODO 字段转译
-        String transferType, lockedOrderState, transferTime;
+        String transferType, transferStatus, transferTime;
         double transferAmount, transferAmountToRMB;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         //获取交易记录并封装
         for (Transfer row : transfers) {
-            transferType = row.getTransfertype() + "";
-            lockedOrderState = row.getStatus() + "";
+            transferType = CodeRepresentation.TRANSFER_TYPE_MAPPING.get(row.getTransfertype());
+            transferStatus = CodeRepresentation.TRANSFER_STATUS_MAPPING.get(row.getStatus());
             transferAmount = row.getAmount();
             transferAmountToRMB = tokenPrice * row.getAmount();
             transferTime = format.format(row.getCreatedtime());
-            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, lockedOrderState, transferAmount, transferAmountToRMB, transferTime);
+            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, transferStatus, transferAmount, transferAmountToRMB, transferTime);
             bills.add(bill);
         }
         //设置返回信息
@@ -420,24 +444,27 @@ public class DWalletServiceImpl implements DWalletService {
         LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
         criteria.andUidEqualTo(UID);
         //TODO 根据货币类型条件查询
-//        criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
+        if (tokenType != CodeRepresentation.TOKENTYPE_ALL)
+            criteria.andTokentypeEqualTo(tokenType);
         lockwarehouseExample.setOrderByClause("createdTime DESC");
         List<Lockwarehouse> list = lockwarehouseMapper.selectByExample(lockwarehouseExample);
         int listCount = list.size();
         List<ResponseDWalletLockedOrderSimEntry> orders = new ArrayList<ResponseDWalletLockedOrderSimEntry>();
-        for (Lockwarehouse row : list) {
-            ResponseDWalletLockedOrderEntry detailEntry = commonService.lockedOrderToEntry(row);
-            orders.add(
-                    new ResponseDWalletLockedOrderSimEntry(
-                            detailEntry.getLID(),
-                            detailEntry.getTokenName(),
-                            detailEntry.getLockedOrderState(),
-                            detailEntry.getLockedOrderInTimeProfit(),
-                            detailEntry.getPeriod() - detailEntry.getLockedOrderLeftDay(),
-                            detailEntry.getPeriod(),
-                            detailEntry.getLockedOrderStartTime()
-                    )
-            );
+        if (list != null) {
+            for (Lockwarehouse row : list) {
+                ResponseDWalletLockedOrderEntry detailEntry = commonService.lockedOrderToEntry(row);
+                orders.add(
+                        new ResponseDWalletLockedOrderSimEntry(
+                                detailEntry.getLID(),
+                                detailEntry.getTokenName(),
+                                detailEntry.getLockedOrderState(),
+                                detailEntry.getLockedOrderInTimeProfit(),
+                                detailEntry.getPeriod() - detailEntry.getLockedOrderLeftDay(),
+                                detailEntry.getPeriod(),
+                                detailEntry.getLockedOrderStartTime()
+                        )
+                );
+            }
         }
         ResponseDWalletLockedOrder result = new ResponseDWalletLockedOrder(listCount, orders);
         return result;
@@ -458,5 +485,26 @@ public class DWalletServiceImpl implements DWalletService {
         //拿到锁仓详情
         ResponseDWalletLockedOrderEntry result = commonService.lockedOrderToEntry(row);
         return result;
+    }
+
+    @Override
+    public SuperResult getOrRequestIdentity(String UID) {
+
+        return null;
+    }
+
+    @Override
+    public SuperResult identityFromPermissions(String UID) {
+        return null;
+    }
+
+    @Override
+    public SuperResult requestSignature(String UID) {
+        return null;
+    }
+
+    @Override
+    public SuperResult getOriginData(String UID) {
+        return null;
     }
 }
