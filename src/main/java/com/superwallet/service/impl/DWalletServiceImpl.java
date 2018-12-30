@@ -98,7 +98,12 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     @Transactional
-    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, String addressTo, String description) {
+    public SuperResult transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, String addressTo, String description) {
+        CommonWalletInfo wallet = commonService.getMappingDAndCWalletInfo(UID, tokenType);
+        //余额不足 直接返回
+        if (wallet.getBalance() < tokenAmount) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_0, null);
+        }
         String addressFrom;
         String resp;
         SuperResult result;
@@ -112,7 +117,9 @@ public class DWalletServiceImpl implements DWalletService {
                 addressFrom = ethtoken.getEthaddress();
                 result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 //链上转账请求失败
-                if (result.getCode() == 0) return false;
+                if (result.getCode() == 0) {
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
                 //请求成功则记录一笔交易记录
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
@@ -123,7 +130,9 @@ public class DWalletServiceImpl implements DWalletService {
                 //链上请求
                 result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 //链上转账请求失败
-                if (result.getCode() == 0) return false;
+                if (result.getCode() == 0) {
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
                 //请求成功则记录一笔交易记录
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
@@ -134,12 +143,14 @@ public class DWalletServiceImpl implements DWalletService {
                 //链上请求
                 result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 //链上转账请求失败
-                if (result.getCode() == 0) return false;
+                if (result.getCode() == 0) {
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
                 //请求成功则记录一笔交易记录
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
         }
-        return true;
+        return new SuperResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRANSFER_CODE_1_STATUS_0, null);
     }
 
     /**
@@ -177,7 +188,7 @@ public class DWalletServiceImpl implements DWalletService {
                 result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 //链上转账请求失败
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
-                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
                 }
                 //请求成功--生成1.锁仓记录 2.更新token表
                 amount = ethtoken.getAmount() + tokenAmount;
@@ -194,7 +205,7 @@ public class DWalletServiceImpl implements DWalletService {
                 result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
                 //链上转账请求失败
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
-                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
                 }
                 //请求成功--生成1.锁仓记录 2.更新token表
                 amount = eostoken.getAmount() + tokenAmount;
@@ -211,7 +222,7 @@ public class DWalletServiceImpl implements DWalletService {
                 result = result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 //链上转账请求失败
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
-                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                    return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
                 }
                 //请求成功--生成1.锁仓记录 2.更新token表
                 amount = bgstoken.getAmount() + tokenAmount;
@@ -220,7 +231,7 @@ public class DWalletServiceImpl implements DWalletService {
                 commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
                 break;
         }
-        return SuperResult.ok(MessageRepresentation.DWALLET_TRANSFER_CODE_1_STATUS_0);
+        return SuperResult.ok(MessageRepresentation.DWALLET_LOCK_CODE_1_STATUS_0);
     }
 
     /**

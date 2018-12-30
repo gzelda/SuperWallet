@@ -135,11 +135,8 @@ public class DWalletController {
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        boolean res = dWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice, addressTo, description);
-        if (!res) {
-            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_0, null);
-        }
-        return SuperResult.ok(MessageRepresentation.DWALLET_TRANSFER_CODE_1_STATUS_0);
+        SuperResult res = dWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice, addressTo, description);
+        return res;
     }
 
     /**
