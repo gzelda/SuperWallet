@@ -152,10 +152,8 @@ public class CWalletController {
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        boolean result = cWalletService.buyAgent(UID);
-        if (!result)
-            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_0, null);
-        return SuperResult.ok(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
+        SuperResult result = cWalletService.buyAgent(UID);
+        return result;
     }
 
     /**
