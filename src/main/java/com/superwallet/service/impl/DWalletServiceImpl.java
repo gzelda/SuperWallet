@@ -456,7 +456,7 @@ public class DWalletServiceImpl implements DWalletService {
         LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
         LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
         criteria.andUidEqualTo(UID);
-        //TODO 根据货币类型条件查询
+        //根据货币类型条件查询
         if (tokenType != CodeRepresentation.TOKENTYPE_ALL)
             criteria.andTokentypeEqualTo(tokenType);
         lockwarehouseExample.setOrderByClause("createdTime DESC");
@@ -500,24 +500,4 @@ public class DWalletServiceImpl implements DWalletService {
         return result;
     }
 
-    @Override
-    public SuperResult getOrRequestIdentity(String UID) {
-
-        return null;
-    }
-
-    @Override
-    public SuperResult identityFromPermissions(String UID) {
-        return null;
-    }
-
-    @Override
-    public SuperResult requestSignature(String UID) {
-        return null;
-    }
-
-    @Override
-    public SuperResult getOriginData(String UID) {
-        return null;
-    }
 }

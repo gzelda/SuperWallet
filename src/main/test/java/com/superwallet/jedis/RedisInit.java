@@ -8,7 +8,19 @@ public class RedisInit {
 
     @Test
     public void initRedis() {
-        Jedis jedis = new Jedis("ec2-18-222-109-30.us-east-2.compute.amazonaws.com", 6379);
+//        JedisPoolConfig config = new JedisPoolConfig();
+//        config.setMaxTotal(100);
+//        config.setMaxIdle(50);
+//        config.setMaxWaitMillis(3000);
+//        config.setTestOnBorrow(true);
+//        config.setTestOnReturn(true);
+//        JedisShardInfo info = new JedisShardInfo("aws", 6379);
+//        info.setPassword("root");
+//        List<JedisShardInfo> list = new LinkedList<JedisShardInfo>();
+//        list.add(info);
+//        ShardedJedisPool pool = new ShardedJedisPool(config, list);
+//        ShardedJedis jedis = pool.getResource();
+        Jedis jedis = new Jedis("aws", 6379);
         //初始化开发人员专用数据信息
 //        jedis.hset("developerCode", "CODE_FAIL", "0");
 //        jedis.hset("developerCode", "CODE_SUCCESS", "1");

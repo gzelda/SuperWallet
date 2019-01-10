@@ -26,11 +26,4 @@ public interface DWalletService {
 
     public ResponseDWalletLockedOrderEntry getOrder(String UID, String LID);
 
-    public SuperResult getOrRequestIdentity(String UID);
-
-    public SuperResult identityFromPermissions(String UID);
-
-    public SuperResult requestSignature(String UID);
-
-    public SuperResult getOriginData(String UID);
 }

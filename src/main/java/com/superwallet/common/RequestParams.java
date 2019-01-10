@@ -26,6 +26,9 @@ public class RequestParams {
     //memo
     public static final String MEMO = "memo";
 
+    //data
+    public static final String DATA = "data";
+
 
     //gasPrice
     public static final String GASPRICE = "gasPrice";
@@ -42,5 +45,8 @@ public class RequestParams {
 
     //RamAmount
     public static final String RAMAMOUNT = "RamAmount";
+
+    //buf
+    public static final String BUF = "buf";
 
 }

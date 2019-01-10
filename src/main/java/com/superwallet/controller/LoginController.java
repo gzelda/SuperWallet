@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,10 +56,9 @@ public class LoginController {
             return result;
         }
         //缓存，用来后来验证验证码是否正确
-        HttpSession session = request.getSession();
         String phoneCode = CodeGenerator.smsCode();
-        session.setAttribute(phoneNum, phoneCode);
-        session.setMaxInactiveInterval(CodeRepresentation.MESSAGECODE_EXPIRE);
+        jedisClient.set(phoneNum, phoneCode);
+        jedisClient.expire(phoneNum, CodeRepresentation.PHONECODE_EXPIRE);
         int code = phoneMessageService.sendMessage(phoneNum, phoneCode);
         if (code == CodeRepresentation.CODE_FAIL) {
             return new SuperResult(code, CodeRepresentation.STATUS_2, MessageRepresentation.REG_REGCONFIRM_CODE_0_STATUS_2, null);
@@ -74,14 +72,12 @@ public class LoginController {
      *
      * @param phoneNum
      * @param phoneIDCode
-     * @param request
      * @return
      */
     @RequestMapping(value = "/login/isValidMessageCode", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult isValidMessageCode(String phoneNum, String phoneIDCode, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        String code = (String) session.getAttribute(phoneNum);
+    public SuperResult isValidMessageCode(String phoneNum, String phoneIDCode) {
+        String code = jedisClient.get(phoneNum);
         //验证码错误
         if (code == null || code.equals("") || !phoneIDCode.equals(code)) {
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.REG_REGCONFIRM_CODE_0_STATUS_0, null);
@@ -97,14 +93,13 @@ public class LoginController {
      * @param phoneNum
      * @param phoneIDCode
      * @param invitedCode
-     * @param request
      * @return
      */
     @RequestMapping(value = "/register/registerConfirm", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult registerConfirm(String phoneNum, String phoneIDCode, String invitedCode, HttpServletRequest request) {
+    public SuperResult registerConfirm(String phoneNum, String phoneIDCode, String invitedCode) {
         //判断验证码是否正确
-        SuperResult result = isValidMessageCode(phoneNum, phoneIDCode, request);
+        SuperResult result = isValidMessageCode(phoneNum, phoneIDCode);
         if (result == null || result.getCode() != CodeRepresentation.CODE_SUCCESS) return result;
         //判断邀请码是否正确
         boolean isValidInvitedCode = loginRegisterService.isValidInvitedCode(invitedCode);
@@ -215,12 +210,11 @@ public class LoginController {
      * 登录时获取手机验证码
      *
      * @param phoneNum
-     * @param request
      * @return
      */
     @RequestMapping(value = "/login/getIDCode", method = RequestMethod.GET)
     @ResponseBody
-    public SuperResult loginSendMessage(String phoneNum, HttpServletRequest request) {
+    public SuperResult loginSendMessage(String phoneNum) {
         //判断手机号是否还未注册
         boolean registered = loginRegisterService.isRegistered(phoneNum);
         SuperResult result;
@@ -230,10 +224,8 @@ public class LoginController {
             return result;
         }
         //缓存，用来后来验证验证码是否正确
-        HttpSession session = request.getSession();
         String phoneCode = CodeGenerator.smsCode();
-        session.setAttribute(phoneNum, phoneCode);
-        session.setMaxInactiveInterval(CodeRepresentation.MESSAGECODE_EXPIRE);
+        jedisClient.set(phoneNum, phoneCode);
         int code = phoneMessageService.sendMessage(phoneNum, phoneCode);
         if (code == CodeRepresentation.CODE_FAIL)
             return new SuperResult(code, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_GETIDCODE_CODE_0_STATUS_1, null);
@@ -254,7 +246,7 @@ public class LoginController {
     public SuperResult loginByCode(String phoneNum, String phoneIDCode, HttpServletRequest request, HttpServletResponse response) {
         SuperResult result;
         //判断手机验证码是否正确
-        result = isValidMessageCode(phoneNum, phoneIDCode, request);
+        result = isValidMessageCode(phoneNum, phoneIDCode);
         //如果验证码错误
         if (result.getCode() == CodeRepresentation.CODE_FAIL) return result;
         LoginResult loginResult = loginRegisterService.loginByCode(phoneNum);
@@ -292,7 +284,7 @@ public class LoginController {
     public SuperResult findPassWord(String phoneNum, String phoneIDCode, String newPassWord, HttpServletRequest request) {
         SuperResult result;
         //判断验证码是否正确
-        result = isValidMessageCode(phoneNum, phoneIDCode, request);
+        result = isValidMessageCode(phoneNum, phoneIDCode);
         if (result.getCode() == CodeRepresentation.CODE_FAIL) return result;
         //对密码进行加密
         newPassWord = SHA1.encode(newPassWord);
@@ -364,7 +356,7 @@ public class LoginController {
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         SuperResult result;
-        result = isValidMessageCode(phoneNum, phoneIDCode, request);
+        result = isValidMessageCode(phoneNum, phoneIDCode);
         if (result.getCode() == CodeRepresentation.CODE_FAIL) return result;
         //旧密码错误
         oldPassWord = SHA1.encode(oldPassWord);
@@ -394,11 +386,11 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/modifyUserBasic", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult modifyUserBasic(byte[] headPhoto, String nickName, Byte sex, HttpServletRequest request) {
-        String UID = tokenService.getUID(request);
+    public SuperResult modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex, HttpServletRequest request) {
+//        String UID = tokenService.getUID(request);
         //登录超时
-        if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+//        if (UID == null)
+//            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         boolean res = loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex);
         if (!res)
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_MODIFYUSERBASIC_CODE_0_STATUS_0, null);

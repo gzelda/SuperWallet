@@ -118,6 +118,8 @@ public class CodeRepresentation {
     public static final int SESSION_EXPIRE = 1800;
     //Cookie过期时间
     public static final int COOKIE_EXPIRE = 36000;
+    //验证码过期时间
+    public static final int PHONECODE_EXPIRE = 300;
 
     //Cookie名称
     public static final String TOKEN_KEY = "token";
@@ -160,6 +162,10 @@ public class CodeRepresentation {
     public static final String NODE_ACTION_EOS_RAM = "/eos/trxRam";
     public static final String NODE_ACTION_EOS_ACCOUNTINFO = "/eos/getAccount";
     public static final String NODE_ACTION_ETH_ACCOUNTINFO = "/eth/getBalance";
+    public static final String NODE_ACTION_EOS_SCATTER_GETORREQUESTIDENTITY = "/eos/scatter/getOrRequestIdentity";
+    public static final String NODE_ACTION_EOS_SCATTER_IDENTITYFROMPERMISSIONS = "/eos/scatter/identityFromPermissions";
+    public static final String NODE_ACTION_EOS_SCATTER_REQUESTSIGNATURE = "/eos/scatter/requestSignature";
+    public static final String NODE_ACTION_EOS_SCATTER_GETORIGINDATA = "/eos/scatter/getOriginData";
 
     static {
         TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2OFF, "链上转入中心");

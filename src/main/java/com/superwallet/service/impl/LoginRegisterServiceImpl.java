@@ -349,13 +349,14 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Override
     public boolean modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
-        if (headPhoto != null)
+        if (headPhoto != null) {
             user.setHeadphoto(headPhoto);
+        }
         if (nickName != null && !nickName.equals(""))
             user.setNickname(nickName);
         if (sex != null)
             user.setSex(sex);
-        int rows = userbasicMapper.updateByPrimaryKey(user);
+        int rows = userbasicMapper.updateByPrimaryKeyWithBLOBs(user);
         if (rows == 0) return false;
         return true;
     }
