@@ -1,7 +1,6 @@
 package com.superwallet.service;
 
 import com.superwallet.common.CWalletInfo;
-import com.superwallet.common.SuperResult;
 import com.superwallet.pojo.Lockwarehouse;
 import com.superwallet.pojo.Transfer;
 import com.superwallet.response.ResponseCWalletProfit;
@@ -21,8 +20,6 @@ public interface CWalletService {
 
     public List<Transfer> listHistoryBills(String UID, Integer tokenType);
 
-    public SuperResult buyAgent(String UID);
-
     public ResponseCWalletSimProfit listProfit(String UID);
 
     public List<ResponseCWalletProfitEntry> getLockedOrderProfit(String UID, Integer tokenType);
@@ -37,7 +34,7 @@ public interface CWalletService {
 
     public List<ResponseCWalletProfitEntry> totalProfitToEntry(String UID, Integer tokenType, String orderID, Integer profitType);
 
-    public ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType);
+    public ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType, Integer type);
 
     public boolean updateETHWalletAmount(String UID, double amount, Integer type);
 

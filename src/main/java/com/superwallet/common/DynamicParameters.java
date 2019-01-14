@@ -27,7 +27,7 @@ public class DynamicParameters implements Serializable {
     public static final double MINI_WITHDRAW_BGS = 0;//BGS
 
     //代理人价格
-    public static final double PRICE_BUYAGENT_BGS = 2;//BGS
+    public static final double PRICE_BUYAGENT = 0.02;//EOS
 
     //每日邀请好友上限
     public static final double MAX_DAILY_INVITING_COUNT = 2;//邀请数量
@@ -38,5 +38,10 @@ public class DynamicParameters implements Serializable {
     public static final double PROFIT_DAPP_LOCK = 0.1;//锁仓分配比例
     public static final double PROFIT_DAPP_AGENT = 0.2;//代理人分配比例
     public static final double PROFIT_DAPP_PLATFORM = 0.1;//平台利润分配比例
+
+
+    //用户自己购买EOS资源的固定值
+    public static final double TRX_CPU_USER = 0.05;
+    public static final double TRX_NET_USER = 0.05;
 
 }

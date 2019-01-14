@@ -1,19 +1,26 @@
 package com.superwallet.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.superwallet.common.*;
+import com.superwallet.common.CodeRepresentation;
+import com.superwallet.common.LoginResult;
+import com.superwallet.common.MessageRepresentation;
+import com.superwallet.common.SuperResult;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.CommonService;
 import com.superwallet.service.LoginRegisterService;
-import com.superwallet.utils.*;
+import com.superwallet.utils.ByteImageConvert;
+import com.superwallet.utils.CodeGenerator;
+import com.superwallet.utils.JedisClient;
+import com.superwallet.utils.PushtoSingle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LoginRegisterServiceImpl implements LoginRegisterService {
@@ -75,12 +82,6 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Override
     @Transactional
     public SuperResult register(String phoneNum, String passWord, String invitedCode, String rootPath) {
-        double PROFIT_INVITING_BGS;
-        try {
-            PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_INVITING_BGS"));
-        } catch (Exception e) {
-            PROFIT_INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;
-        }
         //再次判断一下手机号是否已被注册
         boolean registered = isRegistered(phoneNum);
         if (registered)
@@ -118,23 +119,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
             record.setInviterid(inviter.getUid());
             record.setBeinvitedid(uid);
             inviterMapper.insert(record);
-            //邀请方可以获得一笔BGS收入 更新BGS中心钱包表和生成一条交易记录
-            //更新钱包表
-            cWalletService.updateBGSWalletAmount(inviter.getUid(), PROFIT_INVITING_BGS, CodeRepresentation.CWALLET_MONEY_INC);
-            //生成交易记录
-            //先找出邀请人的地址
-            EthtokenKey bgstokenKey = new EthtokenKey(inviter.getUid(), CodeRepresentation.ETH_TOKEN_TYPE_BGS);
-            Ethtoken bgstoken = bgstokenMapper.selectByPrimaryKey(bgstokenKey);
-            String toAddress = bgstoken.getEthaddress();
-            boolean res = commonService.generateRecord(inviter.getUid(), CodeRepresentation.TRANSFER_TYPE_INVITINGBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, toAddress, PROFIT_INVITING_BGS);
-            if (!res) {
-                try {
-                    throw new Exception();
-                } catch (Exception e) {
-                    System.out.println("邀请获得奖励交易记录生成失败");
-                    new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
-                }
-            }
+            //邀请方可以获得一笔BGS收入 更新BGS中心钱包表和生成一条交易记录 --修改为等到邀请用户成为会员才能够有BGS收入
         }
         boolean res = initWallet(uid);
         if (!res) {
@@ -147,6 +132,19 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
             } catch (Exception e) {
                 System.out.println("注册用户失败");
             }
+        }
+        //注册成功后赠送BGS，并记录一笔收益
+        double REGISTER_BGS = 0;
+        try {
+            REGISTER_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_REGISTER_BGS"));
+        } catch (Exception e) {
+            REGISTER_BGS = 5.0;
+        }
+        cWalletService.updateBGSWalletAmount(uid, REGISTER_BGS, CodeRepresentation.CWALLET_MONEY_INC);
+        Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(new EthtokenKey(uid, CodeRepresentation.ETH_TOKEN_TYPE_BGS));
+        boolean genRecord = commonService.generateRecord(uid, CodeRepresentation.TRANSFER_TYPE_REGISTERBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, bgstoken.getEthaddress(), REGISTER_BGS);
+        if (!genRecord) {
+            System.out.println("生成注册时收益记录失败");
         }
         //注册成功后推送一条消息
         PushtoSingle.pushMessage("test", "test", "http://www.baidu.com");
@@ -298,24 +296,21 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Override
     @Transactional
     public boolean initWallet(String UID) {
-        Map<String, Object> eth_params = new HashMap<String, Object>();
-        Map<String, Object> eos_params = new HashMap<String, Object>();
-        //传UID
-        eth_params.put(RequestParams.UID, UID);
-        eos_params.put(RequestParams.UID, UID);
-        String eth_resp = HttpUtil.post(CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEETH, eth_params);
-        String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_CREATEEOS, eos_params);
-        SuperResult response_eth = JSON.parseObject(eth_resp, SuperResult.class);
-        SuperResult response_eos = JSON.parseObject(eos_resp, SuperResult.class);
+        //创建ETH、EOS账户
+        SuperResult response_eth = commonService.createETHAddress(UID);
+        SuperResult response_eos = commonService.allocateEOSWallet(UID);
 //        System.out.println("请求得到的数据:" + response_eth.getData().toString());
 //        System.out.println("请求得到的数据:" + response_eos.getData().toString());
-        if (response_eth.getCode() == CodeRepresentation.CODE_FAIL || response_eos.getCode() == CodeRepresentation.CODE_FAIL) {
+        if (response_eth.getCode() == CodeRepresentation.CODE_FAIL) {
             return false;
         }
         String ethAddress = JSONObject.parseObject(response_eth.getData().toString()).getString("address");
         if (ethAddress == null || ethAddress.equals("")) return false;
-        String eosAccountName = JSONObject.parseObject(response_eos.getData().toString()).getString("accountName");
-        if (eosAccountName == null || eosAccountName.equals("")) return false;
+        String eosAccountName = "";
+        if (response_eos.getCode() == CodeRepresentation.CODE_SUCCESS) {
+            eosAccountName = JSONObject.parseObject(response_eos.getData().toString()).getString("accountName");
+        }
+        if (eosAccountName == null || eosAccountName.equals("")) eosAccountName = "";
         //初始化钱包信息
         boolean initETH = commonService.initToken(UID, ethAddress, CodeRepresentation.TOKENTYPE_ETH);
         boolean initEOS = commonService.initToken(UID, eosAccountName, CodeRepresentation.TOKENTYPE_EOS);
@@ -349,7 +344,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Override
     public boolean modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
-        if (headPhoto != null) {
+        if (headPhoto != null && headPhoto.length != 0) {
             user.setHeadphoto(headPhoto);
         }
         if (nickName != null && !nickName.equals(""))

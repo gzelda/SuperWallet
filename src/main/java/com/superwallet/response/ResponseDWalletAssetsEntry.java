@@ -3,6 +3,7 @@ package com.superwallet.response;
 import java.io.Serializable;
 
 public class ResponseDWalletAssetsEntry implements Serializable {
+    private int tokenType;
     private double tokenAmount;
     private double tokenAmountToRMB;
     private String tokenName;
@@ -20,6 +21,24 @@ public class ResponseDWalletAssetsEntry implements Serializable {
         this.canLock = canLock;
         this.lockedAmount = lockedAmount;
         this.tokenLockedProfit = tokenLockedProfit;
+    }
+
+    public ResponseDWalletAssetsEntry(int tokenType, double tokenAmount, double tokenAmountToRMB, String tokenName, int canLock, double lockedAmount, double tokenLockedProfit) {
+        this.tokenType = tokenType;
+        this.tokenAmount = tokenAmount;
+        this.tokenAmountToRMB = tokenAmountToRMB;
+        this.tokenName = tokenName;
+        this.canLock = canLock;
+        this.lockedAmount = lockedAmount;
+        this.tokenLockedProfit = tokenLockedProfit;
+    }
+
+    public int getTokenType() {
+        return tokenType;
+    }
+
+    public void setTokenType(int tokenType) {
+        this.tokenType = tokenType;
     }
 
     public double getTokenAmount() {

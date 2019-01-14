@@ -145,20 +145,41 @@ public class CodeRepresentation {
     public static final String TOKENPRICE_EOS = "eos";
     public static final String TOKENPRICE_BGS = "bgs";
 
+    //redis模块
+    public static final String REDIS_REMAINEOSWALLET = "restWallet";
+
+    //查询链上钱包详情模块--条件查询类型对应
+    public static final int LISTDETAILDWALLET_ALL = 0;
+    public static final int LISTDETAILDWALLET_LOCK = 1;
+    public static final int LISTDETAILDWALLET_GAME = 2;
+    public static final int LISTDETAILDWALLET_TRANSFEROUT = 3;
+    public static final int LISTDETAILDWALLET_AGENT = 4;
+    public static final int LISTDETAILDWALLET_EOSSOURCE = 5;
+
+    //查询收益详情--条件查询类型对应
+    public static final int LISTDETAILPROFIT_ALL = 0;
+    public static final int LISTDETAILPROFIT_LOCK = 1;
+    public static final int LISTDETAILPROFIT_AGENT = 2;
+    public static final int LISTDETAILPROFIT_WITHDRAW = 3;
+    public static final int LISTDETAILPROFIT_REWARD = 4;
+
 
     //超级账户的Address
     public static final String SUPER_ETH = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
     public static final String SUPER_BGS = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
-    public static final String SUPER_EOS = "tygavingavin";
+    public static final String SUPER_EOS = "gtygavintest";
 
     //链上HTTP请求地址
     public static final String NODE_URL_ETH = "http://3.17.163.147:4000";
     public static final String NODE_URL_EOS = "http://3.17.163.147:3000";
     public static final String NODE_ACTION_CREATEETH = "/eth/createAccount";
     public static final String NODE_ACTION_CREATEEOS = "/eos/createAccount";
+    public static final String NODE_ACTION_ALLOCATEEOSWALLET = "/eos/wallet/allocateWallet";
     public static final String NODE_ACTION_ETHTRANSFER = "/eth/transfer";
     public static final String NODE_ACTION_EOSTRANSFER = "/eos/transfer";
-    public static final String NODE_ACTION_EOS_NETCPU = "/eos/trxNetCpu";
+    public static final String NODE_ACTION_EOS_NETCPU = "/eos/trxCPUNET";
+    public static final String NODE_ACTION_EOS_CPU = "/eos/eosBank/trxCPU";
+    public static final String NODE_ACTION_EOS_NET = "/eos/eosBank/trxNET";
     public static final String NODE_ACTION_EOS_RAM = "/eos/trxRam";
     public static final String NODE_ACTION_EOS_ACCOUNTINFO = "/eos/getAccount";
     public static final String NODE_ACTION_ETH_ACCOUNTINFO = "/eth/getBalance";
@@ -166,6 +187,7 @@ public class CodeRepresentation {
     public static final String NODE_ACTION_EOS_SCATTER_IDENTITYFROMPERMISSIONS = "/eos/scatter/identityFromPermissions";
     public static final String NODE_ACTION_EOS_SCATTER_REQUESTSIGNATURE = "/eos/scatter/requestSignature";
     public static final String NODE_ACTION_EOS_SCATTER_GETORIGINDATA = "/eos/scatter/getOriginData";
+
 
     static {
         TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2OFF, "链上转入中心");

@@ -1,16 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <!-- 加载配置文件 -->
+    <context:property-placeholder location="classpath:conf/*.properties"/>
 
     <!-- 连接redis单机版 -->
     <bean id="jedisClientPool" class="com.superwallet.utils.JedisClientPool">
         <property name="jedisPool" ref="jedisPool"></property>
     </bean>
-    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
-        <constructor-arg name="host" value="ec2-18-222-109-30.us-east-2.compute.amazonaws.com"/>
-        <constructor-arg name="port" value="6379"/>
+    <!--redis配置  -->
+    <bean name="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="maxTotal" value="${redis.maxTotal}"/>
+        <property name="maxWaitMillis" value="${redis.maxWaitMillis}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
     </bean>
+
+    <bean name="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+        <constructor-arg name="host" value="${redis.host}"/>
+        <constructor-arg name="port" value="${redis.port}"/>
+        <constructor-arg name="timeout" value="${redis.timeOut}"/>
+        <constructor-arg name="password" value="#{'${redis.pass}'!=''?'${redis.pass}':null}"/>
+        <!--<constructor-arg name="database" value="${redis.database}"/>-->
+    </bean>
+    <!--<bean id="jedisPool" class="redis.clients.jedis.JedisPool">-->
+    <!--<constructor-arg name="host" value="ec2-18-222-109-30.us-east-2.compute.amazonaws.com"/>-->
+    <!--<constructor-arg name="port" value="6379"/>-->
+    <!--<constructor-arg name="password" value="redis"/>-->
+    <!--</bean>-->
     <!-- 连接redis集群 -->
     <!-- <bean id="jedisClientCluster" class="cn.e3mall.common.jedis.JedisClientCluster">
         <property name="jedisCluster" ref="jedisCluster"/>

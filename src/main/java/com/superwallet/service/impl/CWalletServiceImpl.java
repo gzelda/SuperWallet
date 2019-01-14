@@ -9,6 +9,7 @@ import com.superwallet.response.ResponseCWalletSimProfit;
 import com.superwallet.response.ResponseCWalletSimProfitEntry;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.CommonService;
+import com.superwallet.service.DWalletService;
 import com.superwallet.utils.JedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,9 @@ public class CWalletServiceImpl implements CWalletService {
     @Autowired
     private JedisClient jedisClient;
 
+    @Autowired
+    private DWalletService dWalletService;
+
     /**
      * 获取用户的所有中心化钱包信息
      *
@@ -60,17 +64,20 @@ public class CWalletServiceImpl implements CWalletService {
     public List<CWalletInfo> listCWalletInfo(String UID) {
         List<CWalletInfo> list = new ArrayList<CWalletInfo>();
         CommonWalletInfo eth = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
-        CommonWalletInfo eos = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+        //EOS钱包需要做特判
+        if (commonService.hasEOSWallet(UID)) {
+            CommonWalletInfo eos = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+            CWalletInfo eosInfo = new CWalletInfo(eos.getTokenAddress(), eos.getcWalletAmount(),
+                    eos.getTokenPrice(), eos.getLockedAmount(), eos.getcWalletAmount());
+            list.add(eosInfo);
+        }
         CommonWalletInfo bgs = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
         CWalletInfo ethInfo = new CWalletInfo(eth.getTokenAddress(), eth.getcWalletAmount(),
                 eth.getTokenPrice(), eth.getLockedAmount(), eth.getcWalletAmount());
         CWalletInfo bgsInfo = new CWalletInfo(bgs.getTokenAddress(), bgs.getcWalletAmount(),
                 bgs.getTokenPrice(), bgs.getLockedAmount(), bgs.getcWalletAmount());
-        CWalletInfo eosInfo = new CWalletInfo(eos.getTokenAddress(), eos.getcWalletAmount(),
-                eos.getTokenPrice(), eos.getLockedAmount(), eos.getcWalletAmount());
         list.add(ethInfo);
         list.add(bgsInfo);
-        list.add(eosInfo);
         return list;
     }
 
@@ -335,48 +342,6 @@ public class CWalletServiceImpl implements CWalletService {
     }
 
     /**
-     * 购买代理人
-     *
-     * @param UID
-     * @return
-     */
-    @Override
-    @Transactional
-    public SuperResult buyAgent(String UID) {
-        double PRICE_BUYAGENT_BGS;
-        try {
-            PRICE_BUYAGENT_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PRICE_BUYAGENT_BGS"));
-        } catch (Exception e) {
-            PRICE_BUYAGENT_BGS = DynamicParameters.PRICE_BUYAGENT_BGS;
-        }
-        Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
-        if (user.getIsagency() == CodeRepresentation.USER_AGENT_ISAGENCY) {
-            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_0, null);
-        }
-        EthtokenKey ethtokenKey = new EthtokenKey();
-        ethtokenKey.setUid(UID);
-        ethtokenKey.setType(CodeRepresentation.ETH_TOKEN_TYPE_BGS);
-        Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-        //余额不足
-        if (bgstoken.getAmount() < PRICE_BUYAGENT_BGS) {
-            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_1, null);
-        }
-        //购买成功
-        updateBGSWalletAmount(UID, PRICE_BUYAGENT_BGS, CodeRepresentation.CWALLET_MONEY_DEC);
-        //设置用户为代理人
-        user.setIsagency(CodeRepresentation.USER_AGENT_ISAGENCY);
-        userbasicMapper.updateByPrimaryKey(user);
-        //转账记录
-        commonService.generateRecord(UID,
-                CodeRepresentation.TRANSFER_TYPE_BUYAGENT,
-                Byte.valueOf(CodeRepresentation.TOKENTYPE_BGS + ""),
-                CodeRepresentation.TRANSFER_SUCCESS, bgstoken.getEthaddress(),
-                CodeRepresentation.SUPER_BGS,
-                PRICE_BUYAGENT_BGS);
-        return SuperResult.ok(MessageRepresentation.CWALLET_BUYAGENT_CODE_1_STATUS_0);
-    }
-
-    /**
      * 收益列表展示
      *
      * @param UID
@@ -384,7 +349,10 @@ public class CWalletServiceImpl implements CWalletService {
      */
     @Override
     public ResponseCWalletSimProfit listProfit(String UID) {
-        double totalProfitToRMB = 0;
+        double allTokenAmountToRMB, totalProfitToRMB = 0;
+        double eth_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_ETH);
+        double eos_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_EOS);
+        double bgs_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_BGS);
         List<ResponseCWalletSimProfitEntry> list = new ArrayList<ResponseCWalletSimProfitEntry>();
         ResponseCWalletSimProfitEntry eth = commonService.getCWalletTokenProfit(UID, CodeRepresentation.TOKENTYPE_ETH);
         ResponseCWalletSimProfitEntry eos = commonService.getCWalletTokenProfit(UID, CodeRepresentation.TOKENTYPE_EOS);
@@ -392,8 +360,13 @@ public class CWalletServiceImpl implements CWalletService {
         list.add(eth);
         list.add(eos);
         list.add(bgs);
+        //算链上总额
+        CommonWalletInfo ethWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
+        CommonWalletInfo eosWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+        CommonWalletInfo bgsWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
+        allTokenAmountToRMB = ethWalletInfo.getBalance() * eth_tokenPrice + bgsWalletInfo.getBalance() * bgs_tokenPrice + eosWalletInfo.getBalance() * eos_tokenPrice;
         totalProfitToRMB = eth.getTokenProfitToRMB() + eos.getTokenProfitToRMB() + bgs.getTokenProfitToRMB();
-        ResponseCWalletSimProfit result = new ResponseCWalletSimProfit(totalProfitToRMB, list);
+        ResponseCWalletSimProfit result = new ResponseCWalletSimProfit(allTokenAmountToRMB, totalProfitToRMB, list);
         return result;
     }
 
@@ -487,8 +460,11 @@ public class CWalletServiceImpl implements CWalletService {
         TransferExample.Criteria criteria = transferExample.createCriteria();
         criteria.andUidEqualTo(UID);
         criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
-        criteria.andTransfertypeEqualTo(CodeRepresentation.TRANSFER_TYPE_INVITINGBGS);
-        double tokenPrice = 1.0;
+        ArrayList<Byte> ins = new ArrayList<Byte>();
+        ins.add(CodeRepresentation.TRANSFER_TYPE_INVITINGBGS);
+        ins.add(CodeRepresentation.TRANSFER_TYPE_REGISTERBGS);
+        criteria.andTransfertypeIn(ins);
+        double tokenPrice = commonService.getTokenPriceByType(tokenType);
         List<Transfer> list = transferMapper.selectByExample(transferExample);
         List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -589,7 +565,7 @@ public class CWalletServiceImpl implements CWalletService {
      * @return
      */
     @Override
-    public ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType) {
+    public ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType, Integer type) {
         //封装所需所有字段
         int isLocked = 1, isAgent = 1, listCount = 0;
         double tokenProfit, tokenProfitToRMB, lockedProfit = 0, lockedProfitToRMB, agentProfit = 0, agentProfitToRMB, mostRollOut;
@@ -612,33 +588,74 @@ public class CWalletServiceImpl implements CWalletService {
         if (user.getIsagency() != CodeRepresentation.USER_AGENT_ISAGENCY) isAgent = 0;
 
         List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        //条件查询
         List<ResponseCWalletProfitEntry> lockedOrderProfit = getLockedOrderProfit(UID, tokenType);
-        //拿到用户所有的锁仓收益金额
-        if (lockedOrderProfit != null && lockedOrderProfit.size() != 0) {
-            result.addAll(lockedOrderProfit);
-            listCount += lockedOrderProfit.size();
-            for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
-                lockedProfit += row.getProfit();
-            }
-        }
         List<ResponseCWalletProfitEntry> agentProfitList = getAgentProfit(UID, tokenType);
-        //拿到用户代理人的收益金额
-        if (agentProfitList != null && agentProfitList.size() != 0) {
-            result.addAll(agentProfitList);
-            listCount += agentProfitList.size();
-            for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
-                agentProfit += row.getProfit();
-            }
-        }
         List<ResponseCWalletProfitEntry> withDrawProfit = getWithDrawProfit(UID, tokenType);
-        if (withDrawProfit != null && withDrawProfit.size() != 0) {
-            listCount += withDrawProfit.size();
-            result.addAll(withDrawProfit);
-        }
         List<ResponseCWalletProfitEntry> invitingProfit = getInvitingProfit(UID, tokenType);
-        if (invitingProfit != null || invitingProfit.size() != 0) {
-            listCount += invitingProfit.size();
-            result.addAll(invitingProfit);
+        switch (type) {
+            case CodeRepresentation.LISTDETAILPROFIT_ALL:
+                //拿到用户所有的锁仓收益金额
+                if (lockedOrderProfit != null && lockedOrderProfit.size() != 0) {
+                    result.addAll(lockedOrderProfit);
+                    listCount += lockedOrderProfit.size();
+                    for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
+                        lockedProfit += row.getProfit();
+                    }
+                }
+                //拿到用户代理人的收益金额
+                if (agentProfitList != null && agentProfitList.size() != 0) {
+                    result.addAll(agentProfitList);
+                    listCount += agentProfitList.size();
+                    for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
+                        agentProfit += row.getProfit();
+                    }
+                }
+                //拿到用户提现收益
+                if (withDrawProfit != null && withDrawProfit.size() != 0) {
+                    listCount += withDrawProfit.size();
+                    result.addAll(withDrawProfit);
+                }
+                //拿到奖励收益
+                if (invitingProfit != null || invitingProfit.size() != 0) {
+                    listCount += invitingProfit.size();
+                    result.addAll(invitingProfit);
+                }
+                break;
+            case CodeRepresentation.LISTDETAILPROFIT_LOCK:
+                //拿到用户所有的锁仓收益金额
+                if (lockedOrderProfit != null && lockedOrderProfit.size() != 0) {
+                    result.addAll(lockedOrderProfit);
+                    listCount += lockedOrderProfit.size();
+                    for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
+                        lockedProfit += row.getProfit();
+                    }
+                }
+                break;
+            case CodeRepresentation.LISTDETAILPROFIT_AGENT:
+                //拿到用户代理人的收益金额
+                if (agentProfitList != null && agentProfitList.size() != 0) {
+                    result.addAll(agentProfitList);
+                    listCount += agentProfitList.size();
+                    for (ResponseCWalletProfitEntry row : lockedOrderProfit) {
+                        agentProfit += row.getProfit();
+                    }
+                }
+                break;
+            case CodeRepresentation.LISTDETAILPROFIT_WITHDRAW:
+                //拿到用户提现收益
+                if (withDrawProfit != null && withDrawProfit.size() != 0) {
+                    listCount += withDrawProfit.size();
+                    result.addAll(withDrawProfit);
+                }
+                break;
+            case CodeRepresentation.LISTDETAILPROFIT_REWARD:
+                //拿到奖励收益
+                if (invitingProfit != null || invitingProfit.size() != 0) {
+                    listCount += invitingProfit.size();
+                    result.addAll(invitingProfit);
+                }
+                break;
         }
         //记录做排序
         Collections.sort(result, new Comparator<ResponseCWalletProfitEntry>() {

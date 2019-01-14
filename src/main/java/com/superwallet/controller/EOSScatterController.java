@@ -1,6 +1,5 @@
 package com.superwallet.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.MessageRepresentation;
 import com.superwallet.common.SuperResult;
@@ -8,7 +7,6 @@ import com.superwallet.service.EOSScatterService;
 import com.superwallet.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -50,28 +48,28 @@ public class EOSScatterController {
 
     @RequestMapping(value = "/eos/scatter/requestSignature", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult requestSignature(@RequestBody String buf, HttpServletRequest request) {
-        JSONObject json = JSONObject.parseObject(buf);
-        String out = json.getString("buf");
+    public SuperResult requestSignature(String buf, HttpServletRequest request) {
+//        JSONObject json = JSONObject.parseObject(buf);
+//        String out = json.getString("buf");
         String UID = tokenService.getUID(request);
-        //登录超时
+//        登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        SuperResult result = eosScatterService.requestSignature(UID, out);
+        SuperResult result = eosScatterService.requestSignature(UID, buf);
         return result;
     }
 
     @RequestMapping(value = "/eos/scatter/getOriginData", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult getOriginData(@RequestBody String data, HttpServletRequest request) {
-        JSONObject json = JSONObject.parseObject(data);
-        String str = json.getString("data");
-        System.out.println(str);
+    public SuperResult getOriginData(String data, HttpServletRequest request) {
+//        JSONObject json = JSONObject.parseObject(data);
+//        String str = json.getString("data");
+//        System.out.println(str);
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
-        SuperResult result = eosScatterService.getOriginData(str);
+        SuperResult result = eosScatterService.getOriginData(data);
         return result;
     }
 }

@@ -518,7 +518,7 @@ public class CommonServiceImpl implements CommonService {
     }
 
     /**
-     * 拿到用户的邀请人总数--二级
+     * 拿到用户的邀请人总数--改为一级
      *
      * @param UID
      * @return
@@ -531,16 +531,16 @@ public class CommonServiceImpl implements CommonService {
         InviterExample.Criteria criteria = inviterExample.createCriteria();
         criteria.andInviteridEqualTo(UID);
         List<Inviter> firstInvitingPeople = inviterMapper.selectByExample(inviterExample);
-        //拿到二级邀请人数
         if (firstInvitingPeople != null) {
             result += firstInvitingPeople.size();
-            for (Inviter inviter : firstInvitingPeople) {
-                inviterExample = new InviterExample();
-                criteria = inviterExample.createCriteria();
-                criteria.andInviteridEqualTo(inviter.getInviterid());
-                List<Inviter> secondInvitingPeople = inviterMapper.selectByExample(inviterExample);
-                if (secondInvitingPeople != null) result += secondInvitingPeople.size();
-            }
+            //拿到二级邀请人数 -- 已取消
+//            for (Inviter inviter : firstInvitingPeople) {
+//                inviterExample = new InviterExample();
+//                criteria = inviterExample.createCriteria();
+//                criteria.andInviteridEqualTo(inviter.getInviterid());
+//                List<Inviter> secondInvitingPeople = inviterMapper.selectByExample(inviterExample);
+//                if (secondInvitingPeople != null) result += secondInvitingPeople.size();
+//            }
         }
         return result;
     }
@@ -597,6 +597,7 @@ public class CommonServiceImpl implements CommonService {
         entry.setTokenName(walletInfo.getTokenName());
         entry.setTokenProfit(walletInfo.getcWalletAmount());
         entry.setTokenProfitToRMB(walletInfo.getcWalletAmount() * walletInfo.getTokenPrice());
+        entry.setTokenType(tokenType);
         return entry;
     }
 
@@ -777,6 +778,97 @@ public class CommonServiceImpl implements CommonService {
     public String parseEOSJson(String value) {
         if (value == null) return "0";
         return value;
+    }
+
+    /**
+     * 查询用户是否拥有EOS钱包
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public boolean hasEOSWallet(String UID) {
+        EostokenKey eostokenKey = new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
+        Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
+        if (eostoken.getEosaccountname() == null || eostoken.getEosaccountname().equals("")) return false;
+        return true;
+    }
+
+    /**
+     * 分配EOS钱包
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public SuperResult allocateEOSWallet(String UID) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_ALLOCATEEOSWALLET;
+        String resp = HttpUtil.post(requestUrl, params);
+        SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        return result;
+    }
+
+    /**
+     * 登录时如未分配钱包则分配钱包给用户
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public boolean updateUserEOSWallet(String UID) {
+        //先查询用户是否已分配钱包
+        boolean hasEOSWallet = hasEOSWallet(UID);
+        //如果分配则直接返回
+        if (hasEOSWallet) {
+            return true;
+        }
+        //如果没有分配并且还有多余EOS钱包则给用户分配
+        else if (!hasEOSWallet && hasMoreEOSWallet()) {
+            SuperResult result = allocateEOSWallet(UID);
+            //分配失败的情况
+            if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+                return false;
+            }
+            String eosAccountName = JSONObject.parseObject(result.getData().toString()).getString("accountName");
+            if (eosAccountName == null || eosAccountName.equals("")) eosAccountName = "";
+            boolean initEOS = initToken(UID, eosAccountName, CodeRepresentation.TOKENTYPE_EOS);
+            if (initEOS) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 创建ETH账户
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public SuperResult createETHAddress(String UID) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        String requestUrl = CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_CREATEETH;
+        String resp = HttpUtil.post(requestUrl, params);
+        SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        return result;
+    }
+
+    /**
+     * 查询是否有多余的EOS钱包
+     *
+     * @return
+     */
+    @Override
+    public boolean hasMoreEOSWallet() {
+        String count = jedisClient.get(CodeRepresentation.REDIS_REMAINEOSWALLET);
+        if (count == null || count.equals("")) return false;
+        if (Integer.parseInt(count) > 0)
+            return true;
+        return false;
     }
 
 }

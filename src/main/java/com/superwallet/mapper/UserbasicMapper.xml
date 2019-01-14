@@ -1,41 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.superwallet.mapper.UserbasicMapper">
-  <resultMap id="BaseResultMap" type="com.superwallet.pojo.Userbasic">
-    <id column="UID" property="uid" jdbcType="CHAR"/>
-    <result column="nickName" property="nickname" jdbcType="VARCHAR"/>
-    <result column="sex" property="sex" jdbcType="TINYINT"/>
-    <result column="isAgency" property="isagency" jdbcType="TINYINT"/>
-    <result column="phoneNumber" property="phonenumber" jdbcType="CHAR"/>
-    <result column="inviter" property="inviter" jdbcType="CHAR"/>
-    <result column="status" property="status" jdbcType="TINYINT"/>
-    <result column="passWord" property="password" jdbcType="VARCHAR"/>
-    <result column="payPassWord" property="paypassword" jdbcType="VARCHAR"/>
-    <result column="invitedCode" property="invitedcode" jdbcType="VARCHAR"/>
-    <result column="registerTime" property="registertime" jdbcType="TIMESTAMP"/>
+    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Userbasic">
+        <id column="UID" property="uid" jdbcType="CHAR"/>
+        <result column="nickName" property="nickname" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="TINYINT"/>
+        <result column="isAgency" property="isagency" jdbcType="TINYINT"/>
+        <result column="phoneNumber" property="phonenumber" jdbcType="CHAR"/>
+        <result column="inviter" property="inviter" jdbcType="CHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="passWord" property="password" jdbcType="VARCHAR"/>
+        <result column="payPassWord" property="paypassword" jdbcType="VARCHAR"/>
+        <result column="invitedCode" property="invitedcode" jdbcType="VARCHAR"/>
+        <result column="registerTime" property="registertime" jdbcType="TIMESTAMP"/>
   </resultMap>
-  <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Userbasic" extends="BaseResultMap">
-    <result column="headPhoto" property="headphoto" jdbcType="LONGVARBINARY"/>
+    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Userbasic" extends="BaseResultMap">
+        <result column="headPhoto" property="headphoto" jdbcType="LONGVARBINARY"/>
   </resultMap>
-  <sql id="Example_Where_Clause">
-    <where>
-      <foreach collection="oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" suffix=")" prefixOverrides="and">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue">
+                                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue">
+                                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue">
+                                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator=",">
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -46,25 +47,26 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Update_By_Example_Where_Clause">
-    <where>
-      <foreach collection="example.oredCriteria" item="criteria" separator="or">
-        <if test="criteria.valid">
-          <trim prefix="(" suffix=")" prefixOverrides="and">
-            <foreach collection="criteria.criteria" item="criterion">
-              <choose>
-                <when test="criterion.noValue">
+    <sql id="Update_By_Example_Where_Clause">
+        <where>
+            <foreach collection="example.oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" suffix=")" prefixOverrides="and">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue">
+                                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue">
+                                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue">
+                                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator=",">
+                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
+                                             separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -75,63 +77,63 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Base_Column_List">
+    <sql id="Base_Column_List">
     UID, nickName, sex, isAgency, phoneNumber, inviter, status, passWord, payPassWord, 
     invitedCode, registerTime
   </sql>
-  <sql id="Blob_Column_List">
+    <sql id="Blob_Column_List">
     headPhoto
   </sql>
-  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
-          parameterType="com.superwallet.pojo.UserbasicExample">
+    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
+            parameterType="com.superwallet.pojo.UserbasicExample">
     select
-    <if test="distinct">
+        <if test="distinct">
       distinct
     </if>
-    <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
     ,
-    <include refid="Blob_Column_List"/>
+        <include refid="Blob_Column_List"/>
     from userbasic
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause"/>
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
     </if>
-    <if test="orderByClause != null">
+        <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.UserbasicExample">
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.UserbasicExample">
     select
-    <if test="distinct">
+        <if test="distinct">
       distinct
     </if>
-    <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
     from userbasic
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause"/>
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
     </if>
-    <if test="orderByClause != null">
+        <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String">
-    select
-    <include refid="Base_Column_List"/>
+    <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
     ,
-    <include refid="Blob_Column_List"/>
+        <include refid="Blob_Column_List"/>
     from userbasic
     where UID = #{uid,jdbcType=CHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from userbasic
     where UID = #{uid,jdbcType=CHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.superwallet.pojo.UserbasicExample">
+    <delete id="deleteByExample" parameterType="com.superwallet.pojo.UserbasicExample">
     delete from userbasic
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause"/>
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
     </if>
   </delete>
-  <insert id="insert" parameterType="com.superwallet.pojo.Userbasic">
+    <insert id="insert" parameterType="com.superwallet.pojo.Userbasic">
     insert into userbasic (UID, nickName, sex, 
       isAgency, phoneNumber, inviter, 
       status, passWord, payPassWord, 
@@ -143,210 +145,210 @@
       #{invitedcode,jdbcType=VARCHAR}, #{registertime,jdbcType=TIMESTAMP}, #{headphoto,jdbcType=LONGVARBINARY}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.superwallet.pojo.Userbasic">
+    <insert id="insertSelective" parameterType="com.superwallet.pojo.Userbasic">
     insert into userbasic
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="uid != null">
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uid != null">
         UID,
       </if>
-      <if test="nickname != null">
+            <if test="nickname != null">
         nickName,
       </if>
-      <if test="sex != null">
+            <if test="sex != null">
         sex,
       </if>
-      <if test="isagency != null">
+            <if test="isagency != null">
         isAgency,
       </if>
-      <if test="phonenumber != null">
+            <if test="phonenumber != null">
         phoneNumber,
       </if>
-      <if test="inviter != null">
+            <if test="inviter != null">
         inviter,
       </if>
-      <if test="status != null">
+            <if test="status != null">
         status,
       </if>
-      <if test="password != null">
+            <if test="password != null">
         passWord,
       </if>
-      <if test="paypassword != null">
+            <if test="paypassword != null">
         payPassWord,
       </if>
-      <if test="invitedcode != null">
+            <if test="invitedcode != null">
         invitedCode,
       </if>
-      <if test="registertime != null">
+            <if test="registertime != null">
         registerTime,
       </if>
-      <if test="headphoto != null">
+            <if test="headphoto != null">
         headPhoto,
       </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="uid != null">
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uid != null">
         #{uid,jdbcType=CHAR},
       </if>
-      <if test="nickname != null">
+            <if test="nickname != null">
         #{nickname,jdbcType=VARCHAR},
       </if>
-      <if test="sex != null">
+            <if test="sex != null">
         #{sex,jdbcType=TINYINT},
       </if>
-      <if test="isagency != null">
+            <if test="isagency != null">
         #{isagency,jdbcType=TINYINT},
       </if>
-      <if test="phonenumber != null">
+            <if test="phonenumber != null">
         #{phonenumber,jdbcType=CHAR},
       </if>
-      <if test="inviter != null">
+            <if test="inviter != null">
         #{inviter,jdbcType=CHAR},
       </if>
-      <if test="status != null">
+            <if test="status != null">
         #{status,jdbcType=TINYINT},
       </if>
-      <if test="password != null">
+            <if test="password != null">
         #{password,jdbcType=VARCHAR},
       </if>
-      <if test="paypassword != null">
+            <if test="paypassword != null">
         #{paypassword,jdbcType=VARCHAR},
       </if>
-      <if test="invitedcode != null">
+            <if test="invitedcode != null">
         #{invitedcode,jdbcType=VARCHAR},
       </if>
-      <if test="registertime != null">
+            <if test="registertime != null">
         #{registertime,jdbcType=TIMESTAMP},
       </if>
-      <if test="headphoto != null">
+            <if test="headphoto != null">
         #{headphoto,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.superwallet.pojo.UserbasicExample" resultType="java.lang.Integer">
+    <select id="countByExample" parameterType="com.superwallet.pojo.UserbasicExample" resultType="java.lang.Integer">
     select count(*) from userbasic
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause"/>
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
     </if>
   </select>
-  <update id="updateByExampleSelective" parameterType="map">
+    <update id="updateByExampleSelective" parameterType="map">
     update userbasic
-    <set>
-      <if test="record.uid != null">
+        <set>
+            <if test="record.uid != null">
         UID = #{record.uid,jdbcType=CHAR},
       </if>
-      <if test="record.nickname != null">
+            <if test="record.nickname != null">
         nickName = #{record.nickname,jdbcType=VARCHAR},
       </if>
-      <if test="record.sex != null">
+            <if test="record.sex != null">
         sex = #{record.sex,jdbcType=TINYINT},
       </if>
-      <if test="record.isagency != null">
+            <if test="record.isagency != null">
         isAgency = #{record.isagency,jdbcType=TINYINT},
       </if>
-      <if test="record.phonenumber != null">
+            <if test="record.phonenumber != null">
         phoneNumber = #{record.phonenumber,jdbcType=CHAR},
       </if>
-      <if test="record.inviter != null">
+            <if test="record.inviter != null">
         inviter = #{record.inviter,jdbcType=CHAR},
       </if>
-      <if test="record.status != null">
+            <if test="record.status != null">
         status = #{record.status,jdbcType=TINYINT},
       </if>
-      <if test="record.password != null">
+            <if test="record.password != null">
         passWord = #{record.password,jdbcType=VARCHAR},
       </if>
-      <if test="record.paypassword != null">
+            <if test="record.paypassword != null">
         payPassWord = #{record.paypassword,jdbcType=VARCHAR},
       </if>
-      <if test="record.invitedcode != null">
+            <if test="record.invitedcode != null">
         invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
       </if>
-      <if test="record.registertime != null">
+            <if test="record.registertime != null">
         registerTime = #{record.registertime,jdbcType=TIMESTAMP},
       </if>
-      <if test="record.headphoto != null">
+            <if test="record.headphoto != null">
         headPhoto = #{record.headphoto,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause"/>
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
     </if>
   </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
+    <update id="updateByExampleWithBLOBs" parameterType="map">
     update userbasic
     set UID = #{record.uid,jdbcType=CHAR},
-    nickName = #{record.nickname,jdbcType=VARCHAR},
-    sex = #{record.sex,jdbcType=TINYINT},
-    isAgency = #{record.isagency,jdbcType=TINYINT},
-    phoneNumber = #{record.phonenumber,jdbcType=CHAR},
-    inviter = #{record.inviter,jdbcType=CHAR},
-    status = #{record.status,jdbcType=TINYINT},
-    passWord = #{record.password,jdbcType=VARCHAR},
-    payPassWord = #{record.paypassword,jdbcType=VARCHAR},
-    invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
-    registerTime = #{record.registertime,jdbcType=TIMESTAMP},
-    headPhoto = #{record.headphoto,jdbcType=LONGVARBINARY}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause"/>
+        nickName = #{record.nickname,jdbcType=VARCHAR},
+        sex = #{record.sex,jdbcType=TINYINT},
+        isAgency = #{record.isagency,jdbcType=TINYINT},
+        phoneNumber = #{record.phonenumber,jdbcType=CHAR},
+        inviter = #{record.inviter,jdbcType=CHAR},
+        status = #{record.status,jdbcType=TINYINT},
+        passWord = #{record.password,jdbcType=VARCHAR},
+        payPassWord = #{record.paypassword,jdbcType=VARCHAR},
+        invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
+        registerTime = #{record.registertime,jdbcType=TIMESTAMP},
+        headPhoto = #{record.headphoto,jdbcType=LONGVARBINARY}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
     </if>
   </update>
-  <update id="updateByExample" parameterType="map">
+    <update id="updateByExample" parameterType="map">
     update userbasic
     set UID = #{record.uid,jdbcType=CHAR},
-    nickName = #{record.nickname,jdbcType=VARCHAR},
-    sex = #{record.sex,jdbcType=TINYINT},
-    isAgency = #{record.isagency,jdbcType=TINYINT},
-    phoneNumber = #{record.phonenumber,jdbcType=CHAR},
-    inviter = #{record.inviter,jdbcType=CHAR},
-    status = #{record.status,jdbcType=TINYINT},
-    passWord = #{record.password,jdbcType=VARCHAR},
-    payPassWord = #{record.paypassword,jdbcType=VARCHAR},
-    invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
-    registerTime = #{record.registertime,jdbcType=TIMESTAMP}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause"/>
+        nickName = #{record.nickname,jdbcType=VARCHAR},
+        sex = #{record.sex,jdbcType=TINYINT},
+        isAgency = #{record.isagency,jdbcType=TINYINT},
+        phoneNumber = #{record.phonenumber,jdbcType=CHAR},
+        inviter = #{record.inviter,jdbcType=CHAR},
+        status = #{record.status,jdbcType=TINYINT},
+        passWord = #{record.password,jdbcType=VARCHAR},
+        payPassWord = #{record.paypassword,jdbcType=VARCHAR},
+        invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
+        registerTime = #{record.registertime,jdbcType=TIMESTAMP}
+        <if test="_parameter != null">
+            <include refid="Update_By_Example_Where_Clause"/>
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Userbasic">
+    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Userbasic">
     update userbasic
-    <set>
-      <if test="nickname != null">
+        <set>
+            <if test="nickname != null">
         nickName = #{nickname,jdbcType=VARCHAR},
       </if>
-      <if test="sex != null">
+            <if test="sex != null">
         sex = #{sex,jdbcType=TINYINT},
       </if>
-      <if test="isagency != null">
+            <if test="isagency != null">
         isAgency = #{isagency,jdbcType=TINYINT},
       </if>
-      <if test="phonenumber != null">
+            <if test="phonenumber != null">
         phoneNumber = #{phonenumber,jdbcType=CHAR},
       </if>
-      <if test="inviter != null">
+            <if test="inviter != null">
         inviter = #{inviter,jdbcType=CHAR},
       </if>
-      <if test="status != null">
+            <if test="status != null">
         status = #{status,jdbcType=TINYINT},
       </if>
-      <if test="password != null">
+            <if test="password != null">
         passWord = #{password,jdbcType=VARCHAR},
       </if>
-      <if test="paypassword != null">
+            <if test="paypassword != null">
         payPassWord = #{paypassword,jdbcType=VARCHAR},
       </if>
-      <if test="invitedcode != null">
+            <if test="invitedcode != null">
         invitedCode = #{invitedcode,jdbcType=VARCHAR},
       </if>
-      <if test="registertime != null">
+            <if test="registertime != null">
         registerTime = #{registertime,jdbcType=TIMESTAMP},
       </if>
-      <if test="headphoto != null">
+            <if test="headphoto != null">
         headPhoto = #{headphoto,jdbcType=LONGVARBINARY},
       </if>
     </set>
     where UID = #{uid,jdbcType=CHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.Userbasic">
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.Userbasic">
     update userbasic
     set nickName = #{nickname,jdbcType=VARCHAR},
       sex = #{sex,jdbcType=TINYINT},
@@ -361,7 +363,7 @@
       headPhoto = #{headphoto,jdbcType=LONGVARBINARY}
     where UID = #{uid,jdbcType=CHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Userbasic">
+    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Userbasic">
     update userbasic
     set nickName = #{nickname,jdbcType=VARCHAR},
       sex = #{sex,jdbcType=TINYINT},

@@ -2,6 +2,7 @@ package com.superwallet.controller;
 
 import com.superwallet.common.*;
 import com.superwallet.pojo.Userbasic;
+import com.superwallet.service.CommonService;
 import com.superwallet.service.LoginRegisterService;
 import com.superwallet.service.PhoneMessageService;
 import com.superwallet.service.TokenService;
@@ -35,6 +36,9 @@ public class LoginController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private CommonService commonService;
 
     /**
      * 注册时获取手机验证码
@@ -125,8 +129,7 @@ public class LoginController {
     public SuperResult register(final String phoneNum, String passWord, String invitedCode, HttpServletRequest request, HttpServletResponse response) {
         SuperResult result;
         //获取项目路径
-        String headPhotoPath = request.getContextPath();
-//        String headPhotoPath = request.getSession().getServletContext().getRealPath("/");
+        String headPhotoPath = request.getSession().getServletContext().getRealPath("/");
         //加密密码
         passWord = SHA1.encode(passWord);
         //注册
@@ -186,7 +189,7 @@ public class LoginController {
     public SuperResult loginByPassWord(String phoneNum, String passWord, HttpServletRequest request, HttpServletResponse response) {
         passWord = SHA1.encode(passWord);
         LoginResult loginResult = loginRegisterService.loginByPassWord(phoneNum, passWord);
-        //当登录成功时传UID
+        //当登录成功时传phoneNum
         if (loginResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
             Userbasic user = loginResult.getUser();
             //添加session
@@ -197,6 +200,8 @@ public class LoginController {
             //写cookie
             CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId, CodeRepresentation.COOKIE_EXPIRE);
 //            System.out.println("CookieID: " + CookieUtils.getCookieValue(request, CodeRepresentation.TOKEN_KEY));
+            //分配EOS钱包
+            commonService.updateUserEOSWallet(uid);
             //注册或登录成功传手机号用来做推送用--绑定的唯一ID
             Map<String, String> returnKV = new HashMap<String, String>();
             returnKV.put("phoneNum", phoneNum);
@@ -261,6 +266,8 @@ public class LoginController {
             jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + sessionId, CodeRepresentation.SESSION_EXPIRE);
             //写cookie
             CookieUtils.setCookie(request, response, CodeRepresentation.TOKEN_KEY, sessionId, CodeRepresentation.COOKIE_EXPIRE);
+            //分配EOS钱包
+            commonService.updateUserEOSWallet(uid);
             //注册或登录成功传手机号用来做推送用--绑定的唯一ID
             Map<String, String> returnKV = new HashMap<String, String>();
             returnKV.put("phoneNum", phoneNum);
@@ -386,11 +393,11 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/modifyUserBasic", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex, HttpServletRequest request) {
-//        String UID = tokenService.getUID(request);
+    public SuperResult modifyUserBasic(byte[] headPhoto, String nickName, Byte sex, HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
         //登录超时
-//        if (UID == null)
-//            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
         boolean res = loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex);
         if (!res)
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_MODIFYUSERBASIC_CODE_0_STATUS_0, null);

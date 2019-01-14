@@ -67,6 +67,7 @@ public class MessageRepresentation implements Serializable {
     //4.购买代理人
     public static final String CWALLET_BUYAGENT_CODE_0_STATUS_0 = "您已是代理人";
     public static final String CWALLET_BUYAGENT_CODE_0_STATUS_1 = "余额不足";
+    public static final String CWALLET_BUYAGENT_CODE_0_STATUS_2 = "购买代理人失败";
     public static final String CWALLET_BUYAGENT_CODE_1_STATUS_0 = "购买代理人成功";
     //----------中心钱包模块结束-------------
     //----------链上钱包模块开始-------------
@@ -81,4 +82,7 @@ public class MessageRepresentation implements Serializable {
 
     //系统error时返回信息
     public static final String ERROR_MSG = "对不起！系统正在进行维护";
+
+    //用户没有EOS钱包
+    public static final String DONT_HAVE_EOSWALLET = "对不起！您没有分配到EOS钱包";
 }

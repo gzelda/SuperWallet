@@ -4,16 +4,25 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ResponseCWalletSimProfit implements Serializable {
-
+    private double allTokenAmountToRMB;
     private double totalProfitToRMB;
     List<ResponseCWalletSimProfitEntry> list;
 
     public ResponseCWalletSimProfit() {
     }
 
-    public ResponseCWalletSimProfit(double totalProfitToRMB, List<ResponseCWalletSimProfitEntry> list) {
+    public ResponseCWalletSimProfit(double allTokenAmountToRMB, double totalProfitToRMB, List<ResponseCWalletSimProfitEntry> list) {
+        this.allTokenAmountToRMB = allTokenAmountToRMB;
         this.totalProfitToRMB = totalProfitToRMB;
         this.list = list;
+    }
+
+    public double getAllTokenAmountToRMB() {
+        return allTokenAmountToRMB;
+    }
+
+    public void setAllTokenAmountToRMB(double allTokenAmountToRMB) {
+        this.allTokenAmountToRMB = allTokenAmountToRMB;
     }
 
     public List<ResponseCWalletSimProfitEntry> getList() {

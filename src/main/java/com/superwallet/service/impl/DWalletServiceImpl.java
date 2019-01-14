@@ -3,25 +3,21 @@ package com.superwallet.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.superwallet.common.*;
-import com.superwallet.mapper.EostokenMapper;
-import com.superwallet.mapper.EthtokenMapper;
-import com.superwallet.mapper.LockwarehouseMapper;
-import com.superwallet.mapper.TransferMapper;
+import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
 import com.superwallet.response.*;
 import com.superwallet.service.CWalletService;
 import com.superwallet.service.CommonService;
 import com.superwallet.service.DWalletService;
 import com.superwallet.utils.HttpUtil;
+import com.superwallet.utils.JedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class DWalletServiceImpl implements DWalletService {
@@ -44,6 +40,15 @@ public class DWalletServiceImpl implements DWalletService {
     @Autowired
     private CWalletService cWalletService;
 
+    @Autowired
+    private JedisClient jedisClient;
+
+    @Autowired
+    private UserbasicMapper userbasicMapper;
+
+    @Autowired
+    private InviterMapper inviterMapper;
+
     /**
      * 展示链上钱包基本信息
      *
@@ -54,7 +59,19 @@ public class DWalletServiceImpl implements DWalletService {
     public List<ResponseDWalletSimpleInfo> listDWalletInfo(String UID) {
         List<ResponseDWalletSimpleInfo> list = new ArrayList<ResponseDWalletSimpleInfo>();
         CommonWalletInfo eth = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
-        CommonWalletInfo eos = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+        //EOS钱包需要查询用户是否拥有EOS 单独处理
+        if (commonService.hasEOSWallet(UID)) {
+            CommonWalletInfo eos = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+            //EOS信息
+            list.add(
+                    new ResponseDWalletSimpleInfo(
+                            eos.getTokenType(),
+                            eos.getTokenName(),
+                            eos.getTokenAddress(),
+                            eos.getBalance() * eos.getTokenPrice()
+                    )
+            );
+        }
         CommonWalletInfo bgs = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
         //ETH信息
         list.add(
@@ -63,15 +80,6 @@ public class DWalletServiceImpl implements DWalletService {
                         eth.getTokenName(),
                         eth.getTokenAddress(),
                         eth.getBalance() * eth.getTokenPrice()
-                )
-        );
-        //EOS信息
-        list.add(
-                new ResponseDWalletSimpleInfo(
-                        eos.getTokenType(),
-                        eos.getTokenName(),
-                        eos.getTokenAddress(),
-                        eos.getBalance() * eos.getTokenPrice()
                 )
         );
         //BGS信息
@@ -357,20 +365,93 @@ public class DWalletServiceImpl implements DWalletService {
     @Override
     public ResponseDWalletBill listDetailDWalletInfo(String UID, Integer tokenType, Integer type) {
         //根据货币类型拿到对应的地址、余额、锁仓余额
-        CommonWalletInfo walletInfo = commonService.getMappingDAndCWalletInfo(UID, tokenType);
-        //TODO 货币价格
+        List<CommonWalletInfo> wallets = new ArrayList<CommonWalletInfo>();
+        CommonWalletInfo eth = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
+        //EOS钱包需要特判
+        if (commonService.hasEOSWallet(UID)) {
+            CommonWalletInfo eos = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+            wallets.add(eos);
+        }
+        CommonWalletInfo bgs = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
+        wallets.add(eth);
+        wallets.add(bgs);
+        int listCount = 0;
+        List<ResponseDWalletBillEntry> bills = new ArrayList<ResponseDWalletBillEntry>();
+        //条件查询
+        if (type == CodeRepresentation.LISTDETAILDWALLET_ALL) {
+            List<ResponseDWalletBillEntry> lockOrdersInfo = listDetailDWalletLockOrdersInfo(UID, tokenType);
+            List<ResponseDWalletBillEntry> transferInfo = listDetailDWalletTransferInfo(UID, tokenType, type);
+            bills.addAll(lockOrdersInfo);
+            bills.addAll(transferInfo);
+            //总排序
+            Collections.sort(bills, new Comparator<ResponseDWalletBillEntry>() {
+                @Override
+                public int compare(ResponseDWalletBillEntry o1, ResponseDWalletBillEntry o2) {
+                    return o2.getTransferTime().compareTo(o1.getTransferTime());
+                }
+            });
+        } else if (type == CodeRepresentation.LISTDETAILDWALLET_LOCK) {
+            List<ResponseDWalletBillEntry> lockOrdersInfo = listDetailDWalletLockOrdersInfo(UID, tokenType);
+            bills.addAll(lockOrdersInfo);
+        } else {
+            List<ResponseDWalletBillEntry> transferInfo = listDetailDWalletTransferInfo(UID, tokenType, type);
+            bills.addAll(transferInfo);
+        }
+        listCount = bills.size();
+        //设置返回信息
+        ResponseDWalletBill result = new ResponseDWalletBill(
+                wallets,
+                listCount,
+                bills);
+        return result;
+    }
+
+    /**
+     * 将交易记录封装成对象并展示
+     *
+     * @param UID
+     * @param tokenType
+     * @param type
+     * @return
+     */
+    @Override
+    public List<ResponseDWalletBillEntry> listDetailDWalletTransferInfo(String UID, Integer tokenType, Integer type) {
         double tokenPrice = commonService.getTokenPriceByType(tokenType);
         TransferExample transferExample = new TransferExample();
+        transferExample.setOrderByClause("createdTime DESC");
         TransferExample.Criteria criteria = transferExample.createCriteria();
         criteria.andUidEqualTo(UID);
         criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
-        //TODO type条件查询定义
+        ArrayList<Byte> list = new ArrayList<Byte>();
+        switch (type) {
+            case CodeRepresentation.LISTDETAILDWALLET_GAME:
+                list.add(CodeRepresentation.TRANSFER_TYPE_PAYGAME);
+                criteria.andTransfertypeIn(list);
+                break;
+            case CodeRepresentation.LISTDETAILDWALLET_TRANSFEROUT:
+                list.add(CodeRepresentation.TRANSFER_TYPE_ON2ON);
+                list.add(CodeRepresentation.TRANSFER_TYPE_PAYGAME);
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYAGENT);
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSRAM);
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET);
+                criteria.andTransfertypeIn(list);
+                break;
+            case CodeRepresentation.LISTDETAILDWALLET_AGENT:
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYAGENT);
+                list.add(CodeRepresentation.TRANSFER_TYPE_AGENTPROFIT);
+                criteria.andTransfertypeIn(list);
+                break;
+            case CodeRepresentation.LISTDETAILDWALLET_EOSSOURCE:
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSRAM);
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET);
+                criteria.andTransfertypeIn(list);
+                break;
+        }
         List<Transfer> transfers = transferMapper.selectByExample(transferExample);
-        int listCount = transfers.size();
-        List<ResponseDWalletBillEntry> bills = new ArrayList<ResponseDWalletBillEntry>();
+        List<ResponseDWalletBillEntry> res = new ArrayList<ResponseDWalletBillEntry>();
         String transferType, transferStatus, transferTime;
         double transferAmount, transferAmountToRMB;
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //获取交易记录并封装
         for (Transfer row : transfers) {
             transferType = CodeRepresentation.TRANSFER_TYPE_MAPPING.get(row.getTransfertype());
@@ -379,18 +460,41 @@ public class DWalletServiceImpl implements DWalletService {
             transferAmountToRMB = tokenPrice * row.getAmount();
             transferTime = format.format(row.getCreatedtime());
             ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, transferStatus, transferAmount, transferAmountToRMB, transferTime);
-            bills.add(bill);
+            res.add(bill);
         }
-        //设置返回信息
-        ResponseDWalletBill result = new ResponseDWalletBill(
-                walletInfo.getTokenName(),
-                walletInfo.getBalance(),
-                walletInfo.getBalance() * tokenPrice,
-                walletInfo.getLockedAmount(),
-                walletInfo.getTokenAddress(),
-                listCount,
-                bills);
-        return result;
+        return res;
+    }
+
+    /**
+     * 拿到锁仓的详细信息并进行封装展示
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public List<ResponseDWalletBillEntry> listDetailDWalletLockOrdersInfo(String UID, Integer tokenType) {
+        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
+        lockwarehouseExample.setOrderByClause("createdTime DESC");
+        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andTokentypeEqualTo(tokenType);
+        List<Lockwarehouse> lockwarehouses = lockwarehouseMapper.selectByExample(lockwarehouseExample);
+        List<ResponseDWalletBillEntry> list = new ArrayList<ResponseDWalletBillEntry>();
+        String transferType, transferStatus, transferTime;
+        double transferAmount, transferAmountToRMB;
+        double tokenPrice = commonService.getTokenPriceByType(tokenType);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (Lockwarehouse row : lockwarehouses) {
+            transferType = "锁仓";
+            transferStatus = CodeRepresentation.LOCK_STATUS_MAPPING.get(row.getStatus());
+            transferAmount = row.getAmount();
+            transferAmountToRMB = tokenPrice * row.getAmount();
+            transferTime = format.format(row.getCreatedtime());
+            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, transferStatus, transferAmount, transferAmountToRMB, transferTime);
+            list.add(bill);
+        }
+        return list;
     }
 
     /**
@@ -401,17 +505,17 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     public ResponseDWalletAssets listAssets(String UID) {
-        double allTokenAmountToRMB;
+        double allTokenAmountToRMB = 0, totalProfitToRMB;
         int listCount;
-        double eth_tokenPrice = 1.0;
-        double eos_tokenPrice = 1.0;
-        double bgs_tokenPrice = 1.0;
+        double eth_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_ETH);
+        double eos_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_EOS);
+        double bgs_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_BGS);
         CommonWalletInfo ethWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
-        CommonWalletInfo eosWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
         CommonWalletInfo bgsWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
         List<ResponseDWalletAssetsEntry> walletInfo = new ArrayList<ResponseDWalletAssetsEntry>();
         //TODO 收益计算
         ResponseDWalletAssetsEntry eth = new ResponseDWalletAssetsEntry(
+                CodeRepresentation.TOKENTYPE_ETH,
                 ethWalletInfo.getBalance(),
                 ethWalletInfo.getBalance() * eth_tokenPrice,
                 ethWalletInfo.getTokenName(),
@@ -420,6 +524,7 @@ public class DWalletServiceImpl implements DWalletService {
                 0
         );
         ResponseDWalletAssetsEntry bgs = new ResponseDWalletAssetsEntry(
+                CodeRepresentation.TOKENTYPE_BGS,
                 bgsWalletInfo.getBalance(),
                 bgsWalletInfo.getBalance() * bgs_tokenPrice,
                 bgsWalletInfo.getTokenName(),
@@ -427,20 +532,27 @@ public class DWalletServiceImpl implements DWalletService {
                 bgsWalletInfo.getLockedAmount(),
                 0
         );
-        ResponseDWalletAssetsEntry eos = new ResponseDWalletAssetsEntry(
-                eosWalletInfo.getBalance(),
-                eosWalletInfo.getBalance() * eos_tokenPrice,
-                eosWalletInfo.getTokenName(),
-                eosWalletInfo.getCanLock(),
-                eosWalletInfo.getLockedAmount(),
-                0
-        );
+        //EOS钱包需要做特判
+        if (commonService.hasEOSWallet(UID)) {
+            CommonWalletInfo eosWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+            ResponseDWalletAssetsEntry eos = new ResponseDWalletAssetsEntry(
+                    CodeRepresentation.TOKENTYPE_EOS,
+                    eosWalletInfo.getBalance(),
+                    eosWalletInfo.getBalance() * eos_tokenPrice,
+                    eosWalletInfo.getTokenName(),
+                    eosWalletInfo.getCanLock(),
+                    eosWalletInfo.getLockedAmount(),
+                    0
+            );
+            walletInfo.add(eos);
+            allTokenAmountToRMB += eos.getTokenAmountToRMB();
+        }
         walletInfo.add(eth);
         walletInfo.add(bgs);
-        walletInfo.add(eos);
-        allTokenAmountToRMB = eth.getTokenAmountToRMB() + bgs.getTokenAmountToRMB() + eos.getTokenAmountToRMB();
+        allTokenAmountToRMB = allTokenAmountToRMB + eth.getTokenAmountToRMB() + bgs.getTokenAmountToRMB();
+        totalProfitToRMB = cWalletService.listProfit(UID).getTotalProfitToRMB();
         listCount = walletInfo.size();
-        ResponseDWalletAssets result = new ResponseDWalletAssets(allTokenAmountToRMB, listCount, walletInfo);
+        ResponseDWalletAssets result = new ResponseDWalletAssets(allTokenAmountToRMB, totalProfitToRMB, listCount, walletInfo);
         return result;
     }
 
@@ -484,6 +596,66 @@ public class DWalletServiceImpl implements DWalletService {
     }
 
     /**
+     * 质押CPU
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public SuperResult trxEOSCPU(String UID) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_CPU;
+        String resp = HttpUtil.post(requestUrl, params);
+        SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        //如果成功，生成一笔交易记录
+        if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
+            Eostoken eostoken = eostokenMapper.selectByPrimaryKey(new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS));
+            boolean generateRecord = commonService.generateRecord(UID,
+                    CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET,
+                    (byte) CodeRepresentation.TOKENTYPE_EOS,
+                    CodeRepresentation.TRANSFER_SUCCESS,
+                    eostoken.getEosaccountname(),
+                    CodeRepresentation.SUPER_EOS,
+                    DynamicParameters.TRX_CPU_USER);
+            if (!generateRecord) {
+                System.out.println("生成购买CPU交易记录失败");
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 质押NET
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public SuperResult trxEOSNET(String UID) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_NET;
+        String resp = HttpUtil.post(requestUrl, params);
+        SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        //如果成功，生成一笔交易记录
+        if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
+            Eostoken eostoken = eostokenMapper.selectByPrimaryKey(new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS));
+            boolean generateRecord = commonService.generateRecord(UID,
+                    CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET,
+                    (byte) CodeRepresentation.TOKENTYPE_EOS,
+                    CodeRepresentation.TRANSFER_SUCCESS,
+                    eostoken.getEosaccountname(),
+                    CodeRepresentation.SUPER_EOS,
+                    DynamicParameters.TRX_NET_USER);
+            if (!generateRecord) {
+                System.out.println("生成购买NET交易记录失败");
+            }
+        }
+        return result;
+    }
+
+    /**
      * 获取某个锁仓订单的详情
      *
      * @param UID
@@ -498,6 +670,94 @@ public class DWalletServiceImpl implements DWalletService {
         //拿到锁仓详情
         ResponseDWalletLockedOrderEntry result = commonService.lockedOrderToEntry(row);
         return result;
+    }
+
+    /**
+     * 购买代理人
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    @Transactional
+    public SuperResult buyAgent(String UID) {
+        //如果用户没有EOS钱包 购买代理人失败
+        if (!commonService.hasEOSWallet(UID)) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.DONT_HAVE_EOSWALLET, null);
+        }
+        //开始购买代理人
+        double PRICE_BUYAGENT, INVITING_BGS;
+        try {
+            PRICE_BUYAGENT = Double.parseDouble(jedisClient.hget("operationCode", "PRICE_BUYAGENT"));
+            INVITING_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_INVITING_BGS"));
+        } catch (Exception e) {
+            PRICE_BUYAGENT = DynamicParameters.PRICE_BUYAGENT;
+            INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;
+        }
+        Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
+        if (user.getIsagency() == CodeRepresentation.USER_AGENT_ISAGENCY) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_0, null);
+        }
+        //拿到用户链上钱包余额
+        CommonWalletInfo eostoken = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+        //余额不足
+        if (eostoken.getBalance() < PRICE_BUYAGENT) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_1, null);
+        }
+        //购买代理人
+        SuperResult result = commonService.EOSTransfer(UID, PRICE_BUYAGENT, eostoken.getTokenAddress(), CodeRepresentation.SUPER_EOS, CodeRepresentation.EOS_TOKEN_TYPE_EOS, "购买代理人");
+        //购买失败
+        if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_BUYAGENT_CODE_0_STATUS_2, null);
+        }
+        //如果购买成功 1.设置用户为代理人 2.生成转账记录 3.使邀请该用户的人获得邀请BGS奖励
+        //设置用户为代理人
+        user.setIsagency(CodeRepresentation.USER_AGENT_ISAGENCY);
+        userbasicMapper.updateByPrimaryKey(user);
+        //转账记录
+        boolean genTransferRecord = commonService.generateRecord(UID,
+                CodeRepresentation.TRANSFER_TYPE_BUYAGENT,
+                Byte.valueOf(CodeRepresentation.TOKENTYPE_EOS + ""),
+                CodeRepresentation.TRANSFER_SUCCESS,
+                eostoken.getTokenAddress(),
+                CodeRepresentation.SUPER_EOS,
+                PRICE_BUYAGENT);
+        if (!genTransferRecord) {
+            try {
+                throw new Exception();
+            } catch (Exception e) {
+                System.out.println("生成购买代理人转账记录失败");
+            }
+        }
+        //使邀请该用户的人获得邀请BGS奖励
+        InviterExample inviterExample = new InviterExample();
+        InviterExample.Criteria criteria = inviterExample.createCriteria();
+        criteria.andBeinvitedidEqualTo(UID);
+        List<Inviter> list = inviterMapper.selectByExample(inviterExample);
+        if (list != null && list.size() != 0) {
+            Inviter inviter = list.get(0);
+            String inviterUID = inviter.getInviterid();
+            //更新邀请用户者的钱包，给他BGS奖励
+            cWalletService.updateBGSWalletAmount(inviterUID, DynamicParameters.PROFIT_INVITING_BGS, CodeRepresentation.CWALLET_MONEY_INC);
+            //同时生成一笔交易记录
+            EthtokenKey ethtokenKey = new EthtokenKey(inviterUID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+            Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
+            boolean genProfitRecord = commonService.generateRecord(inviterUID,
+                    CodeRepresentation.TRANSFER_TYPE_INVITINGBGS,
+                    Byte.valueOf(CodeRepresentation.TOKENTYPE_BGS + ""),
+                    CodeRepresentation.TRANSFER_SUCCESS,
+                    CodeRepresentation.SUPER_BGS,
+                    ethtoken.getEthaddress(),
+                    INVITING_BGS);
+            if (!genProfitRecord) {
+                try {
+                    throw new Exception();
+                } catch (Exception e) {
+                    System.out.println("生成BGS奖励转账记录失败");
+                }
+            }
+        }
+        return SuperResult.ok(MessageRepresentation.CWALLET_BUYAGENT_CODE_1_STATUS_0);
     }
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 public class ResponseDWalletAssets implements Serializable {
     private double allTokenAmountToRMB;
+    private double totalProfitToRMB;
     private int listCount;
     List<ResponseDWalletAssetsEntry> wallets;
 
@@ -20,6 +21,21 @@ public class ResponseDWalletAssets implements Serializable {
         this.allTokenAmountToRMB = allTokenAmountToRMB;
         this.listCount = listCount;
         this.wallets = wallets;
+    }
+
+    public ResponseDWalletAssets(double allTokenAmountToRMB, double totalProfitToRMB, int listCount, List<ResponseDWalletAssetsEntry> wallets) {
+        this.allTokenAmountToRMB = allTokenAmountToRMB;
+        this.totalProfitToRMB = totalProfitToRMB;
+        this.listCount = listCount;
+        this.wallets = wallets;
+    }
+
+    public double getTotalProfitToRMB() {
+        return totalProfitToRMB;
+    }
+
+    public void setTotalProfitToRMB(double totalProfitToRMB) {
+        this.totalProfitToRMB = totalProfitToRMB;
     }
 
     public double getAllTokenAmountToRMB() {

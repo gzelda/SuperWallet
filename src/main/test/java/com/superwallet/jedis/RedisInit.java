@@ -1,26 +1,32 @@
 package com.superwallet.jedis;
 
 import org.junit.Test;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.JedisShardInfo;
+import redis.clients.jedis.ShardedJedis;
+import redis.clients.jedis.ShardedJedisPool;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class RedisInit {
 
 
     @Test
     public void initRedis() {
-//        JedisPoolConfig config = new JedisPoolConfig();
-//        config.setMaxTotal(100);
-//        config.setMaxIdle(50);
-//        config.setMaxWaitMillis(3000);
-//        config.setTestOnBorrow(true);
-//        config.setTestOnReturn(true);
-//        JedisShardInfo info = new JedisShardInfo("aws", 6379);
-//        info.setPassword("root");
-//        List<JedisShardInfo> list = new LinkedList<JedisShardInfo>();
-//        list.add(info);
-//        ShardedJedisPool pool = new ShardedJedisPool(config, list);
-//        ShardedJedis jedis = pool.getResource();
-        Jedis jedis = new Jedis("aws", 6379);
+        JedisPoolConfig config = new JedisPoolConfig();
+        config.setMaxTotal(100);
+        config.setMaxIdle(50);
+        config.setMaxWaitMillis(3000);
+        config.setTestOnBorrow(true);
+        config.setTestOnReturn(true);
+        JedisShardInfo info = new JedisShardInfo("3.17.79.21", 6379);
+        info.setPassword("tygavingavin");
+        List<JedisShardInfo> list = new LinkedList<JedisShardInfo>();
+        list.add(info);
+        ShardedJedisPool pool = new ShardedJedisPool(config, list);
+        ShardedJedis jedis = pool.getResource();
+//        Jedis jedis = new Jedis("aws", 6379);
         //初始化开发人员专用数据信息
 //        jedis.hset("developerCode", "CODE_FAIL", "0");
 //        jedis.hset("developerCode", "CODE_SUCCESS", "1");
@@ -109,13 +115,34 @@ public class RedisInit {
         jedis.hset("operationCode", "MINI_WITHDRAW_ETH", "0");
         jedis.hset("operationCode", "MINI_WITHDRAW_EOS", "0");
         jedis.hset("operationCode", "MINI_WITHDRAW_BGS", "0");
-        jedis.hset("operationCode", "PRICE_BUYAGENT_BGS", "2");
+        jedis.hset("operationCode", "PRICE_BUYAGENT", "0.02");
         jedis.hset("operationCode", "MAX_DAILY_INVITING_COUNT", "2");
-        jedis.hset("operationCode", "PROFIT_INVITING_BGS", "50");
+        jedis.hset("operationCode", "PROFIT_REGISTER_BGS", "5");
         jedis.hset("operationCode", "PROFIT_DAPP_LOCK", "0.1");
         jedis.hset("operationCode", "PROFIT_DAPP_AGENT", "0.2");
         jedis.hset("operationCode", "PROFIT_DAPP_PLATFORM", "0.1");
+        jedis.hset("operationCode", "PROFIT_INVITING_BGS", "50");
+
+//        jedis.set("restWallet", "10000");
     }
 
+
+    @Test
+    public void getRedis() {
+        JedisPoolConfig config = new JedisPoolConfig();
+        config.setMaxTotal(100);
+        config.setMaxIdle(50);
+        config.setMaxWaitMillis(3000);
+        config.setTestOnBorrow(true);
+        config.setTestOnReturn(true);
+        JedisShardInfo info = new JedisShardInfo("3.17.79.21", 6379);
+        info.setPassword("tygavingavin");
+        List<JedisShardInfo> list = new LinkedList<JedisShardInfo>();
+        list.add(info);
+        ShardedJedisPool pool = new ShardedJedisPool(config, list);
+        ShardedJedis jedis = pool.getResource();
+        String restWallet = jedis.hget("operationCode", "PRICE_BUYAGENT");
+        System.out.println(restWallet);
+    }
 
 }

@@ -1,78 +1,31 @@
 package com.superwallet.response;
 
+import com.superwallet.common.CommonWalletInfo;
+
 import java.io.Serializable;
 import java.util.List;
 
 public class ResponseDWalletBill implements Serializable {
 
-    private String tokenName;
-    private double tokenAmount;
-    private double tokenAmountToRmb;
-    private double lockedAmount;
-    private String tokenAddress;
+    private List<CommonWalletInfo> wallets;
     private int listCount;
     private List<ResponseDWalletBillEntry> bills;
 
     public ResponseDWalletBill() {
     }
 
-    public ResponseDWalletBill(String tokenName, double tokenAmount, double tokenAmountToRmb, double lockedAmount, String tokenAddress, int listCount) {
-        this.tokenName = tokenName;
-        this.tokenAmount = tokenAmount;
-        this.tokenAmountToRmb = tokenAmountToRmb;
-        this.lockedAmount = lockedAmount;
-        this.tokenAddress = tokenAddress;
-        this.listCount = listCount;
-    }
-
-    public ResponseDWalletBill(String tokenName, double tokenAmount, double tokenAmountToRmb, double lockedAmount, String tokenAddress, int listCount, List<ResponseDWalletBillEntry> bills) {
-        this.tokenName = tokenName;
-        this.tokenAmount = tokenAmount;
-        this.tokenAmountToRmb = tokenAmountToRmb;
-        this.lockedAmount = lockedAmount;
-        this.tokenAddress = tokenAddress;
+    public ResponseDWalletBill(List<CommonWalletInfo> wallets, int listCount, List<ResponseDWalletBillEntry> bills) {
+        this.wallets = wallets;
         this.listCount = listCount;
         this.bills = bills;
     }
 
-    public String getTokenName() {
-        return tokenName;
+    public List<CommonWalletInfo> getWallets() {
+        return wallets;
     }
 
-    public void setTokenName(String tokenName) {
-        this.tokenName = tokenName;
-    }
-
-    public double getTokenAmount() {
-        return tokenAmount;
-    }
-
-    public void setTokenAmount(double tokenAmount) {
-        this.tokenAmount = tokenAmount;
-    }
-
-    public double getTokenAmountToRmb() {
-        return tokenAmountToRmb;
-    }
-
-    public void setTokenAmountToRmb(double tokenAmountToRmb) {
-        this.tokenAmountToRmb = tokenAmountToRmb;
-    }
-
-    public double getLockedAmount() {
-        return lockedAmount;
-    }
-
-    public void setLockedAmount(double lockedAmount) {
-        this.lockedAmount = lockedAmount;
-    }
-
-    public String getTokenAddress() {
-        return tokenAddress;
-    }
-
-    public void setTokenAddress(String tokenAddress) {
-        this.tokenAddress = tokenAddress;
+    public void setWallets(List<CommonWalletInfo> wallets) {
+        this.wallets = wallets;
     }
 
     public int getListCount() {

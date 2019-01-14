@@ -4,6 +4,7 @@ import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.MessageRepresentation;
 import com.superwallet.common.SuperResult;
 import com.superwallet.response.*;
+import com.superwallet.service.CommonService;
 import com.superwallet.service.DWalletService;
 import com.superwallet.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class DWalletController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private CommonService commonService;
 
     /**
      * 查询链上钱包信息
@@ -57,6 +61,10 @@ public class DWalletController {
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        //如果用户查询的是EOS钱包，则先去判断有无EOS钱包，无则直接返回
+        if (tokenType == CodeRepresentation.TOKENTYPE_EOS && !commonService.hasEOSWallet(UID)) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DONT_HAVE_EOSWALLET, null);
+        }
         ResponseDWalletBill res = dWalletService.listDetailDWalletInfo(UID, tokenType, type);
         SuperResult result = SuperResult.ok(res);
         result.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -175,8 +183,63 @@ public class DWalletController {
         return SuperResult.ok(result);
     }
 
+    @RequestMapping(value = "/dWallet/buyVIP", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult buyVIP(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        SuperResult result = dWalletService.buyAgent(UID);
+        return result;
+    }
+
     /**
-     * 质押、赎回EOS的CPUNET资源
+     * 质押CPU资源
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/dWallet/eosBank/trxCPU", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult trxCPU(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        //如果用户没有EOS账号
+        boolean hasEOSWallet = commonService.hasEOSWallet(UID);
+        if (!hasEOSWallet) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.DONT_HAVE_EOSWALLET, null);
+        }
+        SuperResult result = dWalletService.trxEOSCPU(UID);
+        return result;
+    }
+
+    /**
+     * 质押NET资源
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/dWallet/eosBank/trxNET", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult trxNET(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+        //如果用户没有EOS账号
+        boolean hasEOSWallet = commonService.hasEOSWallet(UID);
+        if (!hasEOSWallet) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.DONT_HAVE_EOSWALLET, null);
+        }
+        SuperResult result = dWalletService.trxEOSNET(UID);
+        return result;
+    }
+
+    /**
+     * 质押、赎回EOS的CPUNET资源 -- 已过时
      *
      * @param cpuAmount
      * @param netAmount

@@ -53,4 +53,14 @@ public interface CommonService {
 
     public String parseEOSJson(String value);
 
+    public boolean hasEOSWallet(String UID);
+
+    public SuperResult allocateEOSWallet(String UID);
+
+    public boolean updateUserEOSWallet(String UID);
+
+    public SuperResult createETHAddress(String UID);
+
+    public boolean hasMoreEOSWallet();
+
 }
