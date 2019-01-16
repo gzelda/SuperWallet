@@ -52,6 +52,12 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Autowired
     private JedisClient jedisClient;
 
+    @Autowired
+    private NotificationMapper notificationMapper;
+
+    @Autowired
+    private UserstatusMapper userstatusMapper;
+
     /**
      * 查看手机号是否已经被注册过
      *
@@ -146,8 +152,14 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         if (!genRecord) {
             System.out.println("生成注册时收益记录失败");
         }
-        //注册成功后推送一条消息
-        PushtoSingle.pushMessage("test", "test", "http://www.baidu.com");
+        //注册成功后往userstatus里写一条数据
+        Userstatus userstatus = new Userstatus(uid, CodeRepresentation.USERSTATUS_ON, new Date());
+        userstatusMapper.insert(userstatus);
+        //注册成功后推送一条消息，并且往notification表写一条数据
+        PushtoSingle.pushMessage("BGS注册成功", "恭喜您成功注册BGS平台，免费获得平台赠送的EOS钱包。如需任何帮助请联系微信客服号:tgsj868", "");
+        Notification notification = new Notification(uid, "BGS注册成功", "恭喜您成功注册BGS平台，免费获得平台赠送的EOS钱包。如需任何帮助请联系微信客服号:tgsj868");
+        notification.setCreatetime(new Date());
+        notificationMapper.insert(notification);
         return new SuperResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.REG_REG_CODE_1_STATUS_0, uid);
     }
 
@@ -192,6 +204,11 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //登录成功返回用户基本信息
         if (list != null && list.size() != 0) {
             Userbasic user = list.get(0);
+            //如果用户被禁止登录
+            Userstatus userstatus = userstatusMapper.selectByPrimaryKey(user.getUid());
+            if (userstatus.getState() == CodeRepresentation.USERSTATUS_PROFIT) {
+                return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.USERSTATUS_PROFIT, null);
+            }
             user.setPaypassword(null);
             user.setPaypassword(null);
             return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0, user);
@@ -215,6 +232,11 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //登录成功返回用户基本信息
         if (list != null && list.size() != 0) {
             Userbasic user = list.get(0);
+            //如果用户被禁止登录
+            Userstatus userstatus = userstatusMapper.selectByPrimaryKey(user.getUid());
+            if (userstatus.getState() == CodeRepresentation.USERSTATUS_PROFIT) {
+                return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.USERSTATUS_PROFIT, null);
+            }
             user.setPaypassword(null);
             user.setPaypassword(null);
             return new LoginResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_LOGINBYCODE_CODE_1_STATUS_0, user);

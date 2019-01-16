@@ -30,7 +30,7 @@ public class EOSScatterController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult result = eosScatterService.getOrRequestIdentity(UID);
         return result;
     }
@@ -41,7 +41,7 @@ public class EOSScatterController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult result = eosScatterService.identityFromPermissions(UID);
         return result;
     }
@@ -52,9 +52,9 @@ public class EOSScatterController {
 //        JSONObject json = JSONObject.parseObject(buf);
 //        String out = json.getString("buf");
         String UID = tokenService.getUID(request);
-//        登录超时
+        //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult result = eosScatterService.requestSignature(UID, buf);
         return result;
     }
@@ -68,7 +68,7 @@ public class EOSScatterController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult result = eosScatterService.getOriginData(data);
         return result;
     }

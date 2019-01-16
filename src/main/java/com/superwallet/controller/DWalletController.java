@@ -42,7 +42,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         List<ResponseDWalletSimpleInfo> walletInfos = dWalletService.listDWalletInfo(UID);
         SuperResult result = SuperResult.ok(walletInfos);
         result.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -60,7 +60,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         //如果用户查询的是EOS钱包，则先去判断有无EOS钱包，无则直接返回
         if (tokenType == CodeRepresentation.TOKENTYPE_EOS && !commonService.hasEOSWallet(UID)) {
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DONT_HAVE_EOSWALLET, null);
@@ -82,7 +82,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseDWalletAssets res = dWalletService.listAssets(UID);
         SuperResult result = SuperResult.ok(res);
         result.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -101,7 +101,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseDWalletLockedOrder res = dWalletService.listOrders(UID, tokenType);
         SuperResult result = SuperResult.ok(res);
         result.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -120,7 +120,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseDWalletLockedOrderEntry res = dWalletService.getOrder(UID, LID);
         SuperResult result = SuperResult.ok(res);
         result.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -142,7 +142,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult res = dWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice, addressTo, memo);
         return res;
     }
@@ -161,7 +161,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult res = dWalletService.lock(UID, tokenType, tokenAmount, gasPrice, period);
         return res;
     }
@@ -178,7 +178,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseDWalletEOSDetailInfo result = dWalletService.listEOSDetailInfo(UID);
         return SuperResult.ok(result);
     }
@@ -189,7 +189,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult result = dWalletService.buyAgent(UID);
         return result;
     }
@@ -206,7 +206,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         //如果用户没有EOS账号
         boolean hasEOSWallet = commonService.hasEOSWallet(UID);
         if (!hasEOSWallet) {
@@ -228,7 +228,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         //如果用户没有EOS账号
         boolean hasEOSWallet = commonService.hasEOSWallet(UID);
         if (!hasEOSWallet) {
@@ -252,7 +252,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         boolean res = dWalletService.buyOrSellEOSCPUNET(UID, cpuAmount, netAmount, actionType);
         if (!res) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
         SuperResult result = SuperResult.ok();
@@ -273,7 +273,7 @@ public class DWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         boolean res = dWalletService.buyOrSellRAM(UID, ramAmount, actionType);
         if (!res) return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, null);
         SuperResult result = SuperResult.ok();

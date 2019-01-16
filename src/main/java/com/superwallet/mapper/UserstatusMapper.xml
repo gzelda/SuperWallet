@@ -3,10 +3,8 @@
 <mapper namespace="com.superwallet.mapper.UserstatusMapper">
     <resultMap id="BaseResultMap" type="com.superwallet.pojo.Userstatus">
         <id column="UID" property="uid" jdbcType="CHAR"/>
-        <result column="lastOpTime" property="lastoptime" jdbcType="TIMESTAMP"/>
-        <result column="lastOpDevice" property="lastopdevice" jdbcType="VARCHAR"/>
-        <result column="invitedTime" property="invitedtime" jdbcType="TIMESTAMP"/>
         <result column="state" property="state" jdbcType="TINYINT"/>
+        <result column="updatedTime" property="updatedtime" jdbcType="TIMESTAMP"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -69,7 +67,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    UID, lastOpTime, lastOpDevice, invitedTime, state
+    UID, state, updatedTime
   </sql>
     <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.UserstatusExample">
         select
@@ -102,10 +100,10 @@
         </if>
     </delete>
     <insert id="insert" parameterType="com.superwallet.pojo.Userstatus">
-    insert into userstatus (UID, lastOpTime, lastOpDevice, 
-      invitedTime, state)
-    values (#{uid,jdbcType=CHAR}, #{lastoptime,jdbcType=TIMESTAMP}, #{lastopdevice,jdbcType=VARCHAR}, 
-      #{invitedtime,jdbcType=TIMESTAMP}, #{state,jdbcType=TINYINT})
+    insert into userstatus (UID, state, updatedTime
+      )
+    values (#{uid,jdbcType=CHAR}, #{state,jdbcType=TINYINT}, #{updatedtime,jdbcType=TIMESTAMP}
+      )
   </insert>
     <insert id="insertSelective" parameterType="com.superwallet.pojo.Userstatus">
         insert into userstatus
@@ -113,34 +111,22 @@
             <if test="uid != null">
                 UID,
             </if>
-            <if test="lastoptime != null">
-                lastOpTime,
-            </if>
-            <if test="lastopdevice != null">
-                lastOpDevice,
-            </if>
-            <if test="invitedtime != null">
-                invitedTime,
-            </if>
             <if test="state != null">
                 state,
+            </if>
+            <if test="updatedtime != null">
+                updatedTime,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="uid != null">
                 #{uid,jdbcType=CHAR},
             </if>
-            <if test="lastoptime != null">
-                #{lastoptime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="lastopdevice != null">
-                #{lastopdevice,jdbcType=VARCHAR},
-            </if>
-            <if test="invitedtime != null">
-                #{invitedtime,jdbcType=TIMESTAMP},
-            </if>
             <if test="state != null">
                 #{state,jdbcType=TINYINT},
+            </if>
+            <if test="updatedtime != null">
+                #{updatedtime,jdbcType=TIMESTAMP},
             </if>
         </trim>
     </insert>
@@ -156,17 +142,11 @@
             <if test="record.uid != null">
                 UID = #{record.uid,jdbcType=CHAR},
             </if>
-            <if test="record.lastoptime != null">
-                lastOpTime = #{record.lastoptime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="record.lastopdevice != null">
-                lastOpDevice = #{record.lastopdevice,jdbcType=VARCHAR},
-            </if>
-            <if test="record.invitedtime != null">
-                invitedTime = #{record.invitedtime,jdbcType=TIMESTAMP},
-            </if>
             <if test="record.state != null">
                 state = #{record.state,jdbcType=TINYINT},
+            </if>
+            <if test="record.updatedtime != null">
+                updatedTime = #{record.updatedtime,jdbcType=TIMESTAMP},
             </if>
         </set>
         <if test="_parameter != null">
@@ -176,10 +156,8 @@
     <update id="updateByExample" parameterType="map">
         update userstatus
         set UID = #{record.uid,jdbcType=CHAR},
-        lastOpTime = #{record.lastoptime,jdbcType=TIMESTAMP},
-        lastOpDevice = #{record.lastopdevice,jdbcType=VARCHAR},
-        invitedTime = #{record.invitedtime,jdbcType=TIMESTAMP},
-        state = #{record.state,jdbcType=TINYINT}
+        state = #{record.state,jdbcType=TINYINT},
+        updatedTime = #{record.updatedtime,jdbcType=TIMESTAMP}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
@@ -187,27 +165,19 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Userstatus">
         update userstatus
         <set>
-            <if test="lastoptime != null">
-                lastOpTime = #{lastoptime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="lastopdevice != null">
-                lastOpDevice = #{lastopdevice,jdbcType=VARCHAR},
-            </if>
-            <if test="invitedtime != null">
-                invitedTime = #{invitedtime,jdbcType=TIMESTAMP},
-            </if>
             <if test="state != null">
                 state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="updatedtime != null">
+                updatedTime = #{updatedtime,jdbcType=TIMESTAMP},
             </if>
         </set>
         where UID = #{uid,jdbcType=CHAR}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Userstatus">
     update userstatus
-    set lastOpTime = #{lastoptime,jdbcType=TIMESTAMP},
-      lastOpDevice = #{lastopdevice,jdbcType=VARCHAR},
-      invitedTime = #{invitedtime,jdbcType=TIMESTAMP},
-      state = #{state,jdbcType=TINYINT}
+    set state = #{state,jdbcType=TINYINT},
+      updatedTime = #{updatedtime,jdbcType=TIMESTAMP}
     where UID = #{uid,jdbcType=CHAR}
   </update>
 </mapper>

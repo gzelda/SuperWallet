@@ -2,6 +2,7 @@ package com.superwallet.mapper;
 
 import com.superwallet.pojo.Notification;
 import com.superwallet.pojo.NotificationExample;
+import com.superwallet.pojo.NotificationKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface NotificationMapper {
 
     int deleteByExample(NotificationExample example);
 
-    int deleteByPrimaryKey(Long nid);
+    int deleteByPrimaryKey(NotificationKey key);
 
     int insert(Notification record);
 
@@ -21,7 +22,7 @@ public interface NotificationMapper {
 
     List<Notification> selectByExample(NotificationExample example);
 
-    Notification selectByPrimaryKey(Long nid);
+    Notification selectByPrimaryKey(NotificationKey key);
 
     int updateByExampleSelective(@Param("record") Notification record, @Param("example") NotificationExample example);
 

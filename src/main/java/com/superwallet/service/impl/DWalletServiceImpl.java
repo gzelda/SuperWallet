@@ -68,6 +68,7 @@ public class DWalletServiceImpl implements DWalletService {
                             eos.getTokenType(),
                             eos.getTokenName(),
                             eos.getTokenAddress(),
+                            eos.getTokenPrice(),
                             eos.getBalance() * eos.getTokenPrice()
                     )
             );
@@ -79,6 +80,7 @@ public class DWalletServiceImpl implements DWalletService {
                         eth.getTokenType(),
                         eth.getTokenName(),
                         eth.getTokenAddress(),
+                        eth.getTokenPrice(),
                         eth.getBalance() * eth.getTokenPrice()
                 )
         );
@@ -88,6 +90,7 @@ public class DWalletServiceImpl implements DWalletService {
                         bgs.getTokenType(),
                         bgs.getTokenName(),
                         bgs.getTokenAddress(),
+                        bgs.getTokenPrice(),
                         bgs.getBalance() * bgs.getTokenPrice()
                 )
         );
@@ -107,6 +110,11 @@ public class DWalletServiceImpl implements DWalletService {
     @Override
     @Transactional
     public SuperResult transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, String addressTo, String memo) {
+        //转账额度小于最小额，直接返回
+        double minAmount = commonService.getMinTransferAmount(tokenType);
+        if (tokenAmount < minAmount) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_2, null);
+        }
         CommonWalletInfo wallet = commonService.getMappingDAndCWalletInfo(UID, tokenType);
         //余额不足 直接返回
         if (wallet.getBalance() < tokenAmount) {
@@ -174,6 +182,11 @@ public class DWalletServiceImpl implements DWalletService {
     @Override
     @Transactional
     public SuperResult lock(String UID, Integer tokenType, Double tokenAmount, Double gasPrice, Integer period) {
+        //判断锁仓额度是否小于最小额度
+        double minAmount = commonService.getMinLockAmount(tokenType);
+        if (tokenAmount < minAmount) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_2, null);
+        }
         if (gasPrice == null) gasPrice = 0d;
         CommonWalletInfo walletInfo = commonService.getMappingDAndCWalletInfo(UID, tokenType);
         //余额不足 直接失败
@@ -621,6 +634,10 @@ public class DWalletServiceImpl implements DWalletService {
             if (!generateRecord) {
                 System.out.println("生成购买CPU交易记录失败");
             }
+            result.setMsg(MessageRepresentation.DWALLET_TRXCPU_CODE_1_STATUS_0);
+            return result;
+        } else if (result.getCode() == CodeRepresentation.CODE_FAIL) {//质押CPU失败
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRXCPU_CODE_0_STATUS_0, null);
         }
         return result;
     }
@@ -651,6 +668,11 @@ public class DWalletServiceImpl implements DWalletService {
             if (!generateRecord) {
                 System.out.println("生成购买NET交易记录失败");
             }
+            result.setMsg(MessageRepresentation.DWALLET_TRXNET_CODE_1_STATUS_0);
+            return result;
+        } else if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRXNET_CODE_0_STATUS_0, null);
+
         }
         return result;
     }
@@ -688,8 +710,8 @@ public class DWalletServiceImpl implements DWalletService {
         //开始购买代理人
         double PRICE_BUYAGENT, INVITING_BGS;
         try {
-            PRICE_BUYAGENT = Double.parseDouble(jedisClient.hget("operationCode", "PRICE_BUYAGENT"));
-            INVITING_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_INVITING_BGS"));
+            PRICE_BUYAGENT = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PRICE_BUYAGENT));
+            INVITING_BGS = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PROFIT_INVITING_BGS));
         } catch (Exception e) {
             PRICE_BUYAGENT = DynamicParameters.PRICE_BUYAGENT;
             INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;

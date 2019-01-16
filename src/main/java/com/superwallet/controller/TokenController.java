@@ -34,7 +34,7 @@ public class TokenController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         SuperResult result = tokenService.getUserBasic(UID);
         return result;
     }
@@ -50,7 +50,7 @@ public class TokenController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseUserInvitingInfo result = tokenService.getInvitingInfo(UID);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -68,7 +68,7 @@ public class TokenController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseUserAgentInfo result = tokenService.getAgentInfo(UID);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);

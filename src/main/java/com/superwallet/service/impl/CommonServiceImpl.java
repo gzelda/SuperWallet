@@ -871,4 +871,125 @@ public class CommonServiceImpl implements CommonService {
         return false;
     }
 
+    /**
+     * 从redis里拿到对应币种的最小转账金额
+     *
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public double getMinTransferAmount(Integer tokenType) {
+        double result = 0;
+        switch (tokenType) {
+            case CodeRepresentation.TOKENTYPE_ETH:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_TRANSFER_ETH));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_TRANSFER_ETH;
+                }
+                break;
+            case CodeRepresentation.TOKENTYPE_EOS:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_TRANSFER_EOS));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_TRANSFER_EOS;
+                }
+                break;
+            case CodeRepresentation.TOKENTYPE_BGS:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_TRANSFER_BGS));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_TRANSFER_BGS;
+                }
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * 从redis中拿到提现最小额度
+     *
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public double getMinWithdrawAmount(Integer tokenType) {
+        double result = 0;
+        switch (tokenType) {
+            case CodeRepresentation.TOKENTYPE_ETH:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_WITHDRAW_ETH));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_WITHDRAW_ETH;
+                }
+                break;
+            case CodeRepresentation.TOKENTYPE_EOS:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_WITHDRAW_EOS));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_WITHDRAW_EOS;
+                }
+                break;
+            case CodeRepresentation.TOKENTYPE_BGS:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_WITHDRAW_BGS));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_WITHDRAW_BGS;
+                }
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * 从redis中拿到锁仓最小额度
+     *
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public double getMinLockAmount(Integer tokenType) {
+        double result = 0;
+        switch (tokenType) {
+            case CodeRepresentation.TOKENTYPE_ETH:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_LOCK_ETH));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_LOCK_ETH;
+                }
+                break;
+            case CodeRepresentation.TOKENTYPE_EOS:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_LOCK_EOS));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_LOCK_EOS;
+                }
+                break;
+            case CodeRepresentation.TOKENTYPE_BGS:
+                try {
+                    result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_LOCK_BGS));
+                } catch (Exception e) {
+                    result = DynamicParameters.MINI_LOCK_BGS;
+                }
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * 向node端回收钱包请求
+     *
+     * @param UID
+     * @return
+     */
+    @Override
+    public SuperResult recycleWallet(String UID) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.UID, UID);
+        String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_RECYCLEWALLET;
+        String resp = HttpUtil.post(requestUrl, params);
+        SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        return result;
+    }
+
 }

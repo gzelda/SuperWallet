@@ -75,14 +75,23 @@ public class MessageRepresentation implements Serializable {
     //2.链上钱包转账
     public static final String DWALLET_TRANSFER_CODE_0_STATUS_0 = "余额不足";
     public static final String DWALLET_TRANSFER_CODE_0_STATUS_1 = "转账失败";
+    public static final String DWALLET_TRANSFER_CODE_0_STATUS_2 = "额度低于最小额度";
     public static final String DWALLET_TRANSFER_CODE_1_STATUS_0 = "转账请求成功";
     //3.锁仓
     public static final String DWALLET_LOCK_CODE_0_STATUS_0 = "锁仓失败";
     public static final String DWALLET_LOCK_CODE_1_STATUS_0 = "锁仓成功";
-
+    //4.质押CPU、NET
+    public static final String DWALLET_TRXCPU_CODE_0_STATUS_0 = "质押CPU失败";
+    public static final String DWALLET_TRXCPU_CODE_1_STATUS_0 = "质押CPU成功";
+    public static final String DWALLET_TRXNET_CODE_0_STATUS_0 = "质押NET失败";
+    public static final String DWALLET_TRXNET_CODE_1_STATUS_0 = "质押NET成功";
     //系统error时返回信息
     public static final String ERROR_MSG = "对不起！系统正在进行维护";
 
     //用户没有EOS钱包
     public static final String DONT_HAVE_EOSWALLET = "对不起！您没有分配到EOS钱包";
+
+    //用户被禁止登录
+    public static final String USERSTATUS_PROFIT = "对不起！您正在小黑屋期间";
+
 }

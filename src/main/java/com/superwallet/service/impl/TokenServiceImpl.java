@@ -51,6 +51,7 @@ public class TokenServiceImpl implements TokenService {
         String uid = jedisClient.get(CodeRepresentation.SESSIONID_PREFIX + token);
         if (uid == null || uid.equals("")) return null;
         jedisClient.expire(CodeRepresentation.SESSIONID_PREFIX + token, CodeRepresentation.SESSION_EXPIRE);
+        jedisClient.set(CodeRepresentation.REDIS_PRE_LASTOP + uid, String.valueOf(System.currentTimeMillis()));
         return uid;
     }
 
@@ -64,7 +65,7 @@ public class TokenServiceImpl implements TokenService {
     public ResponseUserInvitingInfo getInvitingInfo(String UID) {
         double PROFIT_INVITING_BGS;
         try {
-            PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_INVITING_BGS"));
+            PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PROFIT_INVITING_BGS));
         } catch (Exception e) {
             PROFIT_INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;
         }

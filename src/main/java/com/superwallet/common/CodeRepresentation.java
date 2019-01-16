@@ -111,6 +111,10 @@ public class CodeRepresentation {
     public static final String EOSINFO = "eosInfo";
     public static final String BGSINFO = "bgsInfo";
 
+    //userStatus状态 0-正常 1-禁用
+    public static final byte USERSTATUS_ON = 0;
+    public static final byte USERSTATUS_PROFIT = 1;
+
     //现有币种总数
     public static final int COUNT_WALLETS = 3;
 
@@ -123,6 +127,9 @@ public class CodeRepresentation {
 
     //Cookie名称
     public static final String TOKEN_KEY = "token";
+    //redis中存用户活跃的前缀
+    public static final String REDIS_PRE_LASTOP = "lastOp:";
+
 
     //转账记录的状态值status
     public static final byte TRANSFER_FAIL = 0;
@@ -146,6 +153,31 @@ public class CodeRepresentation {
     public static final String TOKENPRICE_BGS = "bgs";
 
     //redis模块
+    public static final String REDIS_OPTCONF = "operationCode";
+    public static final String REDIS_MINI_TRANSFER_ETH = "MINI_TRANSFER_ETH";
+    public static final String REDIS_MINI_TRANSFER_EOS = "MINI_TRANSFER_EOS";
+    public static final String REDIS_MINI_TRANSFER_BGS = "MINI_TRANSFER_BGS";
+    public static final String REDIS_MINI_LOCK_ETH = "MINI_LOCK_ETH";
+    public static final String REDIS_MINI_LOCK_EOS = "MINI_LOCK_EOS";
+    public static final String REDIS_MINI_LOCK_BGS = "MINI_LOCK_BGS";
+    public static final String REDIS_PROFITWEIGHT_30 = "PROFITWEIGHT_30";
+    public static final String REDIS_PROFITWEIGHT_90 = "PROFITWEIGHT_90";
+    public static final String REDIS_PROFIT_BGS_LOCK_07 = "PROFIT_BGS_LOCK_07";
+    public static final String REDIS_PROFIT_BGS_LOCK_30 = "PROFIT_BGS_LOCK_30";
+    public static final String REDIS_PROFIT_BGS_LOCK_90 = "PROFIT_BGS_LOCK_90";
+    public static final String REDIS_MINI_WITHDRAW_ETH = "MINI_WITHDRAW_ETH";
+    public static final String REDIS_MINI_WITHDRAW_EOS = "MINI_WITHDRAW_EOS";
+    public static final String REDIS_MINI_WITHDRAW_BGS = "MINI_WITHDRAW_BGS";
+    public static final String REDIS_PRICE_BUYAGENT = "PRICE_BUYAGENT";
+    public static final String REDIS_MAX_DAILY_INVITING_COUNT = "MAX_DAILY_INVITING_COUNT";
+    public static final String REDIS_PROFIT_REGISTER_BGS = "PROFIT_REGISTER_BGS";
+    public static final String REDIS_PROFIT_DAPP_LOCK = "PROFIT_DAPP_LOCK";
+    public static final String REDIS_PROFIT_DAPP_AGENT = "PROFIT_DAPP_AGENT";
+    public static final String REDIS_PROFIT_DAPP_PLATFORM = "PROFIT_DAPP_PLATFORM";
+    public static final String REDIS_PROFIT_INVITING_BGS = "PROFIT_INVITING_BGS";
+    public static final String REDIS_RECYCLE_MIN_AMOUNT = "RECYCLE_MIN_AMOUNT";
+    public static final String REDIS_RECYCLE_INTERVALTIME = "RECYCLE_INTERVALTIME";
+
     public static final String REDIS_REMAINEOSWALLET = "restWallet";
 
     //查询链上钱包详情模块--条件查询类型对应
@@ -175,6 +207,7 @@ public class CodeRepresentation {
     public static final String NODE_ACTION_CREATEETH = "/eth/createAccount";
     public static final String NODE_ACTION_CREATEEOS = "/eos/createAccount";
     public static final String NODE_ACTION_ALLOCATEEOSWALLET = "/eos/wallet/allocateWallet";
+    public static final String NODE_ACTION_RECYCLEWALLET = "/eos/wallet/recycleWallet";
     public static final String NODE_ACTION_ETHTRANSFER = "/eth/transfer";
     public static final String NODE_ACTION_EOSTRANSFER = "/eos/transfer";
     public static final String NODE_ACTION_EOS_NETCPU = "/eos/trxCPUNET";

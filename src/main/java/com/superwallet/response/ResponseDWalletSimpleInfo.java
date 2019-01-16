@@ -6,17 +6,23 @@ public class ResponseDWalletSimpleInfo implements Serializable {
     private int tokenType;
     private String tokenName;
     private String tokenAddress;
+    private double tokenPrice;
     private double tokenPriceToRMB;
 
 
     public ResponseDWalletSimpleInfo() {
     }
 
-    public ResponseDWalletSimpleInfo(int tokenType, String tokenName, String tokenAddress, double tokenPriceToRMB) {
+    public ResponseDWalletSimpleInfo(int tokenType, String tokenName, String tokenAddress, double tokenPrice, double tokenPriceToRMB) {
         this.tokenType = tokenType;
         this.tokenName = tokenName;
         this.tokenAddress = tokenAddress;
+        this.tokenPrice = tokenPrice;
         this.tokenPriceToRMB = tokenPriceToRMB;
+    }
+
+    public double getTokenPrice() {
+        return tokenPrice;
     }
 
     public int getTokenType() {

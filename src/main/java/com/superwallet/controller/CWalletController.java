@@ -44,7 +44,7 @@ public class CWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         List<CWalletInfo> walletInfos = cWalletService.listCWalletInfo(UID);
         //如果钱包返回总量信息不对，将返回系统异常
         if (walletInfos.size() != CodeRepresentation.COUNT_WALLETS)
@@ -72,7 +72,7 @@ public class CWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         boolean result = cWalletService.transferMoney(UID, tokenType, tokenAmount, gasPrice);
         if (result) {
             SuperResult out = SuperResult.ok();
@@ -95,7 +95,7 @@ public class CWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         boolean result = cWalletService.withdrawRequest(UID, tokenType, tokenAmount);
         if (result) return SuperResult.ok(MessageRepresentation.CWALLET_WITHDRAWREQUEST_CODE_1_STATUS_0);
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_WITHDRAWREQUEST_CODE_0_STATUS_0, null);
@@ -114,7 +114,7 @@ public class CWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         boolean result = cWalletService.withdraw(UID, WID, tokenType, tokenAmount, gasPrice);
         if (result) return SuperResult.ok(MessageRepresentation.CWALLET_WITHDRAW_CODE_1_STATUS_0);
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_WITHDRAW_CODE_0_STATUS_0, null);
@@ -132,7 +132,7 @@ public class CWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         //获取历史交易
         List<Transfer> list = cWalletService.listHistoryBills(UID, tokenType);
         SuperResult result = SuperResult.ok(list);
@@ -151,7 +151,7 @@ public class CWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseCWalletSimProfit result = cWalletService.listProfit(UID);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
@@ -170,7 +170,7 @@ public class CWalletController {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
-            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT);
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
         ResponseCWalletProfit result = cWalletService.listDetailProfit(UID, tokenType, type);
         SuperResult out = SuperResult.ok(result);
         out.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);

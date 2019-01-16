@@ -184,6 +184,11 @@ public class CWalletServiceImpl implements CWalletService {
     @Override
     @Transactional
     public boolean withdrawRequest(String UID, Integer tokenType, Double tokenAmount) {
+        //判断提现额度是否小于最小额度
+        double minAmount = commonService.getMinWithdrawAmount(tokenType);
+        if (tokenAmount < minAmount) {
+            return false;
+        }
         //拿到中心钱包信息
         EthtokenKey ethtokenKey = new EthtokenKey();
         EostokenKey eostokenKey = new EostokenKey();

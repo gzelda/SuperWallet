@@ -3,7 +3,9 @@
 <mapper namespace="com.superwallet.mapper.NotificationMapper">
     <resultMap id="BaseResultMap" type="com.superwallet.pojo.Notification">
         <id column="nid" property="nid" jdbcType="BIGINT"/>
-        <result column="protocol" property="protocol" jdbcType="VARCHAR"/>
+        <id column="UID" property="uid" jdbcType="CHAR"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="createTime" property="createtime" jdbcType="TIMESTAMP"/>
     </resultMap>
     <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Notification" extends="BaseResultMap">
         <result column="notice" property="notice" jdbcType="LONGVARCHAR"/>
@@ -69,7 +71,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-    nid, protocol
+    nid, UID, title, createTime
   </sql>
     <sql id="Blob_Column_List">
     notice
@@ -105,17 +107,19 @@
             order by ${orderByClause}
         </if>
     </select>
-    <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long">
+    <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="com.superwallet.pojo.NotificationKey">
         select
         <include refid="Base_Column_List"/>
         ,
         <include refid="Blob_Column_List"/>
         from notification
         where nid = #{nid,jdbcType=BIGINT}
+        and UID = #{uid,jdbcType=CHAR}
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.NotificationKey">
     delete from notification
     where nid = #{nid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
   </delete>
     <delete id="deleteByExample" parameterType="com.superwallet.pojo.NotificationExample">
         delete from notification
@@ -124,10 +128,10 @@
         </if>
     </delete>
     <insert id="insert" parameterType="com.superwallet.pojo.Notification">
-    insert into notification (nid, protocol, notice
-      )
-    values (#{nid,jdbcType=BIGINT}, #{protocol,jdbcType=VARCHAR}, #{notice,jdbcType=LONGVARCHAR}
-      )
+    insert into notification (nid, UID, title, 
+      createTime, notice)
+    values (#{nid,jdbcType=BIGINT}, #{uid,jdbcType=CHAR}, #{title,jdbcType=VARCHAR}, 
+      #{createtime,jdbcType=TIMESTAMP}, #{notice,jdbcType=LONGVARCHAR})
   </insert>
     <insert id="insertSelective" parameterType="com.superwallet.pojo.Notification">
         insert into notification
@@ -135,8 +139,14 @@
             <if test="nid != null">
                 nid,
             </if>
-            <if test="protocol != null">
-                protocol,
+            <if test="uid != null">
+                UID,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="createtime != null">
+                createTime,
             </if>
             <if test="notice != null">
                 notice,
@@ -146,8 +156,14 @@
             <if test="nid != null">
                 #{nid,jdbcType=BIGINT},
             </if>
-            <if test="protocol != null">
-                #{protocol,jdbcType=VARCHAR},
+            <if test="uid != null">
+                #{uid,jdbcType=CHAR},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
             </if>
             <if test="notice != null">
                 #{notice,jdbcType=LONGVARCHAR},
@@ -166,8 +182,14 @@
             <if test="record.nid != null">
                 nid = #{record.nid,jdbcType=BIGINT},
             </if>
-            <if test="record.protocol != null">
-                protocol = #{record.protocol,jdbcType=VARCHAR},
+            <if test="record.uid != null">
+                UID = #{record.uid,jdbcType=CHAR},
+            </if>
+            <if test="record.title != null">
+                title = #{record.title,jdbcType=VARCHAR},
+            </if>
+            <if test="record.createtime != null">
+                createTime = #{record.createtime,jdbcType=TIMESTAMP},
             </if>
             <if test="record.notice != null">
                 notice = #{record.notice,jdbcType=LONGVARCHAR},
@@ -180,7 +202,9 @@
     <update id="updateByExampleWithBLOBs" parameterType="map">
         update notification
         set nid = #{record.nid,jdbcType=BIGINT},
-        protocol = #{record.protocol,jdbcType=VARCHAR},
+        UID = #{record.uid,jdbcType=CHAR},
+        title = #{record.title,jdbcType=VARCHAR},
+        createTime = #{record.createtime,jdbcType=TIMESTAMP},
         notice = #{record.notice,jdbcType=LONGVARCHAR}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
@@ -189,7 +213,9 @@
     <update id="updateByExample" parameterType="map">
         update notification
         set nid = #{record.nid,jdbcType=BIGINT},
-        protocol = #{record.protocol,jdbcType=VARCHAR}
+        UID = #{record.uid,jdbcType=CHAR},
+        title = #{record.title,jdbcType=VARCHAR},
+        createTime = #{record.createtime,jdbcType=TIMESTAMP}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
@@ -197,24 +223,32 @@
     <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Notification">
         update notification
         <set>
-            <if test="protocol != null">
-                protocol = #{protocol,jdbcType=VARCHAR},
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="createtime != null">
+                createTime = #{createtime,jdbcType=TIMESTAMP},
             </if>
             <if test="notice != null">
                 notice = #{notice,jdbcType=LONGVARCHAR},
             </if>
         </set>
         where nid = #{nid,jdbcType=BIGINT}
+        and UID = #{uid,jdbcType=CHAR}
     </update>
     <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.Notification">
     update notification
-    set protocol = #{protocol,jdbcType=VARCHAR},
+    set title = #{title,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
       notice = #{notice,jdbcType=LONGVARCHAR}
     where nid = #{nid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
   </update>
     <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Notification">
     update notification
-    set protocol = #{protocol,jdbcType=VARCHAR}
+    set title = #{title,jdbcType=VARCHAR},
+      createTime = #{createtime,jdbcType=TIMESTAMP}
     where nid = #{nid,jdbcType=BIGINT}
+      and UID = #{uid,jdbcType=CHAR}
   </update>
 </mapper>

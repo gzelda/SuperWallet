@@ -11,7 +11,7 @@ create table userbasic(
     nickName varchar(20) not null,
     sex tinyint not null,
     isAgency tinyint not null,
-    headPhoto blob,
+    headPhoto longblob,
     phoneNumber char(15) not null,
     inviter char(20),
     status tinyint,
@@ -32,12 +32,12 @@ create table inviter(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- 用户状态信息表--
+-- 0-允许 1-禁用 --
 drop table if exists userstatus;
 create table userstatus(
     UID char(100) not null,
-    lastOpTime timestamp,
-    lastOpDevice varchar(70),
     state tinyint,
+    updatedTime timestamp,
     primary key(UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -217,9 +217,11 @@ create table if not exists gameList(
 drop table if exists notification;
 create table notification(
     nid bigint unsigned auto_increment not null,
-    protocol varchar(20),
+    UID char(100) not null,
+    title varchar(100) not null,
+    createTime timestamp not null,
     notice text,
-    primary key(nid)
+    primary key(nid,UID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

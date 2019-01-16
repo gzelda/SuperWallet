@@ -44,4 +44,9 @@ public class DynamicParameters implements Serializable {
     public static final double TRX_CPU_USER = 0.05;
     public static final double TRX_NET_USER = 0.05;
 
+    //钱包回收相关（最小额度、活跃间隔)
+    public static final double RECYCLE_MIN_AMOUNT = 0.1;
+    public static final int RECYCLE_INTERVALTIME = 24;
+
+
 }

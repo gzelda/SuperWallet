@@ -1,17 +1,23 @@
 package com.superwallet.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Userstatus {
+public class Userstatus implements Serializable {
     private String uid;
 
-    private Date lastoptime;
-
-    private String lastopdevice;
-
-    private Date invitedtime;
-
     private Byte state;
+
+    private Date updatedtime;
+
+    public Userstatus() {
+    }
+
+    public Userstatus(String uid, Byte state, Date updatedtime) {
+        this.uid = uid;
+        this.state = state;
+        this.updatedtime = updatedtime;
+    }
 
     public String getUid() {
         return uid;
@@ -21,35 +27,19 @@ public class Userstatus {
         this.uid = uid == null ? null : uid.trim();
     }
 
-    public Date getLastoptime() {
-        return lastoptime;
-    }
-
-    public void setLastoptime(Date lastoptime) {
-        this.lastoptime = lastoptime;
-    }
-
-    public String getLastopdevice() {
-        return lastopdevice;
-    }
-
-    public void setLastopdevice(String lastopdevice) {
-        this.lastopdevice = lastopdevice == null ? null : lastopdevice.trim();
-    }
-
-    public Date getInvitedtime() {
-        return invitedtime;
-    }
-
-    public void setInvitedtime(Date invitedtime) {
-        this.invitedtime = invitedtime;
-    }
-
     public Byte getState() {
         return state;
     }
 
     public void setState(Byte state) {
         this.state = state;
+    }
+
+    public Date getUpdatedtime() {
+        return updatedtime;
+    }
+
+    public void setUpdatedtime(Date updatedtime) {
+        this.updatedtime = updatedtime;
     }
 }

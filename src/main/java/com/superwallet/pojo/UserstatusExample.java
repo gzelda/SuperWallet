@@ -175,196 +175,6 @@ public class UserstatusExample {
             return (Criteria) this;
         }
 
-        public Criteria andLastoptimeIsNull() {
-            addCriterion("lastOpTime is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeIsNotNull() {
-            addCriterion("lastOpTime is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeEqualTo(Date value) {
-            addCriterion("lastOpTime =", value, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeNotEqualTo(Date value) {
-            addCriterion("lastOpTime <>", value, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeGreaterThan(Date value) {
-            addCriterion("lastOpTime >", value, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeGreaterThanOrEqualTo(Date value) {
-            addCriterion("lastOpTime >=", value, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeLessThan(Date value) {
-            addCriterion("lastOpTime <", value, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeLessThanOrEqualTo(Date value) {
-            addCriterion("lastOpTime <=", value, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeIn(List<Date> values) {
-            addCriterion("lastOpTime in", values, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeNotIn(List<Date> values) {
-            addCriterion("lastOpTime not in", values, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeBetween(Date value1, Date value2) {
-            addCriterion("lastOpTime between", value1, value2, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastoptimeNotBetween(Date value1, Date value2) {
-            addCriterion("lastOpTime not between", value1, value2, "lastoptime");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceIsNull() {
-            addCriterion("lastOpDevice is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceIsNotNull() {
-            addCriterion("lastOpDevice is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceEqualTo(String value) {
-            addCriterion("lastOpDevice =", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceNotEqualTo(String value) {
-            addCriterion("lastOpDevice <>", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceGreaterThan(String value) {
-            addCriterion("lastOpDevice >", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceGreaterThanOrEqualTo(String value) {
-            addCriterion("lastOpDevice >=", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceLessThan(String value) {
-            addCriterion("lastOpDevice <", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceLessThanOrEqualTo(String value) {
-            addCriterion("lastOpDevice <=", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceLike(String value) {
-            addCriterion("lastOpDevice like", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceNotLike(String value) {
-            addCriterion("lastOpDevice not like", value, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceIn(List<String> values) {
-            addCriterion("lastOpDevice in", values, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceNotIn(List<String> values) {
-            addCriterion("lastOpDevice not in", values, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceBetween(String value1, String value2) {
-            addCriterion("lastOpDevice between", value1, value2, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andLastopdeviceNotBetween(String value1, String value2) {
-            addCriterion("lastOpDevice not between", value1, value2, "lastopdevice");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeIsNull() {
-            addCriterion("invitedTime is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeIsNotNull() {
-            addCriterion("invitedTime is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeEqualTo(Date value) {
-            addCriterion("invitedTime =", value, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeNotEqualTo(Date value) {
-            addCriterion("invitedTime <>", value, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeGreaterThan(Date value) {
-            addCriterion("invitedTime >", value, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeGreaterThanOrEqualTo(Date value) {
-            addCriterion("invitedTime >=", value, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeLessThan(Date value) {
-            addCriterion("invitedTime <", value, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeLessThanOrEqualTo(Date value) {
-            addCriterion("invitedTime <=", value, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeIn(List<Date> values) {
-            addCriterion("invitedTime in", values, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeNotIn(List<Date> values) {
-            addCriterion("invitedTime not in", values, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeBetween(Date value1, Date value2) {
-            addCriterion("invitedTime between", value1, value2, "invitedtime");
-            return (Criteria) this;
-        }
-
-        public Criteria andInvitedtimeNotBetween(Date value1, Date value2) {
-            addCriterion("invitedTime not between", value1, value2, "invitedtime");
-            return (Criteria) this;
-        }
-
         public Criteria andStateIsNull() {
             addCriterion("state is null");
             return (Criteria) this;
@@ -422,6 +232,66 @@ public class UserstatusExample {
 
         public Criteria andStateNotBetween(Byte value1, Byte value2) {
             addCriterion("state not between", value1, value2, "state");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeIsNull() {
+            addCriterion("updatedTime is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeIsNotNull() {
+            addCriterion("updatedTime is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeEqualTo(Date value) {
+            addCriterion("updatedTime =", value, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeNotEqualTo(Date value) {
+            addCriterion("updatedTime <>", value, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeGreaterThan(Date value) {
+            addCriterion("updatedTime >", value, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("updatedTime >=", value, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeLessThan(Date value) {
+            addCriterion("updatedTime <", value, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeLessThanOrEqualTo(Date value) {
+            addCriterion("updatedTime <=", value, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeIn(List<Date> values) {
+            addCriterion("updatedTime in", values, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeNotIn(List<Date> values) {
+            addCriterion("updatedTime not in", values, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeBetween(Date value1, Date value2) {
+            addCriterion("updatedTime between", value1, value2, "updatedtime");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdatedtimeNotBetween(Date value1, Date value2) {
+            addCriterion("updatedTime not between", value1, value2, "updatedtime");
             return (Criteria) this;
         }
     }

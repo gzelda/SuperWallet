@@ -1,5 +1,6 @@
 package com.superwallet.jedis;
 
+import com.superwallet.utils.SHA1;
 import org.junit.Test;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisShardInfo;
@@ -122,6 +123,9 @@ public class RedisInit {
         jedis.hset("operationCode", "PROFIT_DAPP_AGENT", "0.2");
         jedis.hset("operationCode", "PROFIT_DAPP_PLATFORM", "0.1");
         jedis.hset("operationCode", "PROFIT_INVITING_BGS", "50");
+        jedis.hset("operationCode", "RECYCLE_MIN_AMOUNT", "0.1");
+        jedis.hset("operationCode", "RECYCLE_INTERVALTIME", "24");
+
 
 //        jedis.set("restWallet", "10000");
     }
@@ -141,8 +145,14 @@ public class RedisInit {
         list.add(info);
         ShardedJedisPool pool = new ShardedJedisPool(config, list);
         ShardedJedis jedis = pool.getResource();
-        String restWallet = jedis.hget("operationCode", "PRICE_BUYAGENT");
-        System.out.println(restWallet);
+//        String restWallet = jedis.hget("operationCode", "PRICE_BUYAGENT");
+//        String restWallet = jedis.get("restWallet");
+//        System.out.println(restWallet);
+//        jedis.set("restWallet","54");
+//        String s = jedis.get("lastOp:b53037c1-d1b6-4314-b647-142d626bb0e8");
+//        System.out.println(s);
+        String encode = SHA1.encode("fd62bc0b-06fa-4ce8-965b-04aed4fa1e48");
+        System.out.println(encode);
     }
 
 }
