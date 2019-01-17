@@ -2,9 +2,9 @@ package com.superwallet.service.impl;
 
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.CommonWalletInfo;
-import com.superwallet.common.DynamicParameters;
 import com.superwallet.common.SuperResult;
 import com.superwallet.mapper.EostokenMapper;
+import com.superwallet.mapper.OptconfMapper;
 import com.superwallet.mapper.UserbasicMapper;
 import com.superwallet.pojo.Eostoken;
 import com.superwallet.pojo.EostokenKey;
@@ -34,6 +34,9 @@ public class RecycleWalletServiceImpl implements RecycleWalletService {
     @Autowired
     private CommonService commonService;
 
+    @Autowired
+    private OptconfMapper optconfMapper;
+
     /**
      * 钱包回收
      *
@@ -53,8 +56,8 @@ public class RecycleWalletServiceImpl implements RecycleWalletService {
             recycleMinAmount = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_RECYCLE_MIN_AMOUNT));
             recycleIntervalTime = Long.parseLong(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_RECYCLE_INTERVALTIME));
         } catch (Exception e) {
-            recycleMinAmount = DynamicParameters.RECYCLE_MIN_AMOUNT;
-            recycleIntervalTime = DynamicParameters.RECYCLE_INTERVALTIME;
+            recycleMinAmount = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_RECYCLE_MIN_AMOUNT).getConfvalue());
+            recycleIntervalTime = Long.parseLong(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_RECYCLE_INTERVALTIME).getConfvalue());
         }
         //转换成毫秒
         recycleIntervalTime = recycleIntervalTime * 60 * 60 * 1000;
@@ -78,12 +81,13 @@ public class RecycleWalletServiceImpl implements RecycleWalletService {
                 //满足回收条件
                 if (time >= recycleIntervalTime) {
                     commonService.recycleWallet(uid);
+                    recycleUsers.add(uid);
                 }
             } catch (Exception e) {
                 //如果解析不到redis数据，则不回收
                 System.out.println("解析钱包回收key失败");
             }
         }
-        return null;
+        return SuperResult.ok(recycleUsers);
     }
 }

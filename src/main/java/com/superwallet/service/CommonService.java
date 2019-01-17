@@ -70,4 +70,8 @@ public interface CommonService {
     double getMinLockAmount(Integer tokenType);
 
     SuperResult recycleWallet(String UID);
+
+    int isIncoming(Byte transferType);
+
+    int invitingOrRegister(Byte transferType);
 }

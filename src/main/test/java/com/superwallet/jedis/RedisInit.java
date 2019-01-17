@@ -102,30 +102,32 @@ public class RedisInit {
 //        jedis.hset("developerCode", "NODE_ACTION_EOS_ACCOUNTINFO", "/eos/getAccount");
 //        jedis.hset("developerCode", "NODE_ACTION_ETH_ACCOUNTINFO", "/eth/getBalance");
         //初始化业务人员专用信息
-        jedis.hset("operationCode", "MINI_TRANSFER_ETH", "0");
-        jedis.hset("operationCode", "MINI_TRANSFER_EOS", "0");
-        jedis.hset("operationCode", "MINI_TRANSFER_BGS", "0");
-        jedis.hset("operationCode", "MINI_LOCK_ETH", "0");
-        jedis.hset("operationCode", "MINI_LOCK_EOS", "0");
-        jedis.hset("operationCode", "MINI_LOCK_BGS", "0");
-        jedis.hset("operationCode", "PROFITWEIGHT_30", "1");
-        jedis.hset("operationCode", "PROFITWEIGHT_90", "1");
-        jedis.hset("operationCode", "PROFIT_BGS_LOCK_07", "1");
-        jedis.hset("operationCode", "PROFIT_BGS_LOCK_30", "2");
-        jedis.hset("operationCode", "PROFIT_BGS_LOCK_90", "3");
-        jedis.hset("operationCode", "MINI_WITHDRAW_ETH", "0");
-        jedis.hset("operationCode", "MINI_WITHDRAW_EOS", "0");
-        jedis.hset("operationCode", "MINI_WITHDRAW_BGS", "0");
-        jedis.hset("operationCode", "PRICE_BUYAGENT", "0.02");
-        jedis.hset("operationCode", "MAX_DAILY_INVITING_COUNT", "2");
-        jedis.hset("operationCode", "PROFIT_REGISTER_BGS", "5");
-        jedis.hset("operationCode", "PROFIT_DAPP_LOCK", "0.1");
-        jedis.hset("operationCode", "PROFIT_DAPP_AGENT", "0.2");
-        jedis.hset("operationCode", "PROFIT_DAPP_PLATFORM", "0.1");
-        jedis.hset("operationCode", "PROFIT_INVITING_BGS", "50");
-        jedis.hset("operationCode", "RECYCLE_MIN_AMOUNT", "0.1");
-        jedis.hset("operationCode", "RECYCLE_INTERVALTIME", "24");
-
+//        jedis.hset("operationCode", "MINI_TRANSFER_ETH", "0");
+//        jedis.hset("operationCode", "MINI_TRANSFER_EOS", "0");
+//        jedis.hset("operationCode", "MINI_TRANSFER_BGS", "0");
+//        jedis.hset("operationCode", "MINI_LOCK_ETH", "0");
+//        jedis.hset("operationCode", "MINI_LOCK_EOS", "0");
+//        jedis.hset("operationCode", "MINI_LOCK_BGS", "0");
+//        jedis.hset("operationCode", "PROFITWEIGHT_30", "1");
+//        jedis.hset("operationCode", "PROFITWEIGHT_90", "1");
+//        jedis.hset("operationCode", "PROFIT_BGS_LOCK_07", "1");
+//        jedis.hset("operationCode", "PROFIT_BGS_LOCK_30", "2");
+//        jedis.hset("operationCode", "PROFIT_BGS_LOCK_90", "3");
+//        jedis.hset("operationCode", "MINI_WITHDRAW_ETH", "0");
+//        jedis.hset("operationCode", "MINI_WITHDRAW_EOS", "0");
+//        jedis.hset("operationCode", "MINI_WITHDRAW_BGS", "0");
+//        jedis.hset("operationCode", "PRICE_BUYAGENT", "0.02");
+//        jedis.hset("operationCode", "MAX_DAILY_INVITING_COUNT", "2");
+//        jedis.hset("operationCode", "PROFIT_REGISTER_BGS", "5");
+//        jedis.hset("operationCode", "PROFIT_DAPP_LOCK", "0.1");
+//        jedis.hset("operationCode", "PROFIT_DAPP_AGENT", "0.2");
+//        jedis.hset("operationCode", "PROFIT_DAPP_PLATFORM", "0.1");
+//        jedis.hset("operationCode", "PROFIT_INVITING_BGS", "50");
+//        jedis.hset("operationCode", "RECYCLE_MIN_AMOUNT", "0.1");
+//        jedis.hset("operationCode", "RECYCLE_INTERVALTIME", "24");
+        jedis.hset("tokenprice", "eth", "814.08");
+        jedis.hset("tokenprice", "eos", "16.25");
+        jedis.hset("tokenprice", "bgs", "0.01");
 
 //        jedis.set("restWallet", "10000");
     }

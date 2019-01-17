@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class ResponseDWalletLockedOrderSimEntry implements Serializable {
     private String LID;
     private String tokenName;
-    private String lockedOrderState;
+    private int lockedOrderState;
     private double lockedOrderInTimeProfit;
     private double lockedDay;
     private double period;
@@ -14,7 +14,7 @@ public class ResponseDWalletLockedOrderSimEntry implements Serializable {
     public ResponseDWalletLockedOrderSimEntry() {
     }
 
-    public ResponseDWalletLockedOrderSimEntry(String LID, String tokenName, String lockedOrderState, double lockedOrderInTimeProfit, double lockedDay, double period, String lockedOrderStartTime) {
+    public ResponseDWalletLockedOrderSimEntry(String LID, String tokenName, int lockedOrderState, double lockedOrderInTimeProfit, double lockedDay, double period, String lockedOrderStartTime) {
         this.LID = LID;
         this.tokenName = tokenName;
         this.lockedOrderState = lockedOrderState;
@@ -40,11 +40,11 @@ public class ResponseDWalletLockedOrderSimEntry implements Serializable {
         this.tokenName = tokenName;
     }
 
-    public String getLockedOrderState() {
+    public int getLockedOrderState() {
         return lockedOrderState;
     }
 
-    public void setLockedOrderState(String lockedOrderState) {
+    public void setLockedOrderState(int lockedOrderState) {
         this.lockedOrderState = lockedOrderState;
     }
 

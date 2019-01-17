@@ -12,13 +12,13 @@ public class ResponseDWalletLockedOrderEntry implements Serializable {
     private String lockedOrderEndTime;
     private int period;
     private int lockedOrderLeftDay;
-    private String lockedOrderState;
+    private int lockedOrderState;
     private String tokenName;
 
     public ResponseDWalletLockedOrderEntry() {
     }
 
-    public ResponseDWalletLockedOrderEntry(String LID, String lockedOrderProfitTokenName, double lockedOrderTodayProfitToRMB, double lockedAmount, double lockedOrderInTimeProfit, String lockedOrderStartTime, String lockedOrderEndTime, int period, int lockedOrderLeftDay, String lockedOrderState, String tokenName) {
+    public ResponseDWalletLockedOrderEntry(String LID, String lockedOrderProfitTokenName, double lockedOrderTodayProfitToRMB, double lockedAmount, double lockedOrderInTimeProfit, String lockedOrderStartTime, String lockedOrderEndTime, int period, int lockedOrderLeftDay, int lockedOrderState, String tokenName) {
         this.LID = LID;
         this.lockedOrderProfitTokenName = lockedOrderProfitTokenName;
         this.lockedOrderTodayProfitToRMB = lockedOrderTodayProfitToRMB;
@@ -104,11 +104,11 @@ public class ResponseDWalletLockedOrderEntry implements Serializable {
         this.lockedOrderLeftDay = lockedOrderLeftDay;
     }
 
-    public String getLockedOrderState() {
+    public int getLockedOrderState() {
         return lockedOrderState;
     }
 
-    public void setLockedOrderState(String lockedOrderState) {
+    public void setLockedOrderState(int lockedOrderState) {
         this.lockedOrderState = lockedOrderState;
     }
 

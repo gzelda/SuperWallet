@@ -52,13 +52,17 @@ public class CodeRepresentation {
     public static final byte TRANSFER_TYPE_PAYLOCK = 3;//锁仓付费
     public static final byte TRANSFER_TYPE_PAYGAME = 4;//游戏付费
     public static final byte TRANSFER_TYPE_BUYAGENT = 5;//买代理人
-    public static final byte TRANSFER_TYPE_BUYEOSRAM = 6;//买EOS的RAM
-    public static final byte TRANSFER_TYPE_BUYEOSCPUNET = 7;//买EOS的CPU和NET
-    public static final byte TRANSFER_TYPE_WITHDRAW = 8;//中心钱包提现
-    public static final byte TRANSFER_TYPE_REGISTERBGS = 9;//注册送的BGS记录
-    public static final byte TRANSFER_TYPE_INVITINGBGS = 10;//邀请人得到的BGS记录
-    public static final byte TRANSFER_TYPE_LOCKPROFIT = 11;//锁仓收益
-    public static final byte TRANSFER_TYPE_AGENTPROFIT = 12;//代理人收益
+    public static final byte TRANSFER_TYPE_BUYEOSRAM = 6;//质押EOS的RAM
+    public static final byte TRANSFER_TYPE_BUYEOSCPU = 7;//质押EOS的CPU
+    public static final byte TRANSFER_TYPE_BUYEOSNET = 8;//质押EOS的NET
+    public static final byte TRANSFER_TYPE_WITHDRAW_OUT = 9;//中心钱包提现--支出--中心到链上
+    public static final byte TRANSFER_TYPE_WITHDRAW_IN = 10;//中心钱包提现--收入--链上到链上
+    public static final byte TRANSFER_TYPE_REGISTERBGS = 11;//注册收益--注册送的BGS记录
+    public static final byte TRANSFER_TYPE_INVITINGBGS = 12;//邀请收益--邀请人得到的BGS记录
+    public static final byte TRANSFER_TYPE_LOCKPROFIT = 13;//锁仓收益
+    public static final byte TRANSFER_TYPE_AGENTPROFIT = 14;//代理人收益
+    public static final byte TRANSFER_TYPE_GAS = 15;//矿工费
+    public static final byte TRANSFER_TYPE_WITHDRAW_FAIL = 16;//提现失败退回金额--收入
     //转账类型字典树
     public static Map<Byte, String> TRANSFER_TYPE_MAPPING = new HashMap<Byte, String>();
 
@@ -68,6 +72,7 @@ public class CodeRepresentation {
     public static final int LOCK_STAUTS_ONPROFIT = 1;//收益中
     public static final int LOCK_STATUS_ONOVER = 2;//归仓中
     public static final int LOCK_STATUS_FINISHED = 3;//已结束
+    public static final int LOCK_STATUS_FAIL = 4;//失败
     public static Map<Integer, String> LOCK_STATUS_MAPPING = new HashMap<Integer, String>();
     //----------lockWarehouse锁仓记录表结束--------------
 
@@ -86,6 +91,7 @@ public class CodeRepresentation {
     public static final int PROFIT_TYPE_AGENT = 2;//代理人收益
     public static final int PROFIT_TYPE_WITHDRAW = 3;//提现收益
     public static final int PROFIT_TYPE_INVITING = 4;//邀请人收益
+    public static final int PROFIT_TYPE_REGISTER = 5;//注册收益
     //收益类型字典树
     public static Map<Integer, String> PROFIT_TYPE_MAPPING = new HashMap<Integer, String>();
     //----------profit收益记录表结束--------------
@@ -132,8 +138,9 @@ public class CodeRepresentation {
 
 
     //转账记录的状态值status
-    public static final byte TRANSFER_FAIL = 0;
-    public static final byte TRANSFER_SUCCESS = 1;
+    public static final byte TRANSFER_ONPROCESS = 1;
+    public static final byte TRANSFER_SUCCESS = 2;
+    public static final byte TRANSFER_FAIL = 3;
     //转账状态字典树
     public static Map<Byte, String> TRANSFER_STATUS_MAPPING = new HashMap<Byte, String>();
 
@@ -151,6 +158,10 @@ public class CodeRepresentation {
     public static final String TOKENPRICE_ETH = "eth";
     public static final String TOKENPRICE_EOS = "eos";
     public static final String TOKENPRICE_BGS = "bgs";
+
+    //类型是收入还是支出
+    public static final int NOT_INCOMING = 0;
+    public static final int IS_INCOMING = 1;
 
     //redis模块
     public static final String REDIS_OPTCONF = "operationCode";
@@ -177,6 +188,11 @@ public class CodeRepresentation {
     public static final String REDIS_PROFIT_INVITING_BGS = "PROFIT_INVITING_BGS";
     public static final String REDIS_RECYCLE_MIN_AMOUNT = "RECYCLE_MIN_AMOUNT";
     public static final String REDIS_RECYCLE_INTERVALTIME = "RECYCLE_INTERVALTIME";
+    public static final String REDIS_TRXCPU = "TRX_CPU_USER";
+    public static final String REDIS_TRXNET = "TRX_NET_USER";
+    public static final String REDIS_TOKENPRICE_ETH = "TOKENPRICE_ETH";
+    public static final String REDIS_TOKENPRICE_EOS = "TOKENPRICE_EOS";
+    public static final String REDIS_TOKENPRICE_BGS = "TOKENPRICE_BGS";
 
     public static final String REDIS_REMAINEOSWALLET = "restWallet";
 
@@ -223,18 +239,22 @@ public class CodeRepresentation {
 
 
     static {
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2OFF, "链上转入中心");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2ON, "链上转账");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_PAYLOCK, "锁仓付费");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_PAYGAME, "游戏付费");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYAGENT, "买代理人");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYEOSRAM, "买EOS的RAM");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYEOSCPUNET, "买EOS的CPU和NET");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_WITHDRAW, "中心钱包提现");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_REGISTERBGS, "注册送的BGS记录");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_INVITINGBGS, "邀请人得到的BGS记录");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_LOCKPROFIT, "锁仓收益");
-        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_AGENTPROFIT, "代理人收益");
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2OFF, "收入-链上转入中心");//收入
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_ON2ON, "支出-转出");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_PAYLOCK, "支出-锁仓");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_PAYGAME, "支出-游戏付费");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYAGENT, "支出-代理");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYEOSRAM, "支出-资源");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYEOSCPU, "支出-资源");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_BUYEOSNET, "支出-资源");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_WITHDRAW_OUT, "支出-转出");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_WITHDRAW_IN, "收入-收益");//收入
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_REGISTERBGS, "收入-收益");//收入
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_INVITINGBGS, "收入-收益");//收入
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_LOCKPROFIT, "收入-解仓");//收入
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_AGENTPROFIT, "收入-收益");//收入
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_GAS, "支出-矿工费");//支出
+        TRANSFER_TYPE_MAPPING.put(TRANSFER_TYPE_WITHDRAW_FAIL, "收入-收益");//支出
 
         TRANSFER_STATUS_MAPPING.put(TRANSFER_FAIL, "交易失败");
         TRANSFER_STATUS_MAPPING.put(TRANSFER_SUCCESS, "交易成功");
@@ -246,10 +266,11 @@ public class CodeRepresentation {
         PROFIT_STATUS_MAPPING.put(PROFIT_STATUS_ONPROFIT, "正在收益");
         PROFIT_STATUS_MAPPING.put(PROFIT_STATUS_FINISHED, "已完成");
 
-        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_LOCK, "锁仓收益");
-        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_AGENT, "代理人收益");
-        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_WITHDRAW, "提现收益");
-        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_INVITING, "邀请人收益");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_LOCK, "收益-锁仓");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_AGENT, "收益-代理");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_WITHDRAW, "划转-已结束");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_INVITING, "收益-邀请");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_REGISTER, "收益-注册");
 
         TOKENNAME_MAPPING.put(TOKENTYPE_ETH, ETH);
         TOKENNAME_MAPPING.put(TOKENTYPE_EOS, EOS);

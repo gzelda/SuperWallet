@@ -186,6 +186,23 @@ create table withdrawmoney(
     primary key(UID,WID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--动态配置表--
+drop table if exists optconf;
+create table optconf(
+    confName varchar(30) not null,
+    confValue varchar(30) not null,
+    primary key(confName)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--ETH转账延迟表--
+drop table if exists ethValidation;
+create table ethValidation(
+    UID varchar(100) not null,
+    transferId bigint not null,
+    hashValue varchar(100) not null,
+    primary key(UID,transferId)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 -- banner--
 drop table if exists banner;
 create table banner(

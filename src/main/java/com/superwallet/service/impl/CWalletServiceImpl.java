@@ -206,6 +206,7 @@ public class CWalletServiceImpl implements CWalletService {
                 if (amount < tokenAmount) return false;
                 //余额更新
                 updateETHWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_DEC);
+                commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_WITHDRAW_OUT, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, ethtoken.getEthaddress(), ethtoken.getEthaddress(), tokenAmount);
                 commonService.withdrawRecord(UID, UUID.randomUUID().toString(), Byte.valueOf(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
                 break;
             //EOS
@@ -218,6 +219,7 @@ public class CWalletServiceImpl implements CWalletService {
                 if (amount < tokenAmount) return false;
                 //余额更新
                 updateEOSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_DEC);
+                commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_WITHDRAW_OUT, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, eostoken.getEosaccountname(), eostoken.getEosaccountname(), tokenAmount);
                 commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
                 break;
             //BGS
@@ -230,6 +232,7 @@ public class CWalletServiceImpl implements CWalletService {
                 if (amount < tokenAmount) return false;
                 //余额更新
                 updateBGSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_DEC);
+                commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_WITHDRAW_OUT, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, bgstoken.getEthaddress(), bgstoken.getEthaddress(), tokenAmount);
                 commonService.withdrawRecord(UID, UUID.randomUUID().toString(), new Byte(tokenType + ""), CodeRepresentation.WITHDRAW_WAIT, tokenAmount);
                 break;
         }
@@ -251,7 +254,7 @@ public class CWalletServiceImpl implements CWalletService {
         //nodejs返回结果
         SuperResult result;
         //转账类型
-        byte transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW;
+        byte transferType;
         //转账币种
         Byte token = Byte.valueOf(tokenType + "");
         //拿到申请表里的转账记录
@@ -272,12 +275,14 @@ public class CWalletServiceImpl implements CWalletService {
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateETHWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
+                    transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
                     commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
+                transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
             //EOS
@@ -293,12 +298,14 @@ public class CWalletServiceImpl implements CWalletService {
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateEOSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
+                    transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
                     commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
+                transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
             //BGS
@@ -314,12 +321,14 @@ public class CWalletServiceImpl implements CWalletService {
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateBGSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
+                    transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
                     commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
+                transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                 break;
         }
@@ -419,9 +428,9 @@ public class CWalletServiceImpl implements CWalletService {
         TransferExample.Criteria criteria = transferExample.createCriteria();
         criteria.andUidEqualTo(UID);
         criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
-        criteria.andTransfertypeEqualTo(CodeRepresentation.TRANSFER_TYPE_WITHDRAW);
+        criteria.andTransfertypeEqualTo(CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN);
         criteria.andStatusEqualTo(CodeRepresentation.TRANSFER_SUCCESS);
-        double tokenPrice = 1.0;
+        double tokenPrice = commonService.getTokenPriceByType(tokenType);
         List<Transfer> list = transferMapper.selectByExample(transferExample);
         List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -430,7 +439,7 @@ public class CWalletServiceImpl implements CWalletService {
                     CodeRepresentation.PROFIT_TYPE_MAPPING.get(CodeRepresentation.PROFIT_TYPE_WITHDRAW),
                     format.format(record.getCreatedtime()),
                     CodeRepresentation.PROFIT_FINISHED,
-                    CodeRepresentation.PROFIT_STATUS_MAPPING.get(CodeRepresentation.PROFIT_STATUS_FINISHED),
+                    record.getStatus(),
                     record.getAmount(),
                     record.getAmount() * tokenPrice
             ));
@@ -475,10 +484,10 @@ public class CWalletServiceImpl implements CWalletService {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (Transfer record : list) {
             result.add(new ResponseCWalletProfitEntry(
-                    CodeRepresentation.PROFIT_TYPE_INVITING + "",
+                    CodeRepresentation.PROFIT_TYPE_MAPPING.get(commonService.invitingOrRegister(record.getTransfertype())),
                     format.format(record.getCreatedtime()),
                     CodeRepresentation.PROFIT_FINISHED,
-                    CodeRepresentation.PROFIT_STATUS_FINISHED + "",
+                    record.getStatus(),
                     record.getAmount(),
                     record.getAmount() * tokenPrice
             ));
@@ -495,7 +504,6 @@ public class CWalletServiceImpl implements CWalletService {
     @Override
     public ResponseCWalletProfitEntry finishedLockedOrderToEntry(Lockwarehouse order) {
         ResponseCWalletProfitEntry result = new ResponseCWalletProfitEntry();
-        //TODO 拿对应货币行情价
         int profitTokentype = order.getProfittokentype();
         double tokenPrice = commonService.getTokenPriceByType(order.getTokentype());
         result.setIsFinished(CodeRepresentation.PROFIT_FINISHED);
@@ -505,7 +513,7 @@ public class CWalletServiceImpl implements CWalletService {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         result.setTime(format.format(order.getCreatedtime().getTime() + order.getPeriod() * 24 * 60 * 60 * 1000));
         //收益状态
-        result.setStatus(CodeRepresentation.PROFIT_STATUS_MAPPING.get(CodeRepresentation.PROFIT_STATUS_FINISHED));
+        result.setStatus(order.getStatus());
         //收益类型
         result.setType(CodeRepresentation.PROFIT_TYPE_MAPPING.get(CodeRepresentation.PROFIT_TYPE_LOCK));
         return result;
@@ -531,8 +539,7 @@ public class CWalletServiceImpl implements CWalletService {
         List<Profit> list = profitMapper.selectByExample(profitExample);
         //如果收益类型是锁仓，得求和
         List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
-        //TODO 货币行情价
-        double tokenPrice = 1.0;
+        double tokenPrice = commonService.getTokenPriceByType(tokenType);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (profitType == CodeRepresentation.PROFIT_TYPE_LOCK) {
             double profit = 0;
@@ -543,7 +550,7 @@ public class CWalletServiceImpl implements CWalletService {
                     CodeRepresentation.PROFIT_TYPE_MAPPING.get(profitType),
                     format.format(new Date()),
                     CodeRepresentation.PROFIT_NOTFINISHED,
-                    CodeRepresentation.PROFIT_STATUS_MAPPING.get(CodeRepresentation.PROFIT_STATUS_ONPROFIT),
+                    CodeRepresentation.PROFIT_STATUS_ONPROFIT,
                     profit,
                     profit * tokenPrice
             ));
@@ -553,7 +560,7 @@ public class CWalletServiceImpl implements CWalletService {
                         CodeRepresentation.PROFIT_TYPE_MAPPING.get(profitType),
                         format.format(row.getCreatetime()),
                         CodeRepresentation.PROFIT_FINISHED,
-                        CodeRepresentation.PROFIT_STATUS_MAPPING.get(CodeRepresentation.PROFIT_STATUS_FINISHED),
+                        CodeRepresentation.PROFIT_STATUS_FINISHED,
                         row.getProfit(),
                         row.getProfit() * tokenPrice
                 ));

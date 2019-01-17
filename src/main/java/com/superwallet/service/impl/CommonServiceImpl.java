@@ -49,6 +49,9 @@ public class CommonServiceImpl implements CommonService {
     @Autowired
     private JedisClient jedisClient;
 
+    @Autowired
+    private OptconfMapper optconfMapper;
+
     /**
      * 转账记录生成
      *
@@ -154,7 +157,7 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public SuperResult getEOSInfo(String UID) {
         HashMap<String, Object> eos_params = new HashMap<String, Object>();
-        eos_params.put("UID", UID);
+        eos_params.put(RequestParams.UID, UID);
         String eos_resp = HttpUtil.post(CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_ACCOUNTINFO, eos_params);
         SuperResult result = JSON.parseObject(eos_resp, SuperResult.class);
         return result;
@@ -182,7 +185,7 @@ public class CommonServiceImpl implements CommonService {
         double eth_avaAmount = Double.parseDouble(eth_json.getString("bgsBalance"));
         double eth_lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_ETH);
         double eth_amount = eth_avaAmount + eth_lockedAmount;
-        double eth_price = 1.0;
+        double eth_price = getTokenPriceByType(CodeRepresentation.TOKENTYPE_ETH);
         ethWalletInfo = new ETHWalletInfo(eth_address,
                 eth_amount,
                 eth_lockedAmount,
@@ -214,7 +217,7 @@ public class CommonServiceImpl implements CommonService {
         double bgs_avaAmount = Double.parseDouble(eth_json.getString("bgsBalance"));
         double bgs_lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_BGS);
         double bgs_amount = bgs_avaAmount + bgs_lockedAmount;
-        double bgs_price = 1.0;
+        double bgs_price = getTokenPriceByType(CodeRepresentation.TOKENTYPE_BGS);
         bgsWalletInfo = new ETHWalletInfo(bgs_address,
                 bgs_amount,
                 bgs_lockedAmount,
@@ -246,7 +249,7 @@ public class CommonServiceImpl implements CommonService {
         double eos_avaAmount = Double.parseDouble(eos_json.getString("core_liquid_balance").split(" ")[0]);
         double eos_lockedAmount = getLockedAmount(UID, CodeRepresentation.TOKENTYPE_EOS);
         double eos_amount = eos_avaAmount + eos_lockedAmount;
-        double eos_price = 1.0;
+        double eos_price = getTokenPriceByType(CodeRepresentation.TOKENTYPE_EOS);
         JSONObject mortgageEOS_json = JSON.parseObject(eos_json.getString("self_delegated_bandwidth"));
         double mortgageEOS_cpu = Double.parseDouble(mortgageEOS_json.getString("cpu_weight").split(" ")[0]);
         double mortgageEOS_net = Double.parseDouble(mortgageEOS_json.getString("net_weight").split(" ")[0]);
@@ -365,7 +368,7 @@ public class CommonServiceImpl implements CommonService {
         String tokenName, tokenAddress;
         double lockedAmount = 0, cWalletAmount = 0;
         int canLock = 0;
-        double tokenPrice = 1.0;
+        double tokenPrice = getTokenPriceByType(tokenType);
         switch (tokenType) {
             case CodeRepresentation.TOKENTYPE_ETH://ETH
                 tokenName = "ETH";
@@ -463,7 +466,11 @@ public class CommonServiceImpl implements CommonService {
      */
     @Override
     public ResponseDWalletLockedOrderEntry lockedOrderToEntry(Lockwarehouse row) {
-        String LID, lockedOrderProfitTokenName, lockedOrderStartTime, lockedOrderEndTime, lockedOrderState, tokenName;
+        if (row == null) {
+            return new ResponseDWalletLockedOrderEntry();
+        }
+        String LID, lockedOrderProfitTokenName, lockedOrderStartTime, lockedOrderEndTime, tokenName;
+        int lockedOrderState;
         double lockedOrderTodayProfitToRMB, lockedAmount, lockedOrderInTimeProfit;
         int period, lockedOrderLeftDay;
         LID = String.valueOf(row.getLid());
@@ -472,13 +479,14 @@ public class CommonServiceImpl implements CommonService {
         double tokenPrice = getTokenPriceByType(row.getTokentype());
         lockedOrderTodayProfitToRMB = (row.getFinalprofit() == null ? 0 : row.getFinalprofit()) * tokenPrice;
         lockedAmount = row.getAmount();
+        //TODO 锁仓实时收益计算
         lockedOrderInTimeProfit = 0;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         lockedOrderStartTime = format.format(row.getCreatedtime());
         lockedOrderEndTime = format.format(row.getCreatedtime().getTime() + row.getPeriod() * 24 * 60 * 60 * 1000);
         period = row.getPeriod();
         lockedOrderLeftDay = period - (int) ((new Date()).getTime() - row.getCreatedtime().getTime()) / (1000 * 60 * 60 * 24);
-        lockedOrderState = CodeRepresentation.LOCK_STATUS_MAPPING.get(row.getStatus());
+        lockedOrderState = row.getStatus();
         tokenName = CodeRepresentation.TOKENNAME_MAPPING.get(row.getTokentype());
         ResponseDWalletLockedOrderEntry result = new ResponseDWalletLockedOrderEntry(LID,
                 lockedOrderProfitTokenName,
@@ -747,21 +755,21 @@ public class CommonServiceImpl implements CommonService {
                 try {
                     tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.TOKENPRICE_KEY, CodeRepresentation.TOKENPRICE_ETH));
                 } catch (Exception e) {
-                    tokenPrice = 1.0;
+                    tokenPrice = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TOKENPRICE_ETH).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_EOS://EOS
                 try {
                     tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.TOKENPRICE_KEY, CodeRepresentation.TOKENPRICE_EOS));
                 } catch (Exception e) {
-                    tokenPrice = 1.0;
+                    tokenPrice = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TOKENPRICE_EOS).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_BGS://BGS
                 try {
                     tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.TOKENPRICE_KEY, CodeRepresentation.TOKENPRICE_BGS));
                 } catch (Exception e) {
-                    tokenPrice = 1.0;
+                    tokenPrice = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TOKENPRICE_BGS).getConfvalue());
                 }
                 break;
         }
@@ -885,21 +893,21 @@ public class CommonServiceImpl implements CommonService {
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_TRANSFER_ETH));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_TRANSFER_ETH;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_TRANSFER_ETH).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_EOS:
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_TRANSFER_EOS));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_TRANSFER_EOS;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_TRANSFER_EOS).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_BGS:
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_TRANSFER_BGS));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_TRANSFER_BGS;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_TRANSFER_BGS).getConfvalue());
                 }
                 break;
         }
@@ -920,21 +928,21 @@ public class CommonServiceImpl implements CommonService {
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_WITHDRAW_ETH));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_WITHDRAW_ETH;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_WITHDRAW_ETH).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_EOS:
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_WITHDRAW_EOS));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_WITHDRAW_EOS;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_WITHDRAW_EOS).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_BGS:
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_WITHDRAW_BGS));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_WITHDRAW_BGS;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_WITHDRAW_BGS).getConfvalue());
                 }
                 break;
         }
@@ -955,21 +963,21 @@ public class CommonServiceImpl implements CommonService {
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_LOCK_ETH));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_LOCK_ETH;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_LOCK_ETH).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_EOS:
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_LOCK_EOS));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_LOCK_EOS;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_LOCK_EOS).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_BGS:
                 try {
                     result = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_MINI_LOCK_BGS));
                 } catch (Exception e) {
-                    result = DynamicParameters.MINI_LOCK_BGS;
+                    result = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_MINI_LOCK_BGS).getConfvalue());
                 }
                 break;
         }
@@ -990,6 +998,69 @@ public class CommonServiceImpl implements CommonService {
         String resp = HttpUtil.post(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);
         return result;
+    }
+
+    /**
+     * 判断是收入还是支出
+     *
+     * @param transferType
+     * @return
+     */
+    @Override
+    public int isIncoming(Byte transferType) {
+        //返回 0-支出 1-收入
+        switch (transferType) {
+            case CodeRepresentation.TRANSFER_TYPE_ON2OFF:
+                return CodeRepresentation.IS_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_ON2ON:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_PAYLOCK:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_PAYGAME:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_BUYAGENT:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_BUYEOSRAM:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_BUYEOSCPU:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_BUYEOSNET:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_WITHDRAW_OUT:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN:
+                return CodeRepresentation.IS_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_REGISTERBGS:
+                return CodeRepresentation.IS_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_INVITINGBGS:
+                return CodeRepresentation.IS_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_LOCKPROFIT:
+                return CodeRepresentation.IS_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_AGENTPROFIT:
+                return CodeRepresentation.IS_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_GAS:
+                return CodeRepresentation.NOT_INCOMING;
+            case CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL:
+                return CodeRepresentation.IS_INCOMING;
+        }
+        return 0;
+    }
+
+    /**
+     * 判断收益类型是注册还是邀请
+     *
+     * @param transferType
+     * @return
+     */
+    @Override
+    public int invitingOrRegister(Byte transferType) {
+        switch (transferType) {
+            case CodeRepresentation.TRANSFER_TYPE_INVITINGBGS:
+                return CodeRepresentation.PROFIT_TYPE_INVITING;
+            case CodeRepresentation.TRANSFER_TYPE_REGISTERBGS:
+                return CodeRepresentation.PROFIT_TYPE_REGISTER;
+        }
+        return CodeRepresentation.PROFIT_TYPE_INVITING;
     }
 
 }

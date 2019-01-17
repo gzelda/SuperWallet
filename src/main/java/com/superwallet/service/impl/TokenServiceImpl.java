@@ -1,6 +1,10 @@
 package com.superwallet.service.impl;
 
-import com.superwallet.common.*;
+import com.superwallet.common.CodeRepresentation;
+import com.superwallet.common.CookieUtils;
+import com.superwallet.common.MessageRepresentation;
+import com.superwallet.common.SuperResult;
+import com.superwallet.mapper.OptconfMapper;
 import com.superwallet.mapper.UserbasicMapper;
 import com.superwallet.pojo.Userbasic;
 import com.superwallet.response.ResponseUserAgentInfo;
@@ -24,6 +28,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Autowired
     private JedisClient jedisClient;
+
+    @Autowired
+    private OptconfMapper optconfMapper;
 
     /**
      * 获取用户基本信息
@@ -67,7 +74,7 @@ public class TokenServiceImpl implements TokenService {
         try {
             PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PROFIT_INVITING_BGS));
         } catch (Exception e) {
-            PROFIT_INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;
+            PROFIT_INVITING_BGS = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_PROFIT_INVITING_BGS).getConfvalue());
         }
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
         String invitedCode = user.getInvitedcode();

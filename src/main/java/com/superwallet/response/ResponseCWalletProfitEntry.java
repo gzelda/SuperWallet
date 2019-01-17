@@ -7,14 +7,14 @@ public class ResponseCWalletProfitEntry implements Serializable {
     private String type;
     private String time;
     private int isFinished;
-    private String status;
+    private int status;
     private double profit;
     private double profitToRMB;
 
     public ResponseCWalletProfitEntry() {
     }
 
-    public ResponseCWalletProfitEntry(String type, String time, int isFinished, String status, double profit, double profitToRMB) {
+    public ResponseCWalletProfitEntry(String type, String time, int isFinished, int status, double profit, double profitToRMB) {
         this.type = type;
         this.time = time;
         this.isFinished = isFinished;
@@ -47,11 +47,11 @@ public class ResponseCWalletProfitEntry implements Serializable {
         this.isFinished = isFinished;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

@@ -4,20 +4,30 @@ import java.io.Serializable;
 
 public class ResponseDWalletBillEntry implements Serializable {
     private String transferType;
-    private String transferState;
+    private int transferState;
     private double transferAmount;
     private double transferAmountToRMB;
     private String transferTime;
+    private int isIncoming;
 
     public ResponseDWalletBillEntry() {
     }
 
-    public ResponseDWalletBillEntry(String transferType, String transferState, double transferAmount, double transferAmountToRMB, String transferTime) {
+    public ResponseDWalletBillEntry(String transferType, int transferState, double transferAmount, double transferAmountToRMB, String transferTime, int isIncoming) {
         this.transferType = transferType;
         this.transferState = transferState;
         this.transferAmount = transferAmount;
         this.transferAmountToRMB = transferAmountToRMB;
         this.transferTime = transferTime;
+        this.isIncoming = isIncoming;
+    }
+
+    public int getIsIncoming() {
+        return isIncoming;
+    }
+
+    public void setIsIncoming(int isIncoming) {
+        this.isIncoming = isIncoming;
     }
 
     public String getTransferType() {
@@ -28,11 +38,11 @@ public class ResponseDWalletBillEntry implements Serializable {
         this.transferType = transferType;
     }
 
-    public String getTransferState() {
+    public int getTransferState() {
         return transferState;
     }
 
-    public void setTransferState(String transferState) {
+    public void setTransferState(int transferState) {
         this.transferState = transferState;
     }
 

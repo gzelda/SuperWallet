@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class DWalletServiceImpl implements DWalletService {
@@ -48,6 +50,9 @@ public class DWalletServiceImpl implements DWalletService {
 
     @Autowired
     private InviterMapper inviterMapper;
+
+    @Autowired
+    private OptconfMapper optconfMapper;
 
     /**
      * 展示链上钱包基本信息
@@ -202,6 +207,7 @@ public class DWalletServiceImpl implements DWalletService {
         Byte token = new Byte(tokenType + "");
         //锁仓状态
         int status = CodeRepresentation.LOCK_STAUTS_ONPROFIT;
+        boolean genLockedRecord, genTransferRecord;
         switch (tokenType) {
             //转入eth钱包
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -213,11 +219,18 @@ public class DWalletServiceImpl implements DWalletService {
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
                 }
-                //请求成功--生成1.锁仓记录 2.更新token表
+                //请求成功--生成1.锁仓记录 2.更新token表 3.生成锁仓交易记录
                 amount = ethtoken.getAmount() + tokenAmount;
                 ethtoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(ethtoken);
-                commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
+                genLockedRecord = commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
+                genTransferRecord = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, ethtoken.getEthaddress(), CodeRepresentation.SUPER_ETH, tokenAmount);
+                if (!genLockedRecord) {
+                    System.out.println(UID + ":生成锁仓记录失败");
+                }
+                if (!genTransferRecord) {
+                    System.out.println(UID + ":生成锁仓付费交易记录失败");
+                }
                 break;
             //转入eos钱包
             case CodeRepresentation.TOKENTYPE_EOS:
@@ -230,11 +243,18 @@ public class DWalletServiceImpl implements DWalletService {
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
                 }
-                //请求成功--生成1.锁仓记录 2.更新token表
+                //请求成功--生成1.锁仓记录 2.更新token表 3.生成锁仓交易记录
                 amount = eostoken.getAmount() + tokenAmount;
                 eostoken.setAmount(amount);
                 eostokenMapper.updateByPrimaryKey(eostoken);
-                commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
+                genLockedRecord = commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
+                genTransferRecord = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, eostoken.getEosaccountname(), CodeRepresentation.SUPER_EOS, tokenAmount);
+                if (!genLockedRecord) {
+                    System.out.println(UID + ":生成锁仓记录失败");
+                }
+                if (!genTransferRecord) {
+                    System.out.println(UID + ":生成锁仓付费交易记录失败");
+                }
                 break;
             //转入bgs钱包
             case CodeRepresentation.TOKENTYPE_BGS:
@@ -247,11 +267,18 @@ public class DWalletServiceImpl implements DWalletService {
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
                 }
-                //请求成功--生成1.锁仓记录 2.更新token表
+                //请求成功--生成1.锁仓记录 2.更新token表 3.生成锁仓交易记录
                 amount = bgstoken.getAmount() + tokenAmount;
                 bgstoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(bgstoken);
-                commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
+                genLockedRecord = commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
+                genTransferRecord = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, bgstoken.getEthaddress(), CodeRepresentation.SUPER_BGS, tokenAmount);
+                if (!genLockedRecord) {
+                    System.out.println(UID + ":生成锁仓记录失败");
+                }
+                if (!genTransferRecord) {
+                    System.out.println(UID + ":生成锁仓付费交易记录失败");
+                }
                 break;
         }
         return SuperResult.ok(MessageRepresentation.DWALLET_LOCK_CODE_1_STATUS_0);
@@ -391,25 +418,8 @@ public class DWalletServiceImpl implements DWalletService {
         int listCount = 0;
         List<ResponseDWalletBillEntry> bills = new ArrayList<ResponseDWalletBillEntry>();
         //条件查询
-        if (type == CodeRepresentation.LISTDETAILDWALLET_ALL) {
-            List<ResponseDWalletBillEntry> lockOrdersInfo = listDetailDWalletLockOrdersInfo(UID, tokenType);
-            List<ResponseDWalletBillEntry> transferInfo = listDetailDWalletTransferInfo(UID, tokenType, type);
-            bills.addAll(lockOrdersInfo);
-            bills.addAll(transferInfo);
-            //总排序
-            Collections.sort(bills, new Comparator<ResponseDWalletBillEntry>() {
-                @Override
-                public int compare(ResponseDWalletBillEntry o1, ResponseDWalletBillEntry o2) {
-                    return o2.getTransferTime().compareTo(o1.getTransferTime());
-                }
-            });
-        } else if (type == CodeRepresentation.LISTDETAILDWALLET_LOCK) {
-            List<ResponseDWalletBillEntry> lockOrdersInfo = listDetailDWalletLockOrdersInfo(UID, tokenType);
-            bills.addAll(lockOrdersInfo);
-        } else {
-            List<ResponseDWalletBillEntry> transferInfo = listDetailDWalletTransferInfo(UID, tokenType, type);
-            bills.addAll(transferInfo);
-        }
+        List<ResponseDWalletBillEntry> transferInfo = listDetailDWalletTransferInfo(UID, tokenType, type);
+        bills.addAll(transferInfo);
         listCount = bills.size();
         //设置返回信息
         ResponseDWalletBill result = new ResponseDWalletBill(
@@ -437,16 +447,18 @@ public class DWalletServiceImpl implements DWalletService {
         criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
         ArrayList<Byte> list = new ArrayList<Byte>();
         switch (type) {
+            case CodeRepresentation.LISTDETAILDWALLET_LOCK:
+                list.add(CodeRepresentation.TRANSFER_TYPE_PAYLOCK);
+                list.add(CodeRepresentation.TRANSFER_TYPE_LOCKPROFIT);
+                criteria.andTransfertypeIn(list);
+                break;
             case CodeRepresentation.LISTDETAILDWALLET_GAME:
                 list.add(CodeRepresentation.TRANSFER_TYPE_PAYGAME);
                 criteria.andTransfertypeIn(list);
                 break;
             case CodeRepresentation.LISTDETAILDWALLET_TRANSFEROUT:
                 list.add(CodeRepresentation.TRANSFER_TYPE_ON2ON);
-                list.add(CodeRepresentation.TRANSFER_TYPE_PAYGAME);
-                list.add(CodeRepresentation.TRANSFER_TYPE_BUYAGENT);
-                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSRAM);
-                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET);
+                list.add(CodeRepresentation.TRANSFER_TYPE_WITHDRAW_OUT);
                 criteria.andTransfertypeIn(list);
                 break;
             case CodeRepresentation.LISTDETAILDWALLET_AGENT:
@@ -456,58 +468,29 @@ public class DWalletServiceImpl implements DWalletService {
                 break;
             case CodeRepresentation.LISTDETAILDWALLET_EOSSOURCE:
                 list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSRAM);
-                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET);
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSCPU);
+                list.add(CodeRepresentation.TRANSFER_TYPE_BUYEOSNET);
                 criteria.andTransfertypeIn(list);
                 break;
         }
         List<Transfer> transfers = transferMapper.selectByExample(transferExample);
         List<ResponseDWalletBillEntry> res = new ArrayList<ResponseDWalletBillEntry>();
-        String transferType, transferStatus, transferTime;
+        String transferType, transferTime;
+        int transferStatus, isIncoming;
         double transferAmount, transferAmountToRMB;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         //获取交易记录并封装
         for (Transfer row : transfers) {
             transferType = CodeRepresentation.TRANSFER_TYPE_MAPPING.get(row.getTransfertype());
-            transferStatus = CodeRepresentation.TRANSFER_STATUS_MAPPING.get(row.getStatus());
+            transferStatus = row.getStatus();
+            isIncoming = commonService.isIncoming(row.getTransfertype());
             transferAmount = row.getAmount();
             transferAmountToRMB = tokenPrice * row.getAmount();
             transferTime = format.format(row.getCreatedtime());
-            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, transferStatus, transferAmount, transferAmountToRMB, transferTime);
+            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, transferStatus, transferAmount, transferAmountToRMB, transferTime, isIncoming);
             res.add(bill);
         }
         return res;
-    }
-
-    /**
-     * 拿到锁仓的详细信息并进行封装展示
-     *
-     * @param UID
-     * @param tokenType
-     * @return
-     */
-    @Override
-    public List<ResponseDWalletBillEntry> listDetailDWalletLockOrdersInfo(String UID, Integer tokenType) {
-        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
-        lockwarehouseExample.setOrderByClause("createdTime DESC");
-        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
-        criteria.andUidEqualTo(UID);
-        criteria.andTokentypeEqualTo(tokenType);
-        List<Lockwarehouse> lockwarehouses = lockwarehouseMapper.selectByExample(lockwarehouseExample);
-        List<ResponseDWalletBillEntry> list = new ArrayList<ResponseDWalletBillEntry>();
-        String transferType, transferStatus, transferTime;
-        double transferAmount, transferAmountToRMB;
-        double tokenPrice = commonService.getTokenPriceByType(tokenType);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        for (Lockwarehouse row : lockwarehouses) {
-            transferType = "锁仓";
-            transferStatus = CodeRepresentation.LOCK_STATUS_MAPPING.get(row.getStatus());
-            transferAmount = row.getAmount();
-            transferAmountToRMB = tokenPrice * row.getAmount();
-            transferTime = format.format(row.getCreatedtime());
-            ResponseDWalletBillEntry bill = new ResponseDWalletBillEntry(transferType, transferStatus, transferAmount, transferAmountToRMB, transferTime);
-            list.add(bill);
-        }
-        return list;
     }
 
     /**
@@ -616,6 +599,12 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     public SuperResult trxEOSCPU(String UID) {
+        double TRX_CPU_USER;
+        try {
+            TRX_CPU_USER = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_TRXCPU));
+        } catch (Exception e) {
+            TRX_CPU_USER = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TRXCPU).getConfvalue());
+        }
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(RequestParams.UID, UID);
         String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_CPU;
@@ -625,12 +614,12 @@ public class DWalletServiceImpl implements DWalletService {
         if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
             Eostoken eostoken = eostokenMapper.selectByPrimaryKey(new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS));
             boolean generateRecord = commonService.generateRecord(UID,
-                    CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET,
+                    CodeRepresentation.TRANSFER_TYPE_BUYEOSCPU,
                     (byte) CodeRepresentation.TOKENTYPE_EOS,
                     CodeRepresentation.TRANSFER_SUCCESS,
                     eostoken.getEosaccountname(),
                     CodeRepresentation.SUPER_EOS,
-                    DynamicParameters.TRX_CPU_USER);
+                    TRX_CPU_USER);
             if (!generateRecord) {
                 System.out.println("生成购买CPU交易记录失败");
             }
@@ -650,6 +639,12 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     public SuperResult trxEOSNET(String UID) {
+        double TRX_NET_USER;
+        try {
+            TRX_NET_USER = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_TRXNET));
+        } catch (Exception e) {
+            TRX_NET_USER = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TRXNET).getConfvalue());
+        }
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(RequestParams.UID, UID);
         String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_NET;
@@ -659,12 +654,12 @@ public class DWalletServiceImpl implements DWalletService {
         if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
             Eostoken eostoken = eostokenMapper.selectByPrimaryKey(new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS));
             boolean generateRecord = commonService.generateRecord(UID,
-                    CodeRepresentation.TRANSFER_TYPE_BUYEOSCPUNET,
+                    CodeRepresentation.TRANSFER_TYPE_BUYEOSNET,
                     (byte) CodeRepresentation.TOKENTYPE_EOS,
                     CodeRepresentation.TRANSFER_SUCCESS,
                     eostoken.getEosaccountname(),
                     CodeRepresentation.SUPER_EOS,
-                    DynamicParameters.TRX_NET_USER);
+                    TRX_NET_USER);
             if (!generateRecord) {
                 System.out.println("生成购买NET交易记录失败");
             }
@@ -713,8 +708,8 @@ public class DWalletServiceImpl implements DWalletService {
             PRICE_BUYAGENT = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PRICE_BUYAGENT));
             INVITING_BGS = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PROFIT_INVITING_BGS));
         } catch (Exception e) {
-            PRICE_BUYAGENT = DynamicParameters.PRICE_BUYAGENT;
-            INVITING_BGS = DynamicParameters.PROFIT_INVITING_BGS;
+            PRICE_BUYAGENT = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_PRICE_BUYAGENT).getConfvalue());
+            INVITING_BGS = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_PROFIT_INVITING_BGS).getConfvalue());
         }
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
         if (user.getIsagency() == CodeRepresentation.USER_AGENT_ISAGENCY) {
@@ -760,7 +755,7 @@ public class DWalletServiceImpl implements DWalletService {
             Inviter inviter = list.get(0);
             String inviterUID = inviter.getInviterid();
             //更新邀请用户者的钱包，给他BGS奖励
-            cWalletService.updateBGSWalletAmount(inviterUID, DynamicParameters.PROFIT_INVITING_BGS, CodeRepresentation.CWALLET_MONEY_INC);
+            cWalletService.updateBGSWalletAmount(inviterUID, INVITING_BGS, CodeRepresentation.CWALLET_MONEY_INC);
             //同时生成一笔交易记录
             EthtokenKey ethtokenKey = new EthtokenKey(inviterUID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
             Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);

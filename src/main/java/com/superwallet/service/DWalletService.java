@@ -26,8 +26,6 @@ public interface DWalletService {
 
     public ResponseDWalletBill listDetailDWalletInfo(String UID, Integer tokenType, Integer type);
 
-    public List<ResponseDWalletBillEntry> listDetailDWalletLockOrdersInfo(String UID, Integer tokenType);
-
     public List<ResponseDWalletBillEntry> listDetailDWalletTransferInfo(String UID, Integer tokenType, Integer type);
 
     public ResponseDWalletAssets listAssets(String UID);
