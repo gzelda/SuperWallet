@@ -762,21 +762,21 @@ public class CommonServiceImpl implements CommonService {
         switch (tokenType) {
             case CodeRepresentation.TOKENTYPE_ETH://ETH
                 try {
-                    tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.TOKENPRICE_KEY, CodeRepresentation.TOKENPRICE_ETH));
+                    tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_TOKENPRICE_ETH));
                 } catch (Exception e) {
                     tokenPrice = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TOKENPRICE_ETH).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_EOS://EOS
                 try {
-                    tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.TOKENPRICE_KEY, CodeRepresentation.TOKENPRICE_EOS));
+                    tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_TOKENPRICE_EOS));
                 } catch (Exception e) {
                     tokenPrice = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TOKENPRICE_EOS).getConfvalue());
                 }
                 break;
             case CodeRepresentation.TOKENTYPE_BGS://BGS
                 try {
-                    tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.TOKENPRICE_KEY, CodeRepresentation.TOKENPRICE_BGS));
+                    tokenPrice = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_TOKENPRICE_BGS));
                 } catch (Exception e) {
                     tokenPrice = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_TOKENPRICE_BGS).getConfvalue());
                 }

@@ -1,5 +1,6 @@
 package com.superwallet.jedis;
 
+import com.superwallet.common.CodeRepresentation;
 import com.superwallet.utils.SHA1;
 import org.junit.Test;
 import redis.clients.jedis.JedisPoolConfig;
@@ -7,6 +8,10 @@ import redis.clients.jedis.JedisShardInfo;
 import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPool;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,7 +32,34 @@ public class RedisInit {
         list.add(info);
         ShardedJedisPool pool = new ShardedJedisPool(config, list);
         ShardedJedis jedis = pool.getResource();
+        //声明Connection对象
+        Connection con;
+        //驱动程序名
+        String driver = "com.mysql.jdbc.Driver";
+        //URL指向要访问的数据库名mydata
+        String url = "jdbc:mysql://18.222.109.30:3306/superwallet";
+        //MySQL配置时的用户名
+        String user = "root";
+        //MySQL配置时的密码
+        String password = "Sher123@";
+        try {
+            Class.forName(driver);
+            con = DriverManager.getConnection(url, user, password);
+            System.out.println("mysql连接成功");
+            Statement statement = con.createStatement();
+            String sql = "select * from optconf";
+            ResultSet rs = statement.executeQuery(sql);
+            while (rs.next()) {
+                String key = rs.getString("confName");
+                String value = rs.getString("confValue");
+                jedis.hset(CodeRepresentation.REDIS_OPTCONF, key, value);
+                System.out.println("配置redis结束");
+            }
+            rs.close();
+            con.close();
+        } catch (Exception e) {
 
+        }
 //        Jedis jedis = new Jedis("aws", 6379);
         //初始化开发人员专用数据信息
 //        jedis.hset("developerCode", "CODE_FAIL", "0");

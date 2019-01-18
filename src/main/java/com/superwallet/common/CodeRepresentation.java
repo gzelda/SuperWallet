@@ -155,12 +155,6 @@ public class CodeRepresentation {
     public static final int CWALLET_MONEY_INC = 0;//加
     public static final int CWALLET_MONEY_DEC = 1;//减
 
-    //货币价格--redis
-    public static final String TOKENPRICE_KEY = "tokenprice";
-    public static final String TOKENPRICE_ETH = "eth";
-    public static final String TOKENPRICE_EOS = "eos";
-    public static final String TOKENPRICE_BGS = "bgs";
-
     //类型是收入还是支出
     public static final int NOT_INCOMING = 0;
     public static final int IS_INCOMING = 1;
