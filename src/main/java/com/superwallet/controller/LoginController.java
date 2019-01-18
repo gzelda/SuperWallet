@@ -129,11 +129,11 @@ public class LoginController {
     public SuperResult register(final String phoneNum, String passWord, String invitedCode, HttpServletRequest request, HttpServletResponse response) {
         SuperResult result;
         //获取项目路径
-        String headPhotoPath = request.getSession().getServletContext().getRealPath("/");
+//        String headPhotoPath = request.getSession().getServletContext().getRealPath("/");
         //加密密码
         passWord = SHA1.encode(passWord);
         //注册
-        result = loginRegisterService.register(phoneNum, passWord, invitedCode, headPhotoPath);
+        result = loginRegisterService.register(phoneNum, passWord, invitedCode);
         //注册失败
         if (result.getCode() != CodeRepresentation.CODE_SUCCESS) {
             return result;
@@ -235,6 +235,7 @@ public class LoginController {
         //缓存，用来后来验证验证码是否正确
         String phoneCode = CodeGenerator.smsCode();
         jedisClient.set(phoneNum, phoneCode);
+        jedisClient.expire(phoneNum, CodeRepresentation.MESSAGECODE_EXPIRE);
         int code = phoneMessageService.sendMessage(phoneNum, phoneCode);
         if (code == CodeRepresentation.CODE_FAIL)
             return new SuperResult(code, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_GETIDCODE_CODE_0_STATUS_1, null);
@@ -398,12 +399,14 @@ public class LoginController {
      */
     @RequestMapping(value = "/login/modifyUserBasic", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult modifyUserBasic(byte[] headPhoto, String nickName, Byte sex, HttpServletRequest request) {
+    public SuperResult modifyUserBasic(String headPhoto, String nickName, Byte sex, HttpServletRequest request) {
         String UID = tokenService.getUID(request);
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
-        boolean res = loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex);
+//        String UID = "888";
+        String rootPath = request.getSession().getServletContext().getRealPath("/");
+        boolean res = loginRegisterService.modifyUserBasic(UID, headPhoto, nickName, sex, rootPath);
         if (!res)
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_MODIFYUSERBASIC_CODE_0_STATUS_0, null);
         return SuperResult.ok(MessageRepresentation.LOGIN_MODIFYUSERBASIC_CODE_1_STATUS_0);

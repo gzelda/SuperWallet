@@ -33,10 +33,11 @@ public class EOSScatterServiceImpl implements EOSScatterService {
     }
 
     @Override
-    public SuperResult requestSignature(String UID, String buf) {
+    public SuperResult requestSignature(String UID, String buf, int restFreeTimes) {
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(RequestParams.UID, UID);
         params.put(RequestParams.BUF, buf);
+        params.put(RequestParams.RESTFREETIMES, restFreeTimes);
         String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_SCATTER_REQUESTSIGNATURE;
         String resp = HttpUtil.post(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);

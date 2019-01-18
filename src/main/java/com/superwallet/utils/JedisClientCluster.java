@@ -48,6 +48,11 @@ public class JedisClientCluster implements JedisClient {
     }
 
     @Override
+    public Long decr(String key) {
+        return jedisCluster.decr(key);
+    }
+
+    @Override
     public Long hset(String key, String field, String value) {
         return jedisCluster.hset(key, field, value);
     }

@@ -54,18 +54,23 @@ public class RecycleWalletServiceImpl implements RecycleWalletService {
         long recycleIntervalTime;
         try {
             recycleMinAmount = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_RECYCLE_MIN_AMOUNT));
-            recycleIntervalTime = Long.parseLong(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_RECYCLE_INTERVALTIME));
+            recycleIntervalTime = ((long) (Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_RECYCLE_INTERVALTIME)) * 1000)) * 60 * 60;
         } catch (Exception e) {
             recycleMinAmount = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_RECYCLE_MIN_AMOUNT).getConfvalue());
-            recycleIntervalTime = Long.parseLong(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_RECYCLE_INTERVALTIME).getConfvalue());
+            recycleIntervalTime = ((long) (Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_RECYCLE_INTERVALTIME).getConfvalue()) * 1000)) * 60 * 60;
         }
         //转换成毫秒
-        recycleIntervalTime = recycleIntervalTime * 60 * 60 * 1000;
+//        recycleIntervalTime = recycleIntervalTime;
+//        System.out.println("回收间隔:" + recycleIntervalTime);
         //拿到当前时间
         long time = System.currentTimeMillis();
+//        System.out.println("time:" + time);
         //遍历每个用户
         for (Userbasic user : users) {
             String uid = user.getUid();
+            boolean hasEOSWallet = commonService.hasEOSWallet(uid);
+            if (!hasEOSWallet) continue;
+//            System.out.println("开始拿到用户id: " + uid);
             EostokenKey eostokenKey = new EostokenKey(uid, CodeRepresentation.EOS_TOKEN_TYPE_EOS);
             Eostoken eostoken = eostokenMapper.selectByPrimaryKey(eostokenKey);
             //如果这个用户已经没有EOS账户直接跳过
@@ -77,10 +82,18 @@ public class RecycleWalletServiceImpl implements RecycleWalletService {
             //查看用户活跃间隔是否低于回收间隔
             try {
                 long lastOp = Long.parseLong(jedisClient.get(CodeRepresentation.REDIS_PRE_LASTOP + uid));
+//                System.out.println(lastOp);
                 time -= lastOp;
+//                System.out.println(time);
                 //满足回收条件
                 if (time >= recycleIntervalTime) {
-                    commonService.recycleWallet(uid);
+//                    System.out.println("开始回收");
+                    SuperResult result = commonService.recycleWallet(uid);
+                    //如果成功回收，要改表
+                    if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
+                        eostoken.setEosaccountname("");
+                        eostokenMapper.updateByPrimaryKey(eostoken);
+                    }
                     recycleUsers.add(uid);
                 }
             } catch (Exception e) {

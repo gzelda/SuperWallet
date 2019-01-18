@@ -5,6 +5,14 @@ public class TransferKey {
 
     private String uid;
 
+    public TransferKey() {
+    }
+
+    public TransferKey(String uid, Long transferid) {
+        this.transferid = transferid;
+        this.uid = uid;
+    }
+
     public Long getTransferid() {
         return transferid;
     }

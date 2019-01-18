@@ -1,10 +1,7 @@
 package com.superwallet.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.superwallet.common.CodeRepresentation;
-import com.superwallet.common.LoginResult;
-import com.superwallet.common.MessageRepresentation;
-import com.superwallet.common.SuperResult;
+import com.superwallet.common.*;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
 import com.superwallet.service.CWalletService;
@@ -58,6 +55,9 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Autowired
     private UserstatusMapper userstatusMapper;
 
+    @Autowired
+    private OptconfMapper optconfMapper;
+
     /**
      * 查看手机号是否已经被注册过
      *
@@ -87,7 +87,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      */
     @Override
     @Transactional
-    public SuperResult register(String phoneNum, String passWord, String invitedCode, String rootPath) {
+    public SuperResult register(String phoneNum, String passWord, String invitedCode) {
         //再次判断一下手机号是否已被注册
         boolean registered = isRegistered(phoneNum);
         if (registered)
@@ -96,9 +96,8 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         String uid = UUID.randomUUID().toString();
         Userbasic userbasic = new Userbasic();
         //默认头像设置
-        String path = rootPath + "WEB-INF/imgs/default.jpg";
-        byte[] headPhoto = ByteImageConvert.image2byte(path);
-        userbasic.setHeadphoto(headPhoto);
+//        String path = rootPath + "WEB-INF/imgs/default.jpg";
+        userbasic.setHeadphoto("");
         userbasic.setUid(uid);
         userbasic.setSex(CodeRepresentation.USER_SEX_MAN);
         userbasic.setIsagency(CodeRepresentation.USER_AGENT_NOTAGENCY);
@@ -142,16 +141,18 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         //注册成功后赠送BGS，并记录一笔收益
         double REGISTER_BGS = 0;
         try {
-            REGISTER_BGS = Double.parseDouble(jedisClient.hget("operationCode", "PROFIT_REGISTER_BGS"));
+            REGISTER_BGS = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PROFIT_REGISTER_BGS));
         } catch (Exception e) {
-            REGISTER_BGS = 5.0;
+            REGISTER_BGS = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_PROFIT_REGISTER_BGS).getConfvalue());
         }
         cWalletService.updateBGSWalletAmount(uid, REGISTER_BGS, CodeRepresentation.CWALLET_MONEY_INC);
         Ethtoken bgstoken = ethtokenMapper.selectByPrimaryKey(new EthtokenKey(uid, CodeRepresentation.ETH_TOKEN_TYPE_BGS));
-        boolean genRecord = commonService.generateRecord(uid, CodeRepresentation.TRANSFER_TYPE_REGISTERBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, bgstoken.getEthaddress(), REGISTER_BGS);
-        if (!genRecord) {
+        RecordResult genRecord = commonService.generateRecord(uid, CodeRepresentation.TRANSFER_TYPE_REGISTERBGS, (byte) CodeRepresentation.TOKENTYPE_BGS, CodeRepresentation.TRANSFER_SUCCESS, CodeRepresentation.SUPER_BGS, bgstoken.getEthaddress(), REGISTER_BGS);
+        if (!genRecord.isGenerated()) {
             System.out.println("生成注册时收益记录失败");
         }
+        //注册成功后 往redis里面写一条免费质押次数
+        jedisClient.set(CodeRepresentation.REDIS_PRE_FREETIMES + uid, "3");
         //注册成功后往userstatus里写一条数据
         Userstatus userstatus = new Userstatus(uid, CodeRepresentation.USERSTATUS_ON, new Date());
         userstatusMapper.insert(userstatus);
@@ -192,7 +193,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         boolean registered = isRegistered(phoneNum);
         //如果没注册，0-1代表无此手机号
         if (!registered)
-            new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_1, null);
+            return new LoginResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_1, null);
         UserbasicExample userbasicExample = new UserbasicExample();
         UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
         criteria.andPhonenumberEqualTo(phoneNum);
@@ -364,16 +365,16 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
      * @param sex
      */
     @Override
-    public boolean modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex) {
+    public boolean modifyUserBasic(String UID, String headPhoto, String nickName, Byte sex, String rootPath) {
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
-        if (headPhoto != null && headPhoto.length != 0) {
+        if (headPhoto != null && !headPhoto.equals("")) {
             user.setHeadphoto(headPhoto);
         }
         if (nickName != null && !nickName.equals(""))
             user.setNickname(nickName);
         if (sex != null)
             user.setSex(sex);
-        int rows = userbasicMapper.updateByPrimaryKeyWithBLOBs(user);
+        int rows = userbasicMapper.updateByPrimaryKey(user);
         if (rows == 0) return false;
         return true;
     }

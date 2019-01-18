@@ -132,6 +132,7 @@ public class DWalletServiceImpl implements DWalletService {
         Byte transferType = CodeRepresentation.TRANSFER_TYPE_ON2ON;
         //转账币种
         Byte token = new Byte(tokenType + "");
+        RecordResult res;
         switch (tokenType) {
             //转入eth钱包
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -143,7 +144,11 @@ public class DWalletServiceImpl implements DWalletService {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
                 }
                 //请求成功则记录一笔交易记录
-                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
+                res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
+                if (res.isGenerated()) {
+                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                }
                 break;
             //转入eos钱包
             case CodeRepresentation.TOKENTYPE_EOS:
@@ -169,7 +174,11 @@ public class DWalletServiceImpl implements DWalletService {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
                 }
                 //请求成功则记录一笔交易记录
-                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
+                res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
+                if (res.isGenerated()) {
+                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                }
                 break;
         }
         return new SuperResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, MessageRepresentation.DWALLET_TRANSFER_CODE_1_STATUS_0, null);
@@ -207,7 +216,8 @@ public class DWalletServiceImpl implements DWalletService {
         Byte token = new Byte(tokenType + "");
         //锁仓状态
         int status = CodeRepresentation.LOCK_STAUTS_ONPROFIT;
-        boolean genLockedRecord, genTransferRecord;
+        boolean genLockedRecord;
+        RecordResult res;
         switch (tokenType) {
             //转入eth钱包
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -224,12 +234,15 @@ public class DWalletServiceImpl implements DWalletService {
                 ethtoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(ethtoken);
                 genLockedRecord = commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
-                genTransferRecord = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, ethtoken.getEthaddress(), CodeRepresentation.SUPER_ETH, tokenAmount);
+                res = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_ONPROCESS, ethtoken.getEthaddress(), CodeRepresentation.SUPER_ETH, tokenAmount);
                 if (!genLockedRecord) {
                     System.out.println(UID + ":生成锁仓记录失败");
                 }
-                if (!genTransferRecord) {
+                if (!res.isGenerated()) {
                     System.out.println(UID + ":生成锁仓付费交易记录失败");
+                } else {
+                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
                 }
                 break;
             //转入eos钱包
@@ -248,11 +261,11 @@ public class DWalletServiceImpl implements DWalletService {
                 eostoken.setAmount(amount);
                 eostokenMapper.updateByPrimaryKey(eostoken);
                 genLockedRecord = commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
-                genTransferRecord = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, eostoken.getEosaccountname(), CodeRepresentation.SUPER_EOS, tokenAmount);
+                res = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, eostoken.getEosaccountname(), CodeRepresentation.SUPER_EOS, tokenAmount);
                 if (!genLockedRecord) {
                     System.out.println(UID + ":生成锁仓记录失败");
                 }
-                if (!genTransferRecord) {
+                if (!res.isGenerated()) {
                     System.out.println(UID + ":生成锁仓付费交易记录失败");
                 }
                 break;
@@ -262,7 +275,7 @@ public class DWalletServiceImpl implements DWalletService {
                 addressFrom = bgstoken.getEthaddress();
                 addressTo = CodeRepresentation.SUPER_BGS;
                 //链上请求
-                result = result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
+                result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 //链上转账请求失败
                 if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
@@ -272,12 +285,15 @@ public class DWalletServiceImpl implements DWalletService {
                 bgstoken.setAmount(amount);
                 ethtokenMapper.updateByPrimaryKey(bgstoken);
                 genLockedRecord = commonService.lockedRecord(UID, tokenType, period, tokenAmount, status);
-                genTransferRecord = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_SUCCESS, bgstoken.getEthaddress(), CodeRepresentation.SUPER_BGS, tokenAmount);
+                res = commonService.generateRecord(UID, CodeRepresentation.TRANSFER_TYPE_PAYLOCK, Byte.valueOf(tokenType + ""), CodeRepresentation.TRANSFER_ONPROCESS, bgstoken.getEthaddress(), CodeRepresentation.SUPER_BGS, tokenAmount);
                 if (!genLockedRecord) {
                     System.out.println(UID + ":生成锁仓记录失败");
                 }
-                if (!genTransferRecord) {
+                if (!res.isGenerated()) {
                     System.out.println(UID + ":生成锁仓付费交易记录失败");
+                } else {
+                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
                 }
                 break;
         }
@@ -610,17 +626,18 @@ public class DWalletServiceImpl implements DWalletService {
         String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_CPU;
         String resp = HttpUtil.post(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        RecordResult res;
         //如果成功，生成一笔交易记录
         if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
             Eostoken eostoken = eostokenMapper.selectByPrimaryKey(new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS));
-            boolean generateRecord = commonService.generateRecord(UID,
+            res = commonService.generateRecord(UID,
                     CodeRepresentation.TRANSFER_TYPE_BUYEOSCPU,
                     (byte) CodeRepresentation.TOKENTYPE_EOS,
                     CodeRepresentation.TRANSFER_SUCCESS,
                     eostoken.getEosaccountname(),
                     CodeRepresentation.SUPER_EOS,
                     TRX_CPU_USER);
-            if (!generateRecord) {
+            if (!res.isGenerated()) {
                 System.out.println("生成购买CPU交易记录失败");
             }
             result.setMsg(MessageRepresentation.DWALLET_TRXCPU_CODE_1_STATUS_0);
@@ -650,17 +667,18 @@ public class DWalletServiceImpl implements DWalletService {
         String requestUrl = CodeRepresentation.NODE_URL_EOS + CodeRepresentation.NODE_ACTION_EOS_NET;
         String resp = HttpUtil.post(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        RecordResult res;
         //如果成功，生成一笔交易记录
         if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
             Eostoken eostoken = eostokenMapper.selectByPrimaryKey(new EostokenKey(UID, CodeRepresentation.EOS_TOKEN_TYPE_EOS));
-            boolean generateRecord = commonService.generateRecord(UID,
+            res = commonService.generateRecord(UID,
                     CodeRepresentation.TRANSFER_TYPE_BUYEOSNET,
                     (byte) CodeRepresentation.TOKENTYPE_EOS,
                     CodeRepresentation.TRANSFER_SUCCESS,
                     eostoken.getEosaccountname(),
                     CodeRepresentation.SUPER_EOS,
                     TRX_NET_USER);
-            if (!generateRecord) {
+            if (!res.isGenerated()) {
                 System.out.println("生成购买NET交易记录失败");
             }
             result.setMsg(MessageRepresentation.DWALLET_TRXNET_CODE_1_STATUS_0);
@@ -698,6 +716,7 @@ public class DWalletServiceImpl implements DWalletService {
     @Override
     @Transactional
     public SuperResult buyAgent(String UID) {
+        RecordResult res;
         //如果用户没有EOS钱包 购买代理人失败
         if (!commonService.hasEOSWallet(UID)) {
             return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_2, MessageRepresentation.DONT_HAVE_EOSWALLET, null);
@@ -732,19 +751,22 @@ public class DWalletServiceImpl implements DWalletService {
         user.setIsagency(CodeRepresentation.USER_AGENT_ISAGENCY);
         userbasicMapper.updateByPrimaryKey(user);
         //转账记录
-        boolean genTransferRecord = commonService.generateRecord(UID,
+        res = commonService.generateRecord(UID,
                 CodeRepresentation.TRANSFER_TYPE_BUYAGENT,
                 Byte.valueOf(CodeRepresentation.TOKENTYPE_EOS + ""),
                 CodeRepresentation.TRANSFER_SUCCESS,
                 eostoken.getTokenAddress(),
                 CodeRepresentation.SUPER_EOS,
                 PRICE_BUYAGENT);
-        if (!genTransferRecord) {
+        if (!res.isGenerated()) {
             try {
                 throw new Exception();
             } catch (Exception e) {
                 System.out.println("生成购买代理人转账记录失败");
             }
+        } else {
+            String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+            commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
         }
         //使邀请该用户的人获得邀请BGS奖励
         InviterExample inviterExample = new InviterExample();
@@ -759,14 +781,14 @@ public class DWalletServiceImpl implements DWalletService {
             //同时生成一笔交易记录
             EthtokenKey ethtokenKey = new EthtokenKey(inviterUID, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
             Ethtoken ethtoken = ethtokenMapper.selectByPrimaryKey(ethtokenKey);
-            boolean genProfitRecord = commonService.generateRecord(inviterUID,
+            res = commonService.generateRecord(inviterUID,
                     CodeRepresentation.TRANSFER_TYPE_INVITINGBGS,
                     Byte.valueOf(CodeRepresentation.TOKENTYPE_BGS + ""),
                     CodeRepresentation.TRANSFER_SUCCESS,
                     CodeRepresentation.SUPER_BGS,
                     ethtoken.getEthaddress(),
                     INVITING_BGS);
-            if (!genProfitRecord) {
+            if (!res.isGenerated()) {
                 try {
                     throw new Exception();
                 } catch (Exception e) {

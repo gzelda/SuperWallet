@@ -365,6 +365,76 @@ public class UserbasicExample {
             return (Criteria) this;
         }
 
+        public Criteria andHeadphotoIsNull() {
+            addCriterion("headPhoto is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoIsNotNull() {
+            addCriterion("headPhoto is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoEqualTo(String value) {
+            addCriterion("headPhoto =", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoNotEqualTo(String value) {
+            addCriterion("headPhoto <>", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoGreaterThan(String value) {
+            addCriterion("headPhoto >", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoGreaterThanOrEqualTo(String value) {
+            addCriterion("headPhoto >=", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoLessThan(String value) {
+            addCriterion("headPhoto <", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoLessThanOrEqualTo(String value) {
+            addCriterion("headPhoto <=", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoLike(String value) {
+            addCriterion("headPhoto like", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoNotLike(String value) {
+            addCriterion("headPhoto not like", value, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoIn(List<String> values) {
+            addCriterion("headPhoto in", values, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoNotIn(List<String> values) {
+            addCriterion("headPhoto not in", values, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoBetween(String value1, String value2) {
+            addCriterion("headPhoto between", value1, value2, "headphoto");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeadphotoNotBetween(String value1, String value2) {
+            addCriterion("headPhoto not between", value1, value2, "headphoto");
+            return (Criteria) this;
+        }
+
         public Criteria andPhonenumberIsNull() {
             addCriterion("phoneNumber is null");
             return (Criteria) this;

@@ -37,6 +37,7 @@
     <servlet-mapping>
         <servlet-name>springmvc-web</servlet-name>
         <url-pattern>/</url-pattern>
+        <url-pattern>/WEB-INF/imgs/*</url-pattern>
     </servlet-mapping>
 
 

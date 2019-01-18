@@ -52,6 +52,9 @@ public class CommonServiceImpl implements CommonService {
     @Autowired
     private OptconfMapper optconfMapper;
 
+    @Autowired
+    private EthvalidationMapper ethvalidationMapper;
+
     /**
      * 转账记录生成
      *
@@ -65,9 +68,9 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     @Override
-    public boolean generateRecord(String UID, Byte transferType, Byte tokenType,
-                                  Byte status, String addressFrom, String addressTo,
-                                  Double tokenAmount) {
+    public RecordResult generateRecord(String UID, Byte transferType, Byte tokenType,
+                                       Byte status, String addressFrom, String addressTo,
+                                       Double tokenAmount) {
         //转账记录
         Transfer transfer = new Transfer();
         transfer.setUid(UID);
@@ -79,8 +82,14 @@ public class CommonServiceImpl implements CommonService {
         transfer.setCreatedtime(new Date());
         transfer.setAmount(tokenAmount);
         int rows = transferMapper.insert(transfer);
-        if (rows == 0) return false;
-        return true;
+        RecordResult recordResult = new RecordResult();
+        if (rows == 0) {
+            recordResult.setGenerated(false);
+            return recordResult;
+        }
+        recordResult.setGenerated(true);
+        recordResult.setTransferId(transfer.getTransferid());
+        return recordResult;
     }
 
     /**
@@ -1061,6 +1070,43 @@ public class CommonServiceImpl implements CommonService {
                 return CodeRepresentation.PROFIT_TYPE_REGISTER;
         }
         return CodeRepresentation.PROFIT_TYPE_INVITING;
+    }
+
+    /**
+     * 生成ETH的待认证记录
+     *
+     * @param UID
+     * @param transferId
+     * @param txHash
+     * @param status
+     * @return
+     */
+    @Override
+    public boolean genETHValidation(String UID, Long transferId, String txHash, Integer status) {
+        Ethvalidation ethvalidation = new Ethvalidation();
+        ethvalidation.setUid(UID);
+        ethvalidation.setTransferid(transferId);
+        ethvalidation.setHashvalue(txHash);
+        ethvalidation.setStatus(status);
+        int rows = ethvalidationMapper.insert(ethvalidation);
+        if (rows == 0) return false;
+        return true;
+    }
+
+    /**
+     * 链上查询待确认订单
+     *
+     * @param txHash
+     * @return
+     */
+    @Override
+    public SuperResult queryPending(String txHash) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(RequestParams.TXHASH, txHash);
+        String requestUrl = CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETH_QUERYPENDING;
+        String resp = HttpUtil.get(requestUrl, params);
+        SuperResult result = JSON.parseObject(resp, SuperResult.class);
+        return result;
     }
 
 }

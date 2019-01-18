@@ -6,7 +6,7 @@ import com.superwallet.common.SuperResult;
 public interface LoginRegisterService {
     public boolean isRegistered(String phoneNum);
 
-    public SuperResult register(String phoneNum, String passWord, String invitedCode, String rootPath);
+    public SuperResult register(String phoneNum, String passWord, String invitedCode);
 
     public boolean isValidInvitedCode(String invitedCode);
 
@@ -24,7 +24,7 @@ public interface LoginRegisterService {
 
     public boolean isValidOldPassword(String UID, String oldPassWord);
 
-    public boolean modifyUserBasic(String UID, byte[] headPhoto, String nickName, Byte sex);
+    public boolean modifyUserBasic(String UID, String headPhoto, String nickName, Byte sex, String rootPath);
 
     public boolean isPayCodeExists(String UID);
 

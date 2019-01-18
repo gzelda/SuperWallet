@@ -6,6 +6,7 @@
         <result column="nickName" property="nickname" jdbcType="VARCHAR"/>
         <result column="sex" property="sex" jdbcType="TINYINT"/>
         <result column="isAgency" property="isagency" jdbcType="TINYINT"/>
+        <result column="headPhoto" property="headphoto" jdbcType="VARCHAR"/>
         <result column="phoneNumber" property="phonenumber" jdbcType="CHAR"/>
         <result column="inviter" property="inviter" jdbcType="CHAR"/>
         <result column="status" property="status" jdbcType="TINYINT"/>
@@ -13,9 +14,6 @@
         <result column="payPassWord" property="paypassword" jdbcType="VARCHAR"/>
         <result column="invitedCode" property="invitedcode" jdbcType="VARCHAR"/>
         <result column="registerTime" property="registertime" jdbcType="TIMESTAMP"/>
-  </resultMap>
-    <resultMap id="ResultMapWithBLOBs" type="com.superwallet.pojo.Userbasic" extends="BaseResultMap">
-        <result column="headPhoto" property="headphoto" jdbcType="LONGVARBINARY"/>
   </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -78,29 +76,9 @@
     </where>
   </sql>
     <sql id="Base_Column_List">
-    UID, nickName, sex, isAgency, phoneNumber, inviter, status, passWord, payPassWord, 
-    invitedCode, registerTime
+    UID, nickName, sex, isAgency, headPhoto, phoneNumber, inviter, status, passWord, 
+    payPassWord, invitedCode, registerTime
   </sql>
-    <sql id="Blob_Column_List">
-    headPhoto
-  </sql>
-    <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs"
-            parameterType="com.superwallet.pojo.UserbasicExample">
-    select
-        <if test="distinct">
-      distinct
-    </if>
-        <include refid="Base_Column_List"/>
-    ,
-        <include refid="Blob_Column_List"/>
-    from userbasic
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-    </if>
-        <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
     <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.UserbasicExample">
     select
         <if test="distinct">
@@ -115,11 +93,9 @@
       order by ${orderByClause}
     </if>
   </select>
-    <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String">
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String">
         select
         <include refid="Base_Column_List"/>
-    ,
-        <include refid="Blob_Column_List"/>
     from userbasic
     where UID = #{uid,jdbcType=CHAR}
   </select>
@@ -135,14 +111,14 @@
   </delete>
     <insert id="insert" parameterType="com.superwallet.pojo.Userbasic">
     insert into userbasic (UID, nickName, sex, 
-      isAgency, phoneNumber, inviter, 
-      status, passWord, payPassWord, 
-      invitedCode, registerTime, headPhoto
+      isAgency, headPhoto, phoneNumber, 
+      inviter, status, passWord, 
+      payPassWord, invitedCode, registerTime
       )
     values (#{uid,jdbcType=CHAR}, #{nickname,jdbcType=VARCHAR}, #{sex,jdbcType=TINYINT}, 
-      #{isagency,jdbcType=TINYINT}, #{phonenumber,jdbcType=CHAR}, #{inviter,jdbcType=CHAR}, 
-      #{status,jdbcType=TINYINT}, #{password,jdbcType=VARCHAR}, #{paypassword,jdbcType=VARCHAR}, 
-      #{invitedcode,jdbcType=VARCHAR}, #{registertime,jdbcType=TIMESTAMP}, #{headphoto,jdbcType=LONGVARBINARY}
+      #{isagency,jdbcType=TINYINT}, #{headphoto,jdbcType=VARCHAR}, #{phonenumber,jdbcType=CHAR}, 
+      #{inviter,jdbcType=CHAR}, #{status,jdbcType=TINYINT}, #{password,jdbcType=VARCHAR}, 
+      #{paypassword,jdbcType=VARCHAR}, #{invitedcode,jdbcType=VARCHAR}, #{registertime,jdbcType=TIMESTAMP}
       )
   </insert>
     <insert id="insertSelective" parameterType="com.superwallet.pojo.Userbasic">
@@ -160,6 +136,9 @@
             <if test="isagency != null">
         isAgency,
       </if>
+            <if test="headphoto != null">
+                headPhoto,
+            </if>
             <if test="phonenumber != null">
         phoneNumber,
       </if>
@@ -181,9 +160,6 @@
             <if test="registertime != null">
         registerTime,
       </if>
-            <if test="headphoto != null">
-        headPhoto,
-      </if>
     </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="uid != null">
@@ -197,7 +173,10 @@
       </if>
             <if test="isagency != null">
         #{isagency,jdbcType=TINYINT},
-      </if>
+            </if>
+            <if test="headphoto != null">
+                #{headphoto,jdbcType=VARCHAR},
+            </if>
             <if test="phonenumber != null">
         #{phonenumber,jdbcType=CHAR},
       </if>
@@ -218,9 +197,6 @@
       </if>
             <if test="registertime != null">
         #{registertime,jdbcType=TIMESTAMP},
-      </if>
-            <if test="headphoto != null">
-        #{headphoto,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -244,7 +220,10 @@
       </if>
             <if test="record.isagency != null">
         isAgency = #{record.isagency,jdbcType=TINYINT},
-      </if>
+            </if>
+            <if test="record.headphoto != null">
+                headPhoto = #{record.headphoto,jdbcType=VARCHAR},
+            </if>
             <if test="record.phonenumber != null">
         phoneNumber = #{record.phonenumber,jdbcType=CHAR},
       </if>
@@ -266,28 +245,7 @@
             <if test="record.registertime != null">
         registerTime = #{record.registertime,jdbcType=TIMESTAMP},
       </if>
-            <if test="record.headphoto != null">
-        headPhoto = #{record.headphoto,jdbcType=LONGVARBINARY},
-      </if>
     </set>
-        <if test="_parameter != null">
-            <include refid="Update_By_Example_Where_Clause"/>
-    </if>
-  </update>
-    <update id="updateByExampleWithBLOBs" parameterType="map">
-    update userbasic
-    set UID = #{record.uid,jdbcType=CHAR},
-        nickName = #{record.nickname,jdbcType=VARCHAR},
-        sex = #{record.sex,jdbcType=TINYINT},
-        isAgency = #{record.isagency,jdbcType=TINYINT},
-        phoneNumber = #{record.phonenumber,jdbcType=CHAR},
-        inviter = #{record.inviter,jdbcType=CHAR},
-        status = #{record.status,jdbcType=TINYINT},
-        passWord = #{record.password,jdbcType=VARCHAR},
-        payPassWord = #{record.paypassword,jdbcType=VARCHAR},
-        invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
-        registerTime = #{record.registertime,jdbcType=TIMESTAMP},
-        headPhoto = #{record.headphoto,jdbcType=LONGVARBINARY}
         <if test="_parameter != null">
             <include refid="Update_By_Example_Where_Clause"/>
     </if>
@@ -298,6 +256,7 @@
         nickName = #{record.nickname,jdbcType=VARCHAR},
         sex = #{record.sex,jdbcType=TINYINT},
         isAgency = #{record.isagency,jdbcType=TINYINT},
+        headPhoto = #{record.headphoto,jdbcType=VARCHAR},
         phoneNumber = #{record.phonenumber,jdbcType=CHAR},
         inviter = #{record.inviter,jdbcType=CHAR},
         status = #{record.status,jdbcType=TINYINT},
@@ -320,7 +279,10 @@
       </if>
             <if test="isagency != null">
         isAgency = #{isagency,jdbcType=TINYINT},
-      </if>
+            </if>
+            <if test="headphoto != null">
+                headPhoto = #{headphoto,jdbcType=VARCHAR},
+            </if>
             <if test="phonenumber != null">
         phoneNumber = #{phonenumber,jdbcType=CHAR},
       </if>
@@ -342,25 +304,7 @@
             <if test="registertime != null">
         registerTime = #{registertime,jdbcType=TIMESTAMP},
       </if>
-            <if test="headphoto != null">
-        headPhoto = #{headphoto,jdbcType=LONGVARBINARY},
-      </if>
     </set>
-    where UID = #{uid,jdbcType=CHAR}
-  </update>
-    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.superwallet.pojo.Userbasic">
-    update userbasic
-    set nickName = #{nickname,jdbcType=VARCHAR},
-      sex = #{sex,jdbcType=TINYINT},
-      isAgency = #{isagency,jdbcType=TINYINT},
-      phoneNumber = #{phonenumber,jdbcType=CHAR},
-      inviter = #{inviter,jdbcType=CHAR},
-      status = #{status,jdbcType=TINYINT},
-      passWord = #{password,jdbcType=VARCHAR},
-      payPassWord = #{paypassword,jdbcType=VARCHAR},
-      invitedCode = #{invitedcode,jdbcType=VARCHAR},
-      registerTime = #{registertime,jdbcType=TIMESTAMP},
-      headPhoto = #{headphoto,jdbcType=LONGVARBINARY}
     where UID = #{uid,jdbcType=CHAR}
   </update>
     <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Userbasic">
@@ -368,6 +312,7 @@
     set nickName = #{nickname,jdbcType=VARCHAR},
       sex = #{sex,jdbcType=TINYINT},
       isAgency = #{isagency,jdbcType=TINYINT},
+      headPhoto = #{headphoto,jdbcType=VARCHAR},
       phoneNumber = #{phonenumber,jdbcType=CHAR},
       inviter = #{inviter,jdbcType=CHAR},
       status = #{status,jdbcType=TINYINT},

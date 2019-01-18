@@ -11,9 +11,9 @@ create table userbasic(
     nickName varchar(20) not null,
     sex tinyint not null,
     isAgency tinyint not null,
-    headPhoto longblob,
+    headPhoto varchar(100),
     phoneNumber char(15) not null,
-    inviter char(20),
+    inviter char(100),
     status tinyint,
     passWord varchar(100),
     payPassWord varchar(100),
@@ -195,11 +195,13 @@ create table optconf(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --ETH转账延迟表--
-drop table if exists ethValidation;
-create table ethValidation(
+--status: 0-待完成 1-已完成 --
+drop table if exists ethvalidation;
+create table ethvalidation(
     UID varchar(100) not null,
     transferId bigint not null,
     hashValue varchar(100) not null,
+    status int not null,
     primary key(UID,transferId)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -1,8 +1,9 @@
 package com.superwallet.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Userbasic {
+public class Userbasic implements Serializable {
     private String uid;
 
     private String nickname;
@@ -10,6 +11,8 @@ public class Userbasic {
     private Byte sex;
 
     private Byte isagency;
+
+    private String headphoto;
 
     private String phonenumber;
 
@@ -24,8 +27,6 @@ public class Userbasic {
     private String invitedcode;
 
     private Date registertime;
-
-    private byte[] headphoto;
 
     public String getUid() {
         return uid;
@@ -57,6 +58,14 @@ public class Userbasic {
 
     public void setIsagency(Byte isagency) {
         this.isagency = isagency;
+    }
+
+    public String getHeadphoto() {
+        return headphoto;
+    }
+
+    public void setHeadphoto(String headphoto) {
+        this.headphoto = headphoto == null ? null : headphoto.trim();
     }
 
     public String getPhonenumber() {
@@ -113,13 +122,5 @@ public class Userbasic {
 
     public void setRegistertime(Date registertime) {
         this.registertime = registertime;
-    }
-
-    public byte[] getHeadphoto() {
-        return headphoto;
-    }
-
-    public void setHeadphoto(byte[] headphoto) {
-        this.headphoto = headphoto;
     }
 }

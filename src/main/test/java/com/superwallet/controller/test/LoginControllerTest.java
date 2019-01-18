@@ -50,8 +50,9 @@ public class LoginControllerTest {
     public void modifyUserBasic() throws Exception {
         HashMap<String, Object> map = new HashMap<String, Object>();
         byte[] head = ByteImageConvert.image2byte("D:/default.jpg");
-        map.put("UID", "027cf298-4060-4b99-9553-ecd2636a5530");
+//        ByteImageConvert.byte2image(head,"D:/a.jpg");
         map.put("headPhoto", head);
+        map.put("nickName", "Sher");
         String res = HttpUtil.post(url + "/login/modifyUserBasic", map);
         System.out.println(res);
     }

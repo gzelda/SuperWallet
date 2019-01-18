@@ -5,6 +5,7 @@ import com.superwallet.common.MessageRepresentation;
 import com.superwallet.common.SuperResult;
 import com.superwallet.service.EOSScatterService;
 import com.superwallet.service.TokenService;
+import com.superwallet.utils.JedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,9 @@ public class EOSScatterController {
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private JedisClient jedisClient;
 
     @RequestMapping(value = "/eos/scatter/getOrRequestIdentity", method = RequestMethod.POST)
     @ResponseBody
@@ -55,7 +59,23 @@ public class EOSScatterController {
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
-        SuperResult result = eosScatterService.requestSignature(UID, buf);
+        jedisClient.hget(CodeRepresentation.REDIS_PRE_FREETIMES, UID);
+        int restTimes;
+        try {
+            restTimes = Integer.parseInt(jedisClient.get(CodeRepresentation.REDIS_PRE_FREETIMES + UID));
+        } catch (Exception e) {
+            restTimes = 0;
+        }
+        if (restTimes > 3) {
+            restTimes = 3;
+            jedisClient.set(CodeRepresentation.REDIS_PRE_FREETIMES, "3");
+        }
+        jedisClient.decr(CodeRepresentation.REDIS_PRE_FREETIMES + UID);
+        SuperResult result = eosScatterService.requestSignature(UID, buf, restTimes);
+        //如果失败要加回剩余次数
+        if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+            jedisClient.incr(CodeRepresentation.REDIS_PRE_FREETIMES + UID);
+        }
         return result;
     }
 

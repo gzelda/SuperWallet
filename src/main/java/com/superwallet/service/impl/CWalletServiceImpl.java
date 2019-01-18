@@ -1,5 +1,6 @@
 package com.superwallet.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.superwallet.common.*;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
@@ -97,7 +98,8 @@ public class CWalletServiceImpl implements CWalletService {
         Byte transferType = CodeRepresentation.TRANSFER_TYPE_ON2OFF;
         //转账币种
         Byte token = new Byte(tokenType + "");
-        boolean res;
+        RecordResult res;
+        String txHash;
         switch (tokenType) {
             //转入eth钱包
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -113,14 +115,16 @@ public class CWalletServiceImpl implements CWalletService {
                 updateETHWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                 //生成转账记录
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
-                if (!res) {
+                if (!res.isGenerated()) {
                     try {
                         throw new Exception();
                     } catch (Exception e) {
                         System.out.println("ETH转账交易记录生成失败");
-                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
+//                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                     }
                 }
+                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
                 break;
             //转入eos钱包
             case CodeRepresentation.TOKENTYPE_EOS:
@@ -136,12 +140,12 @@ public class CWalletServiceImpl implements CWalletService {
                 updateEOSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                 //生成转账记录
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
-                if (!res) {
+                if (!res.isGenerated()) {
                     try {
                         throw new Exception();
                     } catch (Exception e) {
                         System.out.println("EOS转账交易记录生成失败");
-                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
+//                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                     }
                 }
                 break;
@@ -160,14 +164,16 @@ public class CWalletServiceImpl implements CWalletService {
                 updateBGSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                 //生成转账记录
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
-                if (!res) {
+                if (!res.isGenerated()) {
                     try {
                         throw new Exception();
                     } catch (Exception e) {
                         System.out.println("BGS转账交易记录生成失败");
-                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
+//                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                     }
                 }
+                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
                 break;
         }
         return true;
@@ -261,6 +267,8 @@ public class CWalletServiceImpl implements CWalletService {
         WithdrawmoneyKey key = new WithdrawmoneyKey(UID, WID);
         Withdrawmoney record = withdrawmoneyMapper.selectByPrimaryKey(key);
         if (record.getStatus() == CodeRepresentation.WITHDRAW_FAIL) return false;
+        RecordResult res;
+        String txHash;
         switch (tokenType) {
             //ETH
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -276,14 +284,17 @@ public class CWalletServiceImpl implements CWalletService {
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateETHWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
-                    commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
+                    res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
                 transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
-                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
+                res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
+                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                if (res.isGenerated())
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
                 break;
             //EOS
             case CodeRepresentation.TOKENTYPE_EOS:
@@ -329,7 +340,11 @@ public class CWalletServiceImpl implements CWalletService {
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
                 transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
-                commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
+                res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
+                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                if (res.isGenerated()) {
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                }
                 break;
         }
         return true;

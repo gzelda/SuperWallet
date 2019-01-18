@@ -27,6 +27,7 @@ public class RedisInit {
         list.add(info);
         ShardedJedisPool pool = new ShardedJedisPool(config, list);
         ShardedJedis jedis = pool.getResource();
+
 //        Jedis jedis = new Jedis("aws", 6379);
         //初始化开发人员专用数据信息
 //        jedis.hset("developerCode", "CODE_FAIL", "0");
@@ -124,11 +125,21 @@ public class RedisInit {
 //        jedis.hset("operationCode", "PROFIT_DAPP_PLATFORM", "0.1");
 //        jedis.hset("operationCode", "PROFIT_INVITING_BGS", "50");
 //        jedis.hset("operationCode", "RECYCLE_MIN_AMOUNT", "0.1");
-//        jedis.hset("operationCode", "RECYCLE_INTERVALTIME", "24");
-        jedis.hset("tokenprice", "eth", "814.08");
-        jedis.hset("tokenprice", "eos", "16.25");
-        jedis.hset("tokenprice", "bgs", "0.01");
-
+//        jedis.hset("operationCode", "RECYCLE_INTERVALTIME", "0.1");
+//        jedis.hset("tokenprice", "eth", "814.08");
+//        jedis.hset("tokenprice", "eos", "16.25");
+//        jedis.hset("tokenprice", "bgs", "0.01");
+//        jedis.set(CodeRepresentation.REDIS_PRE_FREETIMES + "fd62bc0b-06fa-4ce8-965b-04aed4fa1e48", "3");
+//        jedis.set(CodeRepresentation.REDIS_PRE_FREETIMES + "2bdd532e-cd23-49ef-8399-726e9684a4f2", "3");
+//        String uid = "fd62bc0b-06fa-4ce8-965b-04aed4fa1e48";
+//        String s = jedis.get(CodeRepresentation.REDIS_PRE_FREETIMES +uid);
+//        System.out.println(s);
+//        jedis.decr(CodeRepresentation.REDIS_PRE_FREETIMES + uid);
+//        String s1 = jedis.get(CodeRepresentation.REDIS_PRE_FREETIMES + uid);
+//        System.out.println(s1);
+//        jedis.incr(CodeRepresentation.REDIS_PRE_FREETIMES+uid);
+//        String s2 = jedis.get(CodeRepresentation.REDIS_PRE_FREETIMES + uid);
+//        System.out.println(s2);
 //        jedis.set("restWallet", "10000");
     }
 

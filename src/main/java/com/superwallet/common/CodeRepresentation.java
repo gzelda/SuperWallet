@@ -135,6 +135,8 @@ public class CodeRepresentation {
     public static final String TOKEN_KEY = "token";
     //redis中存用户活跃的前缀
     public static final String REDIS_PRE_LASTOP = "lastOp:";
+    //redis中存用户剩余免费质押次数
+    public static final String REDIS_PRE_FREETIMES = "restFreeTimes:";
 
 
     //转账记录的状态值status
@@ -162,6 +164,10 @@ public class CodeRepresentation {
     //类型是收入还是支出
     public static final int NOT_INCOMING = 0;
     public static final int IS_INCOMING = 1;
+
+    //ETH认证 0-未完成 1-已完成
+    public static final int ETH_VALIDATION_ON = 0;
+    public static final int ETH_VALIDATION_OVER = 1;
 
     //redis模块
     public static final String REDIS_OPTCONF = "operationCode";
@@ -193,6 +199,7 @@ public class CodeRepresentation {
     public static final String REDIS_TOKENPRICE_ETH = "TOKENPRICE_ETH";
     public static final String REDIS_TOKENPRICE_EOS = "TOKENPRICE_EOS";
     public static final String REDIS_TOKENPRICE_BGS = "TOKENPRICE_BGS";
+    public static final String REDIS_URL = "URL";
 
     public static final String REDIS_REMAINEOSWALLET = "restWallet";
 
@@ -225,6 +232,7 @@ public class CodeRepresentation {
     public static final String NODE_ACTION_ALLOCATEEOSWALLET = "/eos/wallet/allocateWallet";
     public static final String NODE_ACTION_RECYCLEWALLET = "/eos/wallet/recycleWallet";
     public static final String NODE_ACTION_ETHTRANSFER = "/eth/transfer";
+    public static final String NODE_ACTION_ETH_QUERYPENDING = "/eth/queryPending";
     public static final String NODE_ACTION_EOSTRANSFER = "/eos/transfer";
     public static final String NODE_ACTION_EOS_NETCPU = "/eos/trxCPUNET";
     public static final String NODE_ACTION_EOS_CPU = "/eos/eosBank/trxCPU";

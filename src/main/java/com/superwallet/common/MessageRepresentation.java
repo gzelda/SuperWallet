@@ -20,7 +20,7 @@ public class MessageRepresentation implements Serializable {
     public static final String LOGIN_VERIFYUSER_CODE_1_STATUS_0 = "实名认证登记成功";
     //5.密码登录
     public static final String LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_0 = "密码错误";
-    public static final String LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_1 = "无此手机号";
+    public static final String LOGIN_LOGINBYPASSWORD_CODE_0_STATUS_1 = "用户未注册";
     public static final String LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0 = "登录成功";
     //6.手机验证码登录--获取手机验证码
     public static final String LOGIN_GETIDCODE_CODE_0_STATUS_0 = "手机号码未注册";

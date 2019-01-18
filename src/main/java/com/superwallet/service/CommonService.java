@@ -1,15 +1,12 @@
 package com.superwallet.service;
 
-import com.superwallet.common.CommonWalletInfo;
-import com.superwallet.common.EOSWalletInfo;
-import com.superwallet.common.ETHWalletInfo;
-import com.superwallet.common.SuperResult;
+import com.superwallet.common.*;
 import com.superwallet.pojo.Lockwarehouse;
 import com.superwallet.response.ResponseCWalletSimProfitEntry;
 import com.superwallet.response.ResponseDWalletLockedOrderEntry;
 
 public interface CommonService {
-    boolean generateRecord(String UID, Byte transferType, Byte tokenType, Byte status, String addressFrom, String addressTo, Double tokenAmount);
+    RecordResult generateRecord(String UID, Byte transferType, Byte tokenType, Byte status, String addressFrom, String addressTo, Double tokenAmount);
 
     boolean withdrawRecord(String UID, String WID, Byte tokenType, Byte status, Double tokenAmount);
 
@@ -74,4 +71,8 @@ public interface CommonService {
     int isIncoming(Byte transferType);
 
     int invitingOrRegister(Byte transferType);
+
+    boolean genETHValidation(String UID, Long transferId, String txHash, Integer status);
+
+    SuperResult queryPending(String txHash);
 }

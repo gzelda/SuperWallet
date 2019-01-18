@@ -49,4 +49,10 @@ public class RequestParams {
     //buf
     public static final String BUF = "buf";
 
+    //txHash
+    public static final String TXHASH = "txHash";
+
+    //restFreeTimes
+    public static final String RESTFREETIMES = "restFreeTimes";
+
 }

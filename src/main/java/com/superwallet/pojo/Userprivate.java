@@ -1,6 +1,8 @@
 package com.superwallet.pojo;
 
-public class Userprivate {
+import java.io.Serializable;
+
+public class Userprivate implements Serializable {
     private String uid;
 
     private String realname;

@@ -7,7 +7,7 @@ public interface EOSScatterService {
 
     public SuperResult identityFromPermissions(String UID);
 
-    public SuperResult requestSignature(String UID, String buf);
+    public SuperResult requestSignature(String UID, String buf, int restFreeTimes);
 
     public SuperResult getOriginData(String data);
 }
