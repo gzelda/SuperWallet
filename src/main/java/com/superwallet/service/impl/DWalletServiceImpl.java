@@ -74,7 +74,8 @@ public class DWalletServiceImpl implements DWalletService {
                             eos.getTokenName(),
                             eos.getTokenAddress(),
                             eos.getTokenPrice(),
-                            eos.getBalance() * eos.getTokenPrice()
+                            eos.getBalance() * eos.getTokenPrice(),
+                            eos.getBalance()
                     )
             );
         }
@@ -86,7 +87,8 @@ public class DWalletServiceImpl implements DWalletService {
                         eth.getTokenName(),
                         eth.getTokenAddress(),
                         eth.getTokenPrice(),
-                        eth.getBalance() * eth.getTokenPrice()
+                        eth.getBalance() * eth.getTokenPrice(),
+                        eth.getBalance()
                 )
         );
         //BGS信息
@@ -96,7 +98,8 @@ public class DWalletServiceImpl implements DWalletService {
                         bgs.getTokenName(),
                         bgs.getTokenAddress(),
                         bgs.getTokenPrice(),
-                        bgs.getBalance() * bgs.getTokenPrice()
+                        bgs.getBalance() * bgs.getTokenPrice(),
+                        bgs.getBalance()
                 )
         );
         return list;

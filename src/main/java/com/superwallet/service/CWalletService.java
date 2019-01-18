@@ -16,7 +16,7 @@ public interface CWalletService {
 
     public boolean withdrawRequest(String UID, Integer tokenType, Double tokenAmount);
 
-    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice);
+    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice, String auditor, String remark);
 
     public List<Transfer> listHistoryBills(String UID, Integer tokenType);
 

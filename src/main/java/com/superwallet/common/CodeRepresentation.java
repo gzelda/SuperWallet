@@ -147,9 +147,9 @@ public class CodeRepresentation {
     public static Map<Byte, String> TRANSFER_STATUS_MAPPING = new HashMap<Byte, String>();
 
     //提现申请表的状态
-    public static final byte WITHDRAW_WAIT = 1;
-    public static final byte WITHDRAW_SUCCESS = 2;
-    public static final byte WITHDRAW_FAIL = 3;
+    public static final byte WITHDRAW_WAIT = 1;//等待
+    public static final byte WITHDRAW_SUCCESS = 2;//成功
+    public static final byte WITHDRAW_FAIL = 3;//失败
 
     //中心钱包余额加或者减
     public static final int CWALLET_MONEY_INC = 0;//加

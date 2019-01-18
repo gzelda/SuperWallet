@@ -255,7 +255,7 @@ public class CWalletServiceImpl implements CWalletService {
      */
     @Override
     @Transactional
-    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice) {
+    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice, String auditor, String remark) {
         String addressFrom, addressTo;
         //nodejs返回结果
         SuperResult result;
@@ -289,6 +289,9 @@ public class CWalletServiceImpl implements CWalletService {
                 }
                 //申请表记录更新--涉及到钱是否返还问题
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
+                record.setAuditor(auditor);
+                record.setAudittime(new Date());
+                record.setRemark(remark);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
                 transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
