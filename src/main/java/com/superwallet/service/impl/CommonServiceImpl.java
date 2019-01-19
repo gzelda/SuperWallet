@@ -1104,7 +1104,7 @@ public class CommonServiceImpl implements CommonService {
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(RequestParams.TXHASH, txHash);
         String requestUrl = CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETH_QUERYPENDING;
-        String resp = HttpUtil.get(requestUrl, params);
+        String resp = HttpUtil.post(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);
         return result;
     }

@@ -71,17 +71,20 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public ResponseUserInvitingInfo getInvitingInfo(String UID) {
         double PROFIT_INVITING_BGS;
+        String url;
         try {
             PROFIT_INVITING_BGS = Double.parseDouble(jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_PROFIT_INVITING_BGS));
+            url = jedisClient.hget(CodeRepresentation.REDIS_OPTCONF, CodeRepresentation.REDIS_URL);
         } catch (Exception e) {
             PROFIT_INVITING_BGS = Double.parseDouble(optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_PROFIT_INVITING_BGS).getConfvalue());
+            url = optconfMapper.selectByPrimaryKey(CodeRepresentation.REDIS_URL).getConfvalue();
         }
+
         Userbasic user = userbasicMapper.selectByPrimaryKey(UID);
         String invitedCode = user.getInvitedcode();
         int hasInvitedPeopleCount = commonService.getInvitingCount(UID);
         double bgsHasGot = hasInvitedPeopleCount * PROFIT_INVITING_BGS;
-        //TODO 邀请链接
-        String inviteUrl = invitedCode;
+        String inviteUrl = url + "?invitedCode=" + invitedCode;
         ResponseUserInvitingInfo result = new ResponseUserInvitingInfo(
                 invitedCode,
                 hasInvitedPeopleCount,

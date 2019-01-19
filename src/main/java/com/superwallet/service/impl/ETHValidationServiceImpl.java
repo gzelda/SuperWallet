@@ -46,7 +46,8 @@ public class ETHValidationServiceImpl implements ETHValidationService {
                 //链上查询订单状态
                 result = commonService.queryPending(txHash);
                 //状态为已确认
-                if (result.getCode() == CodeRepresentation.CODE_SUCCESS && JSONObject.parseObject(result.getData().toString()).getString("status").equals("1")) {
+//                System.out.println(result.getData());
+                if (result.getCode() == CodeRepresentation.CODE_SUCCESS && JSONObject.parseObject(result.getData().toString()).getInteger("status") == 1) {
                     Transfer transfer = transferMapper.selectByPrimaryKey(new TransferKey(row.getUid(), row.getTransferid()));
                     if (transfer != null) {
                         //更新交易记录状态

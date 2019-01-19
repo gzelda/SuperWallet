@@ -206,9 +206,10 @@ public class LoginController {
             //分配EOS钱包
             commonService.updateUserEOSWallet(uid);
             //注册或登录成功传手机号用来做推送用--绑定的唯一ID
-            Map<String, String> returnKV = new HashMap<String, String>();
+            Map<String, Object> returnKV = new HashMap<String, Object>();
             returnKV.put("phoneNum", phoneNum);
             returnKV.put("UID", uid);
+            returnKV.put("isVIP", user.getIsagency());
             return new SuperResult(loginResult.getCode(), loginResult.getStatus(), MessageRepresentation.LOGIN_LOGINBYPASSWORD_CODE_1_STATUS_0, returnKV);
         }
         //其他任何失败情况不传UID
@@ -275,9 +276,10 @@ public class LoginController {
             //分配EOS钱包
             commonService.updateUserEOSWallet(uid);
             //注册或登录成功传手机号用来做推送用--绑定的唯一ID
-            Map<String, String> returnKV = new HashMap<String, String>();
+            Map<String, Object> returnKV = new HashMap<String, Object>();
             returnKV.put("phoneNum", phoneNum);
             returnKV.put("UID", uid);
+            returnKV.put("isVIP", user.getIsagency());
             return new SuperResult(loginResult.getCode(), loginResult.getStatus(), loginResult.getMsg(), returnKV);
         }
         //其他任何失败情况不传UID
