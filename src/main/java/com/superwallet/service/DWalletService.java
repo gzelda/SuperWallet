@@ -1,6 +1,7 @@
 package com.superwallet.service;
 
 import com.superwallet.common.SuperResult;
+import com.superwallet.pojo.Lockwarehouse;
 import com.superwallet.response.*;
 
 import java.util.List;
@@ -33,4 +34,8 @@ public interface DWalletService {
     public ResponseDWalletLockedOrderEntry getOrder(String UID, String LID);
 
     public SuperResult buyAgent(String UID);
+
+    List<Lockwarehouse> listOnOverOrders();
+
+    boolean lockOrdersConfirm(String UID, Long LID, Integer type);
 }

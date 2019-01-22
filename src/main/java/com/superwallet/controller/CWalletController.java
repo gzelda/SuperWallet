@@ -110,12 +110,12 @@ public class CWalletController {
      */
     @RequestMapping(value = "/cWallet/withdraw", method = RequestMethod.POST)
     @ResponseBody
-    public SuperResult withdraw(String UID, String WID, int tokenType, double tokenAmount, double gasPrice, String auditor, String remark, HttpServletRequest request) {
+    public SuperResult withdraw(String UID, String WID, int tokenType, double tokenAmount, double gasPrice, String auditor, String remark, int status, HttpServletRequest request) {
 //        String UID = tokenService.getUID(request);
         //登录超时
 //        if (UID == null)
 //            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
-        boolean result = cWalletService.withdraw(UID, WID, tokenType, tokenAmount, gasPrice, auditor, remark);
+        boolean result = cWalletService.withdraw(UID, WID, tokenType, tokenAmount, gasPrice, auditor, remark, status);
         if (result) return SuperResult.ok(MessageRepresentation.CWALLET_WITHDRAW_CODE_1_STATUS_0);
         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.CWALLET_WITHDRAW_CODE_0_STATUS_0, null);
     }

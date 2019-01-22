@@ -5,8 +5,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.superwallet.common.*;
 import com.superwallet.mapper.*;
 import com.superwallet.pojo.*;
+import com.superwallet.response.ResponseCWalletProfitEntry;
 import com.superwallet.response.ResponseCWalletSimProfitEntry;
 import com.superwallet.response.ResponseDWalletLockedOrderEntry;
+import com.superwallet.service.CWalletService;
 import com.superwallet.service.CommonService;
 import com.superwallet.utils.HttpUtil;
 import com.superwallet.utils.JedisClient;
@@ -54,6 +56,9 @@ public class CommonServiceImpl implements CommonService {
 
     @Autowired
     private EthvalidationMapper ethvalidationMapper;
+
+    @Autowired
+    private CWalletService cWalletService;
 
     /**
      * 转账记录生成
@@ -494,7 +499,20 @@ public class CommonServiceImpl implements CommonService {
         lockedOrderStartTime = format.format(row.getCreatedtime());
         lockedOrderEndTime = format.format(row.getCreatedtime().getTime() + row.getPeriod() * 24 * 60 * 60 * 1000);
         period = row.getPeriod();
-        lockedOrderLeftDay = period - (int) ((new Date()).getTime() - row.getCreatedtime().getTime()) / (1000 * 60 * 60 * 24);
+        //查看锁仓订单有没有超时
+        if (lockedOrderEndTime.compareTo(format.format(new Date())) <= 0) {
+            //如果超时更新锁仓订单表状态,并且计算总收益并更新最后收益字段
+            lockedOrderLeftDay = 0;
+            List<ResponseCWalletProfitEntry> list = cWalletService.totalProfitToEntry(row.getUid(), row.getTokentype(), row.getLid() + "", CodeRepresentation.PROFIT_TYPE_LOCK);
+            if (list != null && list.size() != 0) {
+                double profit = list.get(0).getProfit();
+                row.setFinalprofit(profit);
+            }
+            row.setStatus(CodeRepresentation.LOCK_STATUS_ONOVER);
+            lockwarehouseMapper.updateByPrimaryKey(row);
+        } else {
+            lockedOrderLeftDay = period - (int) ((new Date()).getTime() - row.getCreatedtime().getTime()) / (1000 * 60 * 60 * 24);
+        }
         lockedOrderState = row.getStatus();
         tokenName = CodeRepresentation.TOKENNAME_MAPPING.get(row.getTokentype());
         ResponseDWalletLockedOrderEntry result = new ResponseDWalletLockedOrderEntry(LID,
@@ -1100,11 +1118,11 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     @Override
-    public SuperResult queryPending(String txHash) {
-        HashMap<String, Object> params = new HashMap<String, Object>();
+    public SuperResult queryPending(List<String> txHash) {
+        HashMap<String, List<String>> params = new HashMap<String, List<String>>();
         params.put(RequestParams.TXHASH, txHash);
         String requestUrl = CodeRepresentation.NODE_URL_ETH + CodeRepresentation.NODE_ACTION_ETH_QUERYPENDING;
-        String resp = HttpUtil.post(requestUrl, params);
+        String resp = HttpUtil.postList(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);
         return result;
     }

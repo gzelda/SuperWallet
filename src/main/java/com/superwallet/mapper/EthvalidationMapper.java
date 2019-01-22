@@ -29,4 +29,6 @@ public interface EthvalidationMapper {
     int updateByPrimaryKeySelective(Ethvalidation record);
 
     int updateByPrimaryKey(Ethvalidation record);
+
+    int updateBatch(@Param(value = "list") List<Ethvalidation> list);
 }

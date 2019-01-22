@@ -611,6 +611,85 @@ public class DWalletServiceImpl implements DWalletService {
     }
 
     /**
+     * 展示待确认的锁仓订单--后台管理使用
+     *
+     * @return
+     */
+    @Override
+    public List<Lockwarehouse> listOnOverOrders() {
+        LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
+        LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
+        criteria.andStatusEqualTo(CodeRepresentation.LOCK_STATUS_ONOVER);
+        List<Lockwarehouse> list = lockwarehouseMapper.selectByExample(lockwarehouseExample);
+        return list;
+    }
+
+    /**
+     * 解仓
+     *
+     * @param UID
+     * @param LID
+     * @return
+     */
+    @Override
+    @Transactional
+    public boolean lockOrdersConfirm(String UID, Long LID, Integer type) {
+        LockwarehouseKey lockwarehouseKey = new LockwarehouseKey(LID, UID);
+        Lockwarehouse order = lockwarehouseMapper.selectByPrimaryKey(lockwarehouseKey);
+        //如果解仓失败，钱要退回，并且要生成一笔转账记录
+        String addressFrom = "default", addressTo = "default";
+        byte transferType = (type == CodeRepresentation.LOCKCONFIRM_FAIL ? CodeRepresentation.TRANSFER_TYPE_LOCKCONFIRM_FAIL : CodeRepresentation.TRANSFER_TYPE_LOCKPROFIT);
+        double amount = (type == CodeRepresentation.LOCKCONFIRM_FAIL ? order.getAmount() : order.getAmount() + order.getFinalprofit());
+        //根据币种拿到地址并且更新钱包余额
+        switch (order.getTokentype()) {
+            case CodeRepresentation.TOKENTYPE_ETH:
+                Ethtoken ethtoken = (Ethtoken) commonService.getToken(UID, order.getTokentype());
+                addressFrom = CodeRepresentation.SUPER_ETH;
+                addressTo = ethtoken.getEthaddress();
+                cWalletService.updateETHWalletAmount(UID, amount, CodeRepresentation.CWALLET_MONEY_INC);
+                break;
+            case CodeRepresentation.TOKENTYPE_EOS:
+                Eostoken eostoken = (Eostoken) commonService.getToken(UID, order.getTokentype());
+                addressFrom = CodeRepresentation.SUPER_EOS;
+                addressTo = eostoken.getEosaccountname();
+                cWalletService.updateEOSWalletAmount(UID, amount, CodeRepresentation.CWALLET_MONEY_INC);
+                break;
+            case CodeRepresentation.TOKENTYPE_BGS:
+                Ethtoken bgstoken = (Ethtoken) commonService.getToken(UID, order.getTokentype());
+                addressFrom = CodeRepresentation.SUPER_BGS;
+                addressTo = bgstoken.getEthaddress();
+                cWalletService.updateBGSWalletAmount(UID, amount, CodeRepresentation.CWALLET_MONEY_INC);
+                break;
+        }
+        //生成交易记录
+        RecordResult recordResult = commonService.generateRecord(
+                UID,
+                transferType,
+                Byte.valueOf(order.getTokentype() + ""),
+                CodeRepresentation.TRANSFER_SUCCESS,
+                addressFrom,
+                addressTo,
+                amount);
+        if (!recordResult.isGenerated()) {
+            try {
+                throw new Exception();
+            } catch (Exception e) {
+                System.out.println("解仓时生成转账记录失败");
+            }
+            return false;
+        }
+        //如果解仓失败，更新锁仓表状态
+        if (type == CodeRepresentation.LOCKCONFIRM_FAIL) {
+            order.setStatus(CodeRepresentation.LOCK_STATUS_FAIL);
+            lockwarehouseMapper.updateByPrimaryKey(order);
+        } else {
+            order.setStatus(CodeRepresentation.LOCK_STATUS_FINISHED);
+            lockwarehouseMapper.updateByPrimaryKey(order);
+        }
+        return true;
+    }
+
+    /**
      * 质押CPU
      *
      * @param UID

@@ -29,4 +29,6 @@ public interface TransferMapper {
     int updateByPrimaryKeySelective(Transfer record);
 
     int updateByPrimaryKey(Transfer record);
+
+    int updateBatch(@Param(value = "list") List<Transfer> list);
 }

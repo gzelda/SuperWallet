@@ -166,6 +166,15 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="bean" index="index" open="" close="" separator=";">
+            update ethvalidation
+            set hashValue = #{bean.hashvalue,jdbcType=VARCHAR},
+            status = #{bean.status,jdbcType=INTEGER}
+            where UID = #{bean.uid,jdbcType=VARCHAR}
+            and transferId = #{bean.transferid,jdbcType=BIGINT}
+        </foreach>
+    </update>
     <update id="updateByExample" parameterType="map">
         update ethvalidation
         set UID = #{record.uid,jdbcType=VARCHAR},

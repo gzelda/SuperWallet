@@ -5,6 +5,8 @@ import com.superwallet.pojo.Lockwarehouse;
 import com.superwallet.response.ResponseCWalletSimProfitEntry;
 import com.superwallet.response.ResponseDWalletLockedOrderEntry;
 
+import java.util.List;
+
 public interface CommonService {
     RecordResult generateRecord(String UID, Byte transferType, Byte tokenType, Byte status, String addressFrom, String addressTo, Double tokenAmount);
 
@@ -74,5 +76,5 @@ public interface CommonService {
 
     boolean genETHValidation(String UID, Long transferId, String txHash, Integer status);
 
-    SuperResult queryPending(String txHash);
+    SuperResult queryPending(List<String> txHash);
 }

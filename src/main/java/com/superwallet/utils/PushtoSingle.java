@@ -3,9 +3,11 @@ package com.superwallet.utils;
 import com.gexin.rp.sdk.base.IPushResult;
 import com.gexin.rp.sdk.base.impl.SingleMessage;
 import com.gexin.rp.sdk.base.impl.Target;
+import com.gexin.rp.sdk.base.payload.APNPayload;
 import com.gexin.rp.sdk.exceptions.RequestException;
 import com.gexin.rp.sdk.http.IGtPush;
 import com.gexin.rp.sdk.template.LinkTemplate;
+import com.gexin.rp.sdk.template.TransmissionTemplate;
 import com.gexin.rp.sdk.template.style.Style0;
 
 public class PushtoSingle {
@@ -19,9 +21,10 @@ public class PushtoSingle {
 //    static String Alias = "UID";
     static String host = "http://sdk.open.api.igexin.com/apiex.htm";
 
-    public static void pushMessage(String title, String text, String url) {
+    public static void pushMessage(String title, String text, String url, String phoneNum) {
         IGtPush push = new IGtPush(host, appKey, masterSecret);
-        LinkTemplate template = linkTemplateDemo(title, text, url);
+        //ios端
+        TransmissionTemplate template = getTemplate(title, text);
         SingleMessage message = new SingleMessage();
         message.setOffline(true);
         // 离线有效时间，单位为毫秒，可选
@@ -29,19 +32,34 @@ public class PushtoSingle {
         message.setData(template);
         // 可选，1为wifi，0为不限制网络环境。根据手机处于的网络情况，决定是否下发
         message.setPushNetWorkType(0);
+
+        //安卓端
+        LinkTemplate template2 = linkTemplateDemo(title, text, url);
+        SingleMessage message2 = new SingleMessage();
+        message2.setOffline(true);
+        // 离线有效时间，单位为毫秒，可选
+        message2.setOfflineExpireTime(24 * 3600 * 1000);
+        message2.setData(template2);
+        // 可选，1为wifi，0为不限制网络环境。根据手机处于的网络情况，决定是否下发
+        message2.setPushNetWorkType(0);
+
         Target target = new Target();
         target.setAppId(appId);
-        target.setClientId(CID);
-//        target.setAlias(Alias);
-        IPushResult ret = null;
+//        target.setClientId(CID);
+        target.setAlias(phoneNum);
+        IPushResult ret1 = null;
+        IPushResult ret2 = null;
         try {
-            ret = push.pushMessageToSingle(message, target);
+            ret1 = push.pushMessageToSingle(message, target);
+            ret2 = push.pushMessageToSingle(message2, target);
         } catch (RequestException e) {
             e.printStackTrace();
-            ret = push.pushMessageToSingle(message, target, e.getRequestId());
+            ret1 = push.pushMessageToSingle(message, target, e.getRequestId());
+            ret2 = push.pushMessageToSingle(message2, target, e.getRequestId());
         }
-        if (ret != null) {
-            System.out.println(ret.getResponse().toString());
+        if (ret1 != null || ret2 != null) {
+            System.out.println(ret1.getResponse().toString());
+            System.out.println(ret2.getResponse().toString());
         } else {
             System.out.println("服务器响应异常");
         }
@@ -49,7 +67,7 @@ public class PushtoSingle {
 
     public static void main(String[] args) {
         IGtPush push = new IGtPush(host, appKey, masterSecret);
-        LinkTemplate template = linkTemplateDemo("test", "test", "www.baidu.com");
+        TransmissionTemplate template = getTemplate("标题1", "内容1");
         SingleMessage message = new SingleMessage();
         message.setOffline(true);
         // 离线有效时间，单位为毫秒，可选
@@ -57,23 +75,71 @@ public class PushtoSingle {
         message.setData(template);
         // 可选，1为wifi，0为不限制网络环境。根据手机处于的网络情况，决定是否下发
         message.setPushNetWorkType(0);
+
+        LinkTemplate template2 = linkTemplateDemo("标题1", "内容1", "链接1");
+        SingleMessage message2 = new SingleMessage();
+        message2.setOffline(true);
+        // 离线有效时间，单位为毫秒，可选
+        message2.setOfflineExpireTime(24 * 3600 * 1000);
+        message2.setData(template2);
+        // 可选，1为wifi，0为不限制网络环境。根据手机处于的网络情况，决定是否下发
+        message2.setPushNetWorkType(0);
+
         Target target = new Target();
         target.setAppId(appId);
-        target.setClientId(CID);
-//        target.setAlias(Alias);
-        IPushResult ret = null;
+        //target.setClientId(CID);
+        target.setAlias("8617695556242");
+        IPushResult ret1 = null;
+        IPushResult ret2 = null;
         try {
-            ret = push.pushMessageToSingle(message, target);
+            ret1 = push.pushMessageToSingle(message, target);
+            ret2 = push.pushMessageToSingle(message2, target);
         } catch (RequestException e) {
             e.printStackTrace();
-            ret = push.pushMessageToSingle(message, target, e.getRequestId());
+            ret1 = push.pushMessageToSingle(message, target, e.getRequestId());
+            ret2 = push.pushMessageToSingle(message2, target, e.getRequestId());
         }
-        if (ret != null) {
-            System.out.println(ret.getResponse().toString());
+        if (ret1 != null || ret2 != null) {
+            System.out.println(ret1.getResponse().toString());
+            System.out.println(ret2.getResponse().toString());
         } else {
             System.out.println("服务器响应异常");
         }
+    }
 
+
+    private static TransmissionTemplate getTemplate(String title, String text) {
+        TransmissionTemplate template = new TransmissionTemplate();
+        template.setAppId(appId);
+        template.setAppkey(appKey);
+        template.setTransmissionContent(text);
+        template.setTransmissionType(2);
+        APNPayload payload = new APNPayload();
+        //在已有数字基础上加1显示，设置为-1时，在已有数字上减1显示，设置为数字时，显示指定数字
+        payload.setAutoBadge("+1");
+        payload.setContentAvailable(1);
+        payload.setSound("default");
+        payload.setCategory("$由客户端定义");
+        payload.addCustomMsg("payload", "payload");
+
+        //简单模式APNPayload.SimpleMsg
+        payload.setAlertMsg(getDictionaryAlertMsg(title, text));
+        template.setAPNInfo(payload);
+        return template;
+    }
+
+    private static APNPayload.DictionaryAlertMsg getDictionaryAlertMsg(String title, String text) {
+        APNPayload.DictionaryAlertMsg alertMsg = new APNPayload.DictionaryAlertMsg();
+        alertMsg.setBody(text);
+        alertMsg.setActionLocKey("ActionLockey");
+        alertMsg.setLocKey("LocKey");
+        alertMsg.addLocArg("loc-args");
+        alertMsg.setLaunchImage("launch-image");
+        // iOS8.2以上版本支持
+        alertMsg.setTitle(title);
+        alertMsg.setTitleLocKey("TitleLocKey");
+        alertMsg.addTitleLocArg("TitleLocArg");
+        return alertMsg;
     }
 
     public static LinkTemplate linkTemplateDemo(String title, String text, String url) {
@@ -100,4 +166,6 @@ public class PushtoSingle {
         return template;
     }
 }
+
+
 

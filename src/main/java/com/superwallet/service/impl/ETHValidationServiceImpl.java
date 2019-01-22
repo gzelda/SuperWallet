@@ -14,6 +14,7 @@ import com.superwallet.service.ETHValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,25 +41,52 @@ public class ETHValidationServiceImpl implements ETHValidationService {
         //查询每个待确认订单
         String txHash;
         SuperResult result;
-        for (Ethvalidation row : list) {
+        List<String> txHashs = new ArrayList<String>();
+        for (int i = 0; i < list.size(); i++) {
+            Ethvalidation row = list.get(i);
             txHash = row.getHashvalue();
             if (txHash != null && !txHash.equals("")) {
-                //链上查询订单状态
-                result = commonService.queryPending(txHash);
-                //状态为已确认
-//                System.out.println(result.getData());
-                if (result.getCode() == CodeRepresentation.CODE_SUCCESS && JSONObject.parseObject(result.getData().toString()).getInteger("status") == 1) {
-                    Transfer transfer = transferMapper.selectByPrimaryKey(new TransferKey(row.getUid(), row.getTransferid()));
-                    if (transfer != null) {
-                        //更新交易记录状态
-                        transfer.setStatus(CodeRepresentation.TRANSFER_SUCCESS);
-                        transferMapper.updateByPrimaryKey(transfer);
-                        //更新订单状态
-                        row.setStatus(CodeRepresentation.ETH_VALIDATION_OVER);
-                        ethvalidationMapper.updateByPrimaryKey(row);
-                    }
+//                System.out.println(txHash);
+                txHashs.add(txHash);
+            }
+        }
+        if (txHashs.size() == 1) {
+            txHashs.add("");
+        }
+        //链上查询订单状态
+        result = commonService.queryPending(txHashs);
+        //状态为已确认
+        if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
+//            System.out.println(result.getData());
+            List<Integer> allStatus;
+            try {
+                allStatus = (List) JSONObject.parseObject(result.getData().toString()).get("status");
+//                System.out.println(allStatus.size());
+            } catch (Exception e) {
+                return;
+            }
+            List<Ethvalidation> ethvalidations = new ArrayList<Ethvalidation>();
+            List<Transfer> transfers = new ArrayList<Transfer>();
+            for (int i = 0; i < list.size(); i++) {
+                //不用改表
+                if (allStatus.get(i) == 0) {
+                    continue;
+                }
+                Ethvalidation row = list.get(i);
+                Transfer transfer = transferMapper.selectByPrimaryKey(new TransferKey(row.getUid(), row.getTransferid()));
+                if (transfer != null) {
+                    //更新交易记录状态
+                    transfer.setStatus(CodeRepresentation.TRANSFER_SUCCESS);
+                    transfers.add(transfer);
+                    //更新订单状态
+                    row.setStatus(CodeRepresentation.ETH_VALIDATION_OVER);
+                    ethvalidations.add(row);
                 }
             }
+            if (transfers.size() != 0)
+                transferMapper.updateBatch(transfers);
+            if (ethvalidations.size() != 0)
+                ethvalidationMapper.updateBatch(ethvalidations);
         }
     }
 }

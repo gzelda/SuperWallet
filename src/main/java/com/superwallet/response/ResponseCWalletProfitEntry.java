@@ -10,17 +10,27 @@ public class ResponseCWalletProfitEntry implements Serializable {
     private int status;
     private double profit;
     private double profitToRMB;
+    private int isIncoming;
 
     public ResponseCWalletProfitEntry() {
     }
 
-    public ResponseCWalletProfitEntry(String type, String time, int isFinished, int status, double profit, double profitToRMB) {
+    public ResponseCWalletProfitEntry(String type, String time, int isFinished, int status, double profit, double profitToRMB, int isIncoming) {
         this.type = type;
         this.time = time;
         this.isFinished = isFinished;
         this.status = status;
         this.profit = profit;
         this.profitToRMB = profitToRMB;
+        this.isIncoming = isIncoming;
+    }
+
+    public int getIsIncoming() {
+        return isIncoming;
+    }
+
+    public void setIsIncoming(int isIncoming) {
+        this.isIncoming = isIncoming;
     }
 
     public String getType() {

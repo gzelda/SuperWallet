@@ -91,8 +91,11 @@ public class RecycleWalletServiceImpl implements RecycleWalletService {
                     SuperResult result = commonService.recycleWallet(uid);
                     //如果成功回收，要改表
                     if (result.getCode() == CodeRepresentation.CODE_SUCCESS) {
+//                        System.out.println("回收成功");
                         eostoken.setEosaccountname("");
                         eostokenMapper.updateByPrimaryKey(eostoken);
+                    } else {//回收失败
+                        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, "回收钱包成功", null);
                     }
                     recycleUsers.add(uid);
                 }
@@ -101,6 +104,6 @@ public class RecycleWalletServiceImpl implements RecycleWalletService {
                 System.out.println("解析钱包回收key失败");
             }
         }
-        return SuperResult.ok(recycleUsers);
+        return new SuperResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_0, "回收成功", recycleUsers);
     }
 }

@@ -238,6 +238,20 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="bean" index="index" open="" close="" separator=";">
+            update transfer
+            set source = #{bean.source,jdbcType=VARCHAR},
+            destination = #{bean.destination,jdbcType=VARCHAR},
+            amount = #{bean.amount,jdbcType=DOUBLE},
+            transferType = #{bean.transfertype,jdbcType=TINYINT},
+            tokenType = #{bean.tokentype,jdbcType=TINYINT},
+            createdTime = #{bean.createdtime,jdbcType=TIMESTAMP},
+            status = #{bean.status,jdbcType=TINYINT}
+            where transferId = #{bean.transferid,jdbcType=BIGINT}
+            and UID = #{bean.uid,jdbcType=CHAR}
+        </foreach>
+    </update>
     <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Transfer">
         update transfer
         <set>

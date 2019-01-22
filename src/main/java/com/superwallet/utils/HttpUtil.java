@@ -137,6 +137,48 @@ public class HttpUtil {
      * @param params 请求参数
      * @return
      */
+    public static String postList(String url, Map<String, List<String>> params) {
+        try {
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost(url);
+            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+            for (String key : params.keySet()) {
+                List<String> values = params.get(key);
+                for (String value : values) {
+                    parameters.add(new BasicNameValuePair(key, value));
+                }
+            }
+//            for (Iterator<String> iterator = params.keySet().iterator(); iterator.hasNext(); ) {
+//                String key = iterator.next();
+//                parameters.add(new BasicNameValuePair(key, params.get(key).toString()));
+//            }
+            UrlEncodedFormEntity uefEntity = new UrlEncodedFormEntity(parameters, CHARSET);
+            httpPost.setEntity(uefEntity);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
+            try {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    String str = EntityUtils.toString(entity, CHARSET);
+                    return str;
+                }
+            } finally {
+                response.close();
+                httpClient.close();
+            }
+        } catch (Exception e) {
+            logger.error(e);
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    /**
+     * http post请求
+     *
+     * @param url    请求地址
+     * @param params 请求参数
+     * @return
+     */
     public static String post(String url, String params) {
         try {
             CloseableHttpClient httpClient = HttpClients.createDefault();

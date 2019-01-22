@@ -55,6 +55,9 @@ public class CWalletServiceImpl implements CWalletService {
     @Autowired
     private DWalletService dWalletService;
 
+    @Autowired
+    private EthvalidationMapper ethvalidationMapper;
+
     /**
      * 获取用户的所有中心化钱包信息
      *
@@ -255,7 +258,7 @@ public class CWalletServiceImpl implements CWalletService {
      */
     @Override
     @Transactional
-    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice, String auditor, String remark) {
+    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice, String auditor, String remark, Integer status) {
         String addressFrom, addressTo;
         //nodejs返回结果
         SuperResult result;
@@ -278,13 +281,23 @@ public class CWalletServiceImpl implements CWalletService {
                 addressTo = ethtoken.getEthaddress();
                 result = commonService.ETHTransfer(CodeRepresentation.SUPER_UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 //链上转账请求失败
-                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+                if (result.getCode() == CodeRepresentation.CODE_FAIL || status == 2) {
                     //提现失败则退回金额，并记录一笔转账记录，此单作废
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateETHWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
                     res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
+                    return false;
+                }
+                //如果提现速度太快，会出现延迟，需要特殊判断
+                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                EthvalidationExample ethvalidationExample = new EthvalidationExample();
+                EthvalidationExample.Criteria criteria = ethvalidationExample.createCriteria();
+                criteria.andUidEqualTo(UID);
+                criteria.andHashvalueEqualTo(txHash);
+                List<Ethvalidation> ethvalidations = ethvalidationMapper.selectByExample(ethvalidationExample);
+                if (ethvalidations != null && ethvalidations.size() != 0) {
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
@@ -307,7 +320,7 @@ public class CWalletServiceImpl implements CWalletService {
                 addressTo = eostoken.getEosaccountname();
                 result = commonService.EOSTransfer(CodeRepresentation.SUPER_UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, "提现");
                 //链上转账请求失败
-                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+                if (result.getCode() == CodeRepresentation.CODE_FAIL || status == 2) {
                     //提现失败则退回金额，并记录一笔转账记录，此单作废
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
@@ -318,6 +331,9 @@ public class CWalletServiceImpl implements CWalletService {
                 }
                 //申请表记录更新--涉及到钱是否返还问题
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
+                record.setAuditor(auditor);
+                record.setAudittime(new Date());
+                record.setRemark(remark);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
                 transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
@@ -330,7 +346,7 @@ public class CWalletServiceImpl implements CWalletService {
                 addressTo = bgstoken.getEthaddress();
                 result = commonService.ETHTransfer(CodeRepresentation.SUPER_UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 //链上转账请求失败
-                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+                if (result.getCode() == CodeRepresentation.CODE_FAIL || status == 2) {
                     //提现失败则退回金额，并记录一笔转账记录，此单作废
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
@@ -339,8 +355,21 @@ public class CWalletServiceImpl implements CWalletService {
                     commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
+                //如果提现速度太快，会出现延迟，需要特殊判断
+                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                EthvalidationExample example = new EthvalidationExample();
+                EthvalidationExample.Criteria cri = example.createCriteria();
+                cri.andUidEqualTo(UID);
+                cri.andHashvalueEqualTo(txHash);
+                List<Ethvalidation> list = ethvalidationMapper.selectByExample(example);
+                if (list != null && list.size() != 0) {
+                    return false;
+                }
                 //申请表记录更新--涉及到钱是否返还问题
                 record.setStatus(CodeRepresentation.WITHDRAW_SUCCESS);
+                record.setAuditor(auditor);
+                record.setAudittime(new Date());
+                record.setRemark(remark);
                 withdrawmoneyMapper.updateByPrimaryKey(record);
                 transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
@@ -411,7 +440,7 @@ public class CWalletServiceImpl implements CWalletService {
      */
     @Override
     public List<ResponseCWalletProfitEntry> getLockedOrderProfit(String UID, Integer tokenType) {
-        //查询所有锁仓订单
+        //查询所有锁仓记录
         LockwarehouseExample lockwarehouseExample = new LockwarehouseExample();
         LockwarehouseExample.Criteria criteria = lockwarehouseExample.createCriteria();
         criteria.andUidEqualTo(UID);
@@ -459,7 +488,8 @@ public class CWalletServiceImpl implements CWalletService {
                     CodeRepresentation.PROFIT_FINISHED,
                     record.getStatus(),
                     record.getAmount(),
-                    record.getAmount() * tokenPrice
+                    record.getAmount() * tokenPrice,
+                    CodeRepresentation.IS_INCOMING
             ));
         }
         return result;
@@ -507,7 +537,74 @@ public class CWalletServiceImpl implements CWalletService {
                     CodeRepresentation.PROFIT_FINISHED,
                     record.getStatus(),
                     record.getAmount(),
-                    record.getAmount() * tokenPrice
+                    record.getAmount() * tokenPrice,
+                    CodeRepresentation.IS_INCOMING
+            ));
+        }
+        return result;
+    }
+
+    /**
+     * 拿到所有的提现记录--从转账表中
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public List<ResponseCWalletProfitEntry> getWithDrawRecord(String UID, Integer tokenType) {
+        //查询转账记录表--找到所有的划转记录
+        TransferExample transferExample = new TransferExample();
+        TransferExample.Criteria criteria = transferExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andTokentypeEqualTo(Byte.valueOf(tokenType + ""));
+        criteria.andTransfertypeEqualTo(CodeRepresentation.TRANSFER_TYPE_WITHDRAW_OUT);
+        List<Transfer> records = transferMapper.selectByExample(transferExample);
+        List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        double tokenPrice = commonService.getTokenPriceByType(tokenType);
+        for (Transfer record : records) {
+            result.add(new ResponseCWalletProfitEntry(
+                    "支出-划转",
+                    format.format(record.getCreatedtime()),
+                    CodeRepresentation.PROFIT_FINISHED,
+                    CodeRepresentation.PROFIT_STATUS_FINISHED,
+                    record.getAmount(),
+                    record.getAmount() * tokenPrice,
+                    CodeRepresentation.NOT_INCOMING
+            ));
+        }
+        return result;
+    }
+
+    /**
+     * 拿到所有划转进行中的记录
+     *
+     * @param UID
+     * @param tokenType
+     * @return
+     */
+    @Override
+    public List<ResponseCWalletProfitEntry> getWithDrawOnProcess(String UID, Integer tokenType) {
+        //查询提现表
+        WithdrawmoneyExample withdrawmoneyExample = new WithdrawmoneyExample();
+        WithdrawmoneyExample.Criteria criteria = withdrawmoneyExample.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andTokentypeEqualTo(Byte.valueOf(tokenType + ""));
+        criteria.andStatusEqualTo(CodeRepresentation.WITHDRAW_WAIT);
+        List<Withdrawmoney> records = withdrawmoneyMapper.selectByExample(withdrawmoneyExample);
+        List<ResponseCWalletProfitEntry> result = new ArrayList<ResponseCWalletProfitEntry>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        double tokenPrice = commonService.getTokenPriceByType(tokenType);
+        for (Withdrawmoney record : records) {
+            result.add(new ResponseCWalletProfitEntry(
+                    CodeRepresentation.PROFIT_TYPE_MAPPING.get(CodeRepresentation.PROFIT_TYPE_WITHDRAW_ONPROCESS),
+                    format.format(record.getCreatedtime()),
+                    CodeRepresentation.PROFIT_NOTFINISHED,
+                    record.getStatus(),
+                    record.getAmount(),
+                    record.getAmount() * tokenPrice,
+                    CodeRepresentation.IS_INCOMING
             ));
         }
         return result;
@@ -534,6 +631,7 @@ public class CWalletServiceImpl implements CWalletService {
         result.setStatus(order.getStatus());
         //收益类型
         result.setType(CodeRepresentation.PROFIT_TYPE_MAPPING.get(CodeRepresentation.PROFIT_TYPE_LOCK));
+        result.setIsIncoming(CodeRepresentation.IS_INCOMING);
         return result;
     }
 
@@ -570,7 +668,8 @@ public class CWalletServiceImpl implements CWalletService {
                     CodeRepresentation.PROFIT_NOTFINISHED,
                     CodeRepresentation.PROFIT_STATUS_ONPROFIT,
                     profit,
-                    profit * tokenPrice
+                    profit * tokenPrice,
+                    CodeRepresentation.IS_INCOMING
             ));
         } else {//其他收益类型直接记录每一条收益记录
             for (Profit row : list) {
@@ -580,7 +679,8 @@ public class CWalletServiceImpl implements CWalletService {
                         CodeRepresentation.PROFIT_FINISHED,
                         CodeRepresentation.PROFIT_STATUS_FINISHED,
                         row.getProfit(),
-                        row.getProfit() * tokenPrice
+                        row.getProfit() * tokenPrice,
+                        CodeRepresentation.IS_INCOMING
                 ));
             }
         }
@@ -623,6 +723,8 @@ public class CWalletServiceImpl implements CWalletService {
         List<ResponseCWalletProfitEntry> agentProfitList = getAgentProfit(UID, tokenType);
         List<ResponseCWalletProfitEntry> withDrawProfit = getWithDrawProfit(UID, tokenType);
         List<ResponseCWalletProfitEntry> invitingProfit = getInvitingProfit(UID, tokenType);
+        List<ResponseCWalletProfitEntry> withDrawRecord = getWithDrawRecord(UID, tokenType);
+        List<ResponseCWalletProfitEntry> withDrawOnProcess = getWithDrawOnProcess(UID, tokenType);
         switch (type) {
             case CodeRepresentation.LISTDETAILPROFIT_ALL:
                 //拿到用户所有的锁仓收益金额
@@ -651,6 +753,16 @@ public class CWalletServiceImpl implements CWalletService {
                     listCount += invitingProfit.size();
                     result.addAll(invitingProfit);
                 }
+                //拿到所有的支出-划转记录
+                if (withDrawRecord != null || withDrawRecord.size() != 0) {
+                    listCount += withDrawRecord.size();
+                    result.addAll(withDrawRecord);
+                }
+                //拿到所有的划转进行中记录
+                if (withDrawOnProcess != null || withDrawOnProcess.size() != 0) {
+                    listCount += withDrawOnProcess.size();
+                    result.addAll(withDrawOnProcess);
+                }
                 break;
             case CodeRepresentation.LISTDETAILPROFIT_LOCK:
                 //拿到用户所有的锁仓收益金额
@@ -677,6 +789,11 @@ public class CWalletServiceImpl implements CWalletService {
                 if (withDrawProfit != null && withDrawProfit.size() != 0) {
                     listCount += withDrawProfit.size();
                     result.addAll(withDrawProfit);
+                }
+                //拿到所有的划转进行中记录
+                if (withDrawOnProcess != null || withDrawOnProcess.size() != 0) {
+                    listCount += withDrawOnProcess.size();
+                    result.addAll(withDrawOnProcess);
                 }
                 break;
             case CodeRepresentation.LISTDETAILPROFIT_REWARD:

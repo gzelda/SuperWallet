@@ -181,7 +181,7 @@ create table withdrawmoney(
     createdTime timestamp not null,
     status tinyint not null,
     auditor varchar(100),
-    auditTime timestamp default now(),
+    auditTime timestamp,
     remark varchar(255),
     primary key(UID,WID)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -202,6 +202,7 @@ create table ethvalidation(
     transferId bigint not null,
     hashValue varchar(100) not null,
     status int not null,
+    createTime timestamp not null,
     primary key(UID,transferId)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

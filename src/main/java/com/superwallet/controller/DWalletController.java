@@ -3,6 +3,7 @@ package com.superwallet.controller;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.MessageRepresentation;
 import com.superwallet.common.SuperResult;
+import com.superwallet.pojo.Lockwarehouse;
 import com.superwallet.response.*;
 import com.superwallet.service.CommonService;
 import com.superwallet.service.DWalletService;
@@ -106,6 +107,25 @@ public class DWalletController {
         SuperResult result = SuperResult.ok(res);
         result.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
         return result;
+    }
+
+    /**
+     * 后台展示待确认锁仓订单
+     *
+     * @return
+     */
+    @RequestMapping(value = "/dWallet/listOnOverOrders", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult listOnOverOrders() {
+        List<Lockwarehouse> list = dWalletService.listOnOverOrders();
+        return SuperResult.ok(list);
+    }
+
+    @RequestMapping(value = "/dWallet/lockOrdersConfirm", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult lockOrdersConfirm(String UID, long LID, Integer type) {
+        boolean ok = dWalletService.lockOrdersConfirm(UID, LID, type);
+        return SuperResult.ok();
     }
 
     /**

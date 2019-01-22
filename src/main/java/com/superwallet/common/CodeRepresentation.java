@@ -63,6 +63,7 @@ public class CodeRepresentation {
     public static final byte TRANSFER_TYPE_AGENTPROFIT = 14;//代理人收益
     public static final byte TRANSFER_TYPE_GAS = 15;//矿工费
     public static final byte TRANSFER_TYPE_WITHDRAW_FAIL = 16;//提现失败退回金额--收入
+    public static final byte TRANSFER_TYPE_LOCKCONFIRM_FAIL = 17;//解仓失败退回金额--收入
     //转账类型字典树
     public static Map<Byte, String> TRANSFER_TYPE_MAPPING = new HashMap<Byte, String>();
 
@@ -89,9 +90,10 @@ public class CodeRepresentation {
     //中心钱包收益类型
     public static final int PROFIT_TYPE_LOCK = 1;//锁仓收益
     public static final int PROFIT_TYPE_AGENT = 2;//代理人收益
-    public static final int PROFIT_TYPE_WITHDRAW = 3;//提现收益
-    public static final int PROFIT_TYPE_INVITING = 4;//邀请人收益
-    public static final int PROFIT_TYPE_REGISTER = 5;//注册收益
+    public static final int PROFIT_TYPE_WITHDRAW_ONPROCESS = 3;//提现收益--进行中
+    public static final int PROFIT_TYPE_WITHDRAW = 4;//提现收益--已结束
+    public static final int PROFIT_TYPE_INVITING = 5;//邀请人收益
+    public static final int PROFIT_TYPE_REGISTER = 6;//注册收益
     //收益类型字典树
     public static Map<Integer, String> PROFIT_TYPE_MAPPING = new HashMap<Integer, String>();
     //----------profit收益记录表结束--------------
@@ -150,6 +152,10 @@ public class CodeRepresentation {
     public static final byte WITHDRAW_WAIT = 1;//等待
     public static final byte WITHDRAW_SUCCESS = 2;//成功
     public static final byte WITHDRAW_FAIL = 3;//失败
+
+    //解仓失败或者成功
+    public static final int LOCKCONFIRM_FAIL = 0;
+    public static final int LOCKCONFIRM_SUCCESS = 1;
 
     //中心钱包余额加或者减
     public static final int CWALLET_MONEY_INC = 0;//加
@@ -270,6 +276,7 @@ public class CodeRepresentation {
 
         PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_LOCK, "收益-锁仓");
         PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_AGENT, "收益-代理");
+        PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_WITHDRAW_ONPROCESS, "划转-进行中");
         PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_WITHDRAW, "划转-已结束");
         PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_INVITING, "收益-邀请");
         PROFIT_TYPE_MAPPING.put(PROFIT_TYPE_REGISTER, "收益-注册");

@@ -157,7 +157,7 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
         Userstatus userstatus = new Userstatus(uid, CodeRepresentation.USERSTATUS_ON, new Date());
         userstatusMapper.insert(userstatus);
         //注册成功后推送一条消息，并且往notification表写一条数据
-        PushtoSingle.pushMessage("BGS注册成功", "恭喜您成功注册BGS平台，免费获得平台赠送的EOS钱包。如需任何帮助请联系微信客服号:tgsj868", "");
+        PushtoSingle.pushMessage("BGS注册成功", "恭喜您成功注册BGS平台，免费获得平台赠送的EOS钱包。如需任何帮助请联系微信客服号:tgsj868", "", phoneNum);
         Notification notification = new Notification(uid, "BGS注册成功", "恭喜您成功注册BGS平台，免费获得平台赠送的EOS钱包。如需任何帮助请联系微信客服号:tgsj868");
         notification.setCreatetime(new Date());
         notificationMapper.insert(notification);

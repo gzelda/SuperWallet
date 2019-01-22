@@ -10,36 +10,40 @@ import com.superwallet.response.ResponseCWalletSimProfit;
 import java.util.List;
 
 public interface CWalletService {
-    public List<CWalletInfo> listCWalletInfo(String UID);
+    List<CWalletInfo> listCWalletInfo(String UID);
 
-    public boolean transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice);
+    boolean transferMoney(String UID, Integer tokenType, Double tokenAmount, Double gasPrice);
 
-    public boolean withdrawRequest(String UID, Integer tokenType, Double tokenAmount);
+    boolean withdrawRequest(String UID, Integer tokenType, Double tokenAmount);
 
-    public boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice, String auditor, String remark);
+    boolean withdraw(String UID, String WID, Integer tokenType, Double tokenAmount, Double gasPrice, String auditor, String remark, Integer status);
 
-    public List<Transfer> listHistoryBills(String UID, Integer tokenType);
+    List<Transfer> listHistoryBills(String UID, Integer tokenType);
 
-    public ResponseCWalletSimProfit listProfit(String UID);
+    ResponseCWalletSimProfit listProfit(String UID);
 
-    public List<ResponseCWalletProfitEntry> getLockedOrderProfit(String UID, Integer tokenType);
+    List<ResponseCWalletProfitEntry> getLockedOrderProfit(String UID, Integer tokenType);
 
-    public List<ResponseCWalletProfitEntry> getWithDrawProfit(String UID, Integer tokenType);
+    List<ResponseCWalletProfitEntry> getWithDrawProfit(String UID, Integer tokenType);
 
-    public List<ResponseCWalletProfitEntry> getAgentProfit(String UID, Integer tokenType);
+    List<ResponseCWalletProfitEntry> getAgentProfit(String UID, Integer tokenType);
 
-    public List<ResponseCWalletProfitEntry> getInvitingProfit(String UID, Integer tokenType);
+    List<ResponseCWalletProfitEntry> getInvitingProfit(String UID, Integer tokenType);
 
-    public ResponseCWalletProfitEntry finishedLockedOrderToEntry(Lockwarehouse order);
+    List<ResponseCWalletProfitEntry> getWithDrawRecord(String UID, Integer tokenType);
 
-    public List<ResponseCWalletProfitEntry> totalProfitToEntry(String UID, Integer tokenType, String orderID, Integer profitType);
+    List<ResponseCWalletProfitEntry> getWithDrawOnProcess(String UID, Integer tokenType);
 
-    public ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType, Integer type);
+    ResponseCWalletProfitEntry finishedLockedOrderToEntry(Lockwarehouse order);
 
-    public boolean updateETHWalletAmount(String UID, double amount, Integer type);
+    List<ResponseCWalletProfitEntry> totalProfitToEntry(String UID, Integer tokenType, String orderID, Integer profitType);
 
-    public boolean updateEOSWalletAmount(String UID, double amount, Integer type);
+    ResponseCWalletProfit listDetailProfit(String UID, Integer tokenType, Integer type);
 
-    public boolean updateBGSWalletAmount(String UID, double amount, Integer type);
+    boolean updateETHWalletAmount(String UID, double amount, Integer type);
+
+    boolean updateEOSWalletAmount(String UID, double amount, Integer type);
+
+    boolean updateBGSWalletAmount(String UID, double amount, Integer type);
 
 }
