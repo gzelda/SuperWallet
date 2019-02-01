@@ -1,13 +1,16 @@
 package com.superwallet.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.superwallet.common.CodeRepresentation;
 import com.superwallet.common.MessageRepresentation;
 import com.superwallet.common.SuperResult;
+import com.superwallet.response.ResponseEOSScatterCPUNETEntry;
 import com.superwallet.service.EOSScatterService;
 import com.superwallet.service.TokenService;
 import com.superwallet.utils.JedisClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -59,7 +62,6 @@ public class EOSScatterController {
         //登录超时
         if (UID == null)
             return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
-        jedisClient.hget(CodeRepresentation.REDIS_PRE_FREETIMES, UID);
         int restTimes;
         try {
             restTimes = Integer.parseInt(jedisClient.get(CodeRepresentation.REDIS_PRE_FREETIMES + UID));
@@ -69,11 +71,19 @@ public class EOSScatterController {
         if (restTimes > 3) {
             restTimes = 3;
             jedisClient.set(CodeRepresentation.REDIS_PRE_FREETIMES, "3");
+        } else if (restTimes <= 0) {
+            restTimes = 0;
         }
         jedisClient.decr(CodeRepresentation.REDIS_PRE_FREETIMES + UID);
-        SuperResult result = eosScatterService.requestSignature(UID, buf, restTimes);
+        SuperResult result;
+        try {
+            result = eosScatterService.requestSignature(UID, buf, restTimes);
+        } catch (Exception e) {
+            jedisClient.incr(CodeRepresentation.REDIS_PRE_FREETIMES + UID);
+            return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, "请求失败!", null);
+        }
         //如果失败要加回剩余次数
-        if (result.getCode() == CodeRepresentation.CODE_FAIL) {
+        if (result.getCode() == CodeRepresentation.CODE_SUCCESS && result.getStatus() == CodeRepresentation.STATUS_1) {
             jedisClient.incr(CodeRepresentation.REDIS_PRE_FREETIMES + UID);
         }
         return result;
@@ -92,4 +102,16 @@ public class EOSScatterController {
         SuperResult result = eosScatterService.getOriginData(data);
         return result;
     }
+
+    @RequestMapping(value = "/eos/getResouceInfo", method = RequestMethod.POST)
+    @ResponseBody
+    public SuperResult getEOSCPUNETInfo(HttpServletRequest request) {
+        String UID = tokenService.getUID(request);
+        //登录超时
+        if (UID == null)
+            return new SuperResult(CodeRepresentation.CODE_TIMEOUT, CodeRepresentation.STATUS_TIMEOUT, MessageRepresentation.USER_USER_CODE_TIMEOUT_STATUS_TIMEOUT, null);
+        ResponseEOSScatterCPUNETEntry info = eosScatterService.getCPUNETPercent(UID);
+        return SuperResult.ok(info);
+    }
+
 }

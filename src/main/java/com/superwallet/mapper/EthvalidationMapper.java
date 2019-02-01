@@ -3,9 +3,8 @@ package com.superwallet.mapper;
 import com.superwallet.pojo.Ethvalidation;
 import com.superwallet.pojo.EthvalidationExample;
 import com.superwallet.pojo.EthvalidationKey;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface EthvalidationMapper {
     int countByExample(EthvalidationExample example);

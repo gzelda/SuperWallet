@@ -1,13 +1,16 @@
 package com.superwallet.service;
 
 import com.superwallet.common.SuperResult;
+import com.superwallet.response.ResponseEOSScatterCPUNETEntry;
 
 public interface EOSScatterService {
-    public SuperResult getOrRequestIdentity(String UID);
+    SuperResult getOrRequestIdentity(String UID);
 
-    public SuperResult identityFromPermissions(String UID);
+    SuperResult identityFromPermissions(String UID);
 
-    public SuperResult requestSignature(String UID, String buf, int restFreeTimes);
+    SuperResult requestSignature(String UID, String buf, int restFreeTimes);
 
-    public SuperResult getOriginData(String data);
+    SuperResult getOriginData(String data);
+
+    ResponseEOSScatterCPUNETEntry getCPUNETPercent(String UID);
 }

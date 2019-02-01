@@ -147,6 +147,26 @@ public class CommonServiceImpl implements CommonService {
     }
 
     /**
+     * 生成邀请人记录
+     *
+     * @param inviterID
+     * @param beinvitedID
+     * @return
+     */
+    @Override
+    public boolean genInviterRecord(String inviterID, String beinvitedID) {
+        Inviter inviter = new Inviter();
+        inviter.setInviterid(inviterID);
+        inviter.setBeinvitedid(beinvitedID);
+        inviter.setInvitingtime(new Date());
+        int rows = inviterMapper.insert(inviter);
+        if (rows == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 拿到ETH的JSON
      *
      * @param UID
@@ -1100,12 +1120,13 @@ public class CommonServiceImpl implements CommonService {
      * @return
      */
     @Override
-    public boolean genETHValidation(String UID, Long transferId, String txHash, Integer status) {
+    public boolean genETHValidation(String UID, Long transferId, String txHash, Integer status, Integer nonce) {
         Ethvalidation ethvalidation = new Ethvalidation();
         ethvalidation.setUid(UID);
         ethvalidation.setTransferid(transferId);
         ethvalidation.setHashvalue(txHash);
         ethvalidation.setStatus(status);
+        ethvalidation.setNonce(nonce);
         int rows = ethvalidationMapper.insert(ethvalidation);
         if (rows == 0) return false;
         return true;
@@ -1125,6 +1146,37 @@ public class CommonServiceImpl implements CommonService {
         String resp = HttpUtil.postList(requestUrl, params);
         SuperResult result = JSON.parseObject(resp, SuperResult.class);
         return result;
+    }
+
+    /**
+     * 是否能够生成ETHValidationRecord
+     *
+     * @param UID
+     * @param txHash
+     * @param nonce
+     * @return
+     */
+    @Override
+    public boolean canGenETHValidationRecord(String UID, String txHash, int nonce) {
+        //查询是否有txHash一样的记录
+        EthvalidationExample example = new EthvalidationExample();
+        EthvalidationExample.Criteria criteria = example.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andHashvalueEqualTo(txHash);
+        List<Ethvalidation> list = ethvalidationMapper.selectByExample(example);
+        if (list != null && list.size() != 0) {
+            return false;
+        }
+        //防止出现垃圾记录，查询是否有nonce一样的记录
+        EthvalidationExample hasList = new EthvalidationExample();
+        criteria = hasList.createCriteria();
+        criteria.andUidEqualTo(UID);
+        criteria.andNonceEqualTo(nonce);
+        list = ethvalidationMapper.selectByExample(hasList);
+        if (list != null && list.size() != 0) {
+            return false;
+        }
+        return true;
     }
 
 }

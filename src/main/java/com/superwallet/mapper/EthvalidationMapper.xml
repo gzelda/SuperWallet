@@ -1,207 +1,220 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.superwallet.mapper.EthvalidationMapper">
-    <resultMap id="BaseResultMap" type="com.superwallet.pojo.Ethvalidation">
-        <id column="UID" property="uid" jdbcType="VARCHAR"/>
-        <id column="transferId" property="transferid" jdbcType="BIGINT"/>
-        <result column="hashValue" property="hashvalue" jdbcType="VARCHAR"/>
-        <result column="status" property="status" jdbcType="INTEGER"/>
-    </resultMap>
-    <sql id="Example_Where_Clause">
-        <where>
-            <foreach collection="oredCriteria" item="criteria" separator="or">
-                <if test="criteria.valid">
-                    <trim prefix="(" suffix=")" prefixOverrides="and">
-                        <foreach collection="criteria.criteria" item="criterion">
-                            <choose>
-                                <when test="criterion.noValue">
-                                    and ${criterion.condition}
-                                </when>
-                                <when test="criterion.singleValue">
-                                    and ${criterion.condition} #{criterion.value}
-                                </when>
-                                <when test="criterion.betweenValue">
-                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                                </when>
-                                <when test="criterion.listValue">
-                                    and ${criterion.condition}
-                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
-                                             separator=",">
-                                        #{listItem}
-                                    </foreach>
-                                </when>
-                            </choose>
-                        </foreach>
-                    </trim>
-                </if>
+<mapper namespace="com.superwallet.mapper.EthvalidationMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.pojo.Ethvalidation" >
+    <id column="UID" property="uid" jdbcType="VARCHAR" />
+    <id column="transferId" property="transferid" jdbcType="BIGINT" />
+    <result column="hashValue" property="hashvalue" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="nonce" property="nonce" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
             </foreach>
-        </where>
-    </sql>
-    <sql id="Update_By_Example_Where_Clause">
-        <where>
-            <foreach collection="example.oredCriteria" item="criteria" separator="or">
-                <if test="criteria.valid">
-                    <trim prefix="(" suffix=")" prefixOverrides="and">
-                        <foreach collection="criteria.criteria" item="criterion">
-                            <choose>
-                                <when test="criterion.noValue">
-                                    and ${criterion.condition}
-                                </when>
-                                <when test="criterion.singleValue">
-                                    and ${criterion.condition} #{criterion.value}
-                                </when>
-                                <when test="criterion.betweenValue">
-                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                                </when>
-                                <when test="criterion.listValue">
-                                    and ${criterion.condition}
-                                    <foreach collection="criterion.value" item="listItem" open="(" close=")"
-                                             separator=",">
-                                        #{listItem}
-                                    </foreach>
-                                </when>
-                            </choose>
-                        </foreach>
-                    </trim>
-                </if>
-            </foreach>
-        </where>
-    </sql>
-    <sql id="Base_Column_List">
-    UID, transferId, hashValue, status
+          </trim>
+        </if>
+      </foreach>
+    </where>
   </sql>
-    <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.EthvalidationExample">
-        select
-        <if test="distinct">
-            distinct
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
         </if>
-        <include refid="Base_Column_List"/>
-        from ethvalidation
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-        <if test="orderByClause != null">
-            order by ${orderByClause}
-        </if>
-    </select>
-    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.EthvalidationKey">
-        select
-        <include refid="Base_Column_List"/>
-        from ethvalidation
-        where UID = #{uid,jdbcType=VARCHAR}
-        and transferId = #{transferid,jdbcType=BIGINT}
-    </select>
-    <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.EthvalidationKey">
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    UID, transferId, hashValue, status, nonce
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.EthvalidationExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from ethvalidation
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.EthvalidationKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from ethvalidation
+    where UID = #{uid,jdbcType=VARCHAR}
+      and transferId = #{transferid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.superwallet.pojo.EthvalidationKey" >
     delete from ethvalidation
     where UID = #{uid,jdbcType=VARCHAR}
       and transferId = #{transferid,jdbcType=BIGINT}
   </delete>
-    <delete id="deleteByExample" parameterType="com.superwallet.pojo.EthvalidationExample">
-        delete from ethvalidation
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-    </delete>
-    <insert id="insert" parameterType="com.superwallet.pojo.Ethvalidation">
+  <delete id="deleteByExample" parameterType="com.superwallet.pojo.EthvalidationExample" >
+    delete from ethvalidation
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.pojo.Ethvalidation" >
     insert into ethvalidation (UID, transferId, hashValue, 
-      status)
+      status, nonce)
     values (#{uid,jdbcType=VARCHAR}, #{transferid,jdbcType=BIGINT}, #{hashvalue,jdbcType=VARCHAR}, 
-      #{status,jdbcType=INTEGER})
+      #{status,jdbcType=INTEGER}, #{nonce,jdbcType=INTEGER})
   </insert>
-    <insert id="insertSelective" parameterType="com.superwallet.pojo.Ethvalidation">
-        insert into ethvalidation
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="uid != null">
-                UID,
-            </if>
-            <if test="transferid != null">
-                transferId,
-            </if>
-            <if test="hashvalue != null">
-                hashValue,
-            </if>
-            <if test="status != null">
-                status,
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="uid != null">
-                #{uid,jdbcType=VARCHAR},
-            </if>
-            <if test="transferid != null">
-                #{transferid,jdbcType=BIGINT},
-            </if>
-            <if test="hashvalue != null">
-                #{hashvalue,jdbcType=VARCHAR},
-            </if>
-            <if test="status != null">
-                #{status,jdbcType=INTEGER},
-            </if>
-        </trim>
-    </insert>
-    <select id="countByExample" parameterType="com.superwallet.pojo.EthvalidationExample"
-            resultType="java.lang.Integer">
-        select count(*) from ethvalidation
-        <if test="_parameter != null">
-            <include refid="Example_Where_Clause"/>
-        </if>
-    </select>
-    <update id="updateByExampleSelective" parameterType="map">
-        update ethvalidation
-        <set>
-            <if test="record.uid != null">
-                UID = #{record.uid,jdbcType=VARCHAR},
-            </if>
-            <if test="record.transferid != null">
-                transferId = #{record.transferid,jdbcType=BIGINT},
-            </if>
-            <if test="record.hashvalue != null">
-                hashValue = #{record.hashvalue,jdbcType=VARCHAR},
-            </if>
-            <if test="record.status != null">
-                status = #{record.status,jdbcType=INTEGER},
-            </if>
-        </set>
-        <if test="_parameter != null">
-            <include refid="Update_By_Example_Where_Clause"/>
-        </if>
-    </update>
-    <update id="updateBatch" parameterType="java.util.List">
-        <foreach collection="list" item="bean" index="index" open="" close="" separator=";">
-            update ethvalidation
-            set hashValue = #{bean.hashvalue,jdbcType=VARCHAR},
-            status = #{bean.status,jdbcType=INTEGER}
-            where UID = #{bean.uid,jdbcType=VARCHAR}
-            and transferId = #{bean.transferid,jdbcType=BIGINT}
-        </foreach>
-    </update>
-    <update id="updateByExample" parameterType="map">
-        update ethvalidation
-        set UID = #{record.uid,jdbcType=VARCHAR},
+  <insert id="insertSelective" parameterType="com.superwallet.pojo.Ethvalidation" >
+    insert into ethvalidation
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        UID,
+      </if>
+      <if test="transferid != null" >
+        transferId,
+      </if>
+      <if test="hashvalue != null" >
+        hashValue,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="nonce != null" >
+        nonce,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="uid != null" >
+        #{uid,jdbcType=VARCHAR},
+      </if>
+      <if test="transferid != null" >
+        #{transferid,jdbcType=BIGINT},
+      </if>
+      <if test="hashvalue != null" >
+        #{hashvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="nonce != null" >
+        #{nonce,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.superwallet.pojo.EthvalidationExample" resultType="java.lang.Integer" >
+    select count(*) from ethvalidation
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update ethvalidation
+    <set >
+      <if test="record.uid != null" >
+        UID = #{record.uid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.transferid != null" >
         transferId = #{record.transferid,jdbcType=BIGINT},
+      </if>
+      <if test="record.hashvalue != null" >
         hashValue = #{record.hashvalue,jdbcType=VARCHAR},
-        status = #{record.status,jdbcType=INTEGER}
-        <if test="_parameter != null">
-            <include refid="Update_By_Example_Where_Clause"/>
-        </if>
-    </update>
-    <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Ethvalidation">
-        update ethvalidation
-        <set>
-            <if test="hashvalue != null">
-                hashValue = #{hashvalue,jdbcType=VARCHAR},
-            </if>
-            <if test="status != null">
-                status = #{status,jdbcType=INTEGER},
-            </if>
-        </set>
-        where UID = #{uid,jdbcType=VARCHAR}
-        and transferId = #{transferid,jdbcType=BIGINT}
-    </update>
-    <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Ethvalidation">
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.nonce != null" >
+        nonce = #{record.nonce,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateBatch" parameterType="java.util.List">
+    <foreach collection="list" item="bean" index="index" open="" close="" separator=";">
+      update ethvalidation
+      set hashValue = #{bean.hashvalue,jdbcType=VARCHAR},
+      status = #{bean.status,jdbcType=INTEGER},
+      nonce = #{bean.nonce,jdbcType=INTEGER}
+      where UID = #{bean.uid,jdbcType=VARCHAR}
+      and transferId = #{bean.transferid,jdbcType=BIGINT}
+    </foreach>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update ethvalidation
+    set UID = #{record.uid,jdbcType=VARCHAR},
+      transferId = #{record.transferid,jdbcType=BIGINT},
+      hashValue = #{record.hashvalue,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      nonce = #{record.nonce,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Ethvalidation" >
+    update ethvalidation
+    <set >
+      <if test="hashvalue != null" >
+        hashValue = #{hashvalue,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="nonce != null" >
+        nonce = #{nonce,jdbcType=INTEGER},
+      </if>
+    </set>
+    where UID = #{uid,jdbcType=VARCHAR}
+      and transferId = #{transferid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Ethvalidation" >
     update ethvalidation
     set hashValue = #{hashvalue,jdbcType=VARCHAR},
-      status = #{status,jdbcType=INTEGER}
+      status = #{status,jdbcType=INTEGER},
+      nonce = #{nonce,jdbcType=INTEGER}
     where UID = #{uid,jdbcType=VARCHAR}
       and transferId = #{transferid,jdbcType=BIGINT}
   </update>

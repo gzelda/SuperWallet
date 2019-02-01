@@ -14,6 +14,8 @@ public interface CommonService {
 
     boolean lockedRecord(String UID, Integer tokenType, Integer period, Double tokenAmount, Integer status);
 
+    boolean genInviterRecord(String inviterID,String beinvitedID);
+
     SuperResult getETHInfo(String UID);
 
     SuperResult getEOSInfo(String UID);
@@ -74,7 +76,9 @@ public interface CommonService {
 
     int invitingOrRegister(Byte transferType);
 
-    boolean genETHValidation(String UID, Long transferId, String txHash, Integer status);
+    boolean genETHValidation(String UID, Long transferId, String txHash, Integer status,Integer nonce);
 
     SuperResult queryPending(List<String> txHash);
+
+    boolean canGenETHValidationRecord(String UID, String txHash, int nonce);
 }

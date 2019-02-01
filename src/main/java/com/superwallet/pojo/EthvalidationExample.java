@@ -363,6 +363,66 @@ public class EthvalidationExample {
             addCriterion("status not between", value1, value2, "status");
             return (Criteria) this;
         }
+
+        public Criteria andNonceIsNull() {
+            addCriterion("nonce is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceIsNotNull() {
+            addCriterion("nonce is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceEqualTo(Integer value) {
+            addCriterion("nonce =", value, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceNotEqualTo(Integer value) {
+            addCriterion("nonce <>", value, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceGreaterThan(Integer value) {
+            addCriterion("nonce >", value, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceGreaterThanOrEqualTo(Integer value) {
+            addCriterion("nonce >=", value, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceLessThan(Integer value) {
+            addCriterion("nonce <", value, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceLessThanOrEqualTo(Integer value) {
+            addCriterion("nonce <=", value, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceIn(List<Integer> values) {
+            addCriterion("nonce in", values, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceNotIn(List<Integer> values) {
+            addCriterion("nonce not in", values, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceBetween(Integer value1, Integer value2) {
+            addCriterion("nonce between", value1, value2, "nonce");
+            return (Criteria) this;
+        }
+
+        public Criteria andNonceNotBetween(Integer value1, Integer value2) {
+            addCriterion("nonce not between", value1, value2, "nonce");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

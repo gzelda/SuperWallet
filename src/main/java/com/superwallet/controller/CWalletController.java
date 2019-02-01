@@ -53,7 +53,9 @@ public class CWalletController {
         HashMap<String, CWalletInfo> map = new HashMap<String, CWalletInfo>();
         map.put(CodeRepresentation.ETHINFO, walletInfos.get(0));
         map.put(CodeRepresentation.BGSINFO, walletInfos.get(1));
-        map.put(CodeRepresentation.EOSINFO, walletInfos.get(2));
+        if (walletInfos.size() == 3) {
+            map.put(CodeRepresentation.EOSINFO, walletInfos.get(2));
+        }
         SuperResult result = SuperResult.ok(map);
         result.setMsg(MessageRepresentation.SUCCESS_CODE_1_STATUS_0);
         return result;

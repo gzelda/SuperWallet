@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -53,6 +54,9 @@ public class DWalletServiceImpl implements DWalletService {
 
     @Autowired
     private OptconfMapper optconfMapper;
+
+    @Autowired
+    private EthvalidationMapper ethvalidationMapper;
 
     /**
      * 展示链上钱包基本信息
@@ -136,6 +140,9 @@ public class DWalletServiceImpl implements DWalletService {
         //转账币种
         Byte token = new Byte(tokenType + "");
         RecordResult res;
+        boolean canGenETHValidationRecord;
+        int nonce;
+        String txHash;
         switch (tokenType) {
             //转入eth钱包
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -143,14 +150,24 @@ public class DWalletServiceImpl implements DWalletService {
                 addressFrom = ethtoken.getEthaddress();
                 result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_ETH);
                 //链上转账请求失败
-                if (result.getCode() == 0) {
+                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
+                //拿到nonce和txHash
+                try {
+                    nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                    txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                } catch (Exception e) {
+                    return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                 }
                 //请求成功则记录一笔交易记录
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
                 if (res.isGenerated()) {
-                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                    canGenETHValidationRecord = commonService.canGenETHValidationRecord(UID, txHash, nonce);
+                    if (!canGenETHValidationRecord) {
+                        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                    }
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
                 }
                 break;
             //转入eos钱包
@@ -160,7 +177,7 @@ public class DWalletServiceImpl implements DWalletService {
                 //链上请求
                 result = commonService.EOSTransfer(UID, tokenAmount, addressFrom, addressTo, CodeRepresentation.EOS_TOKEN_TYPE_EOS, memo);
                 //链上转账请求失败
-                if (result.getCode() == 0) {
+                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
                 }
                 //请求成功则记录一笔交易记录
@@ -173,14 +190,24 @@ public class DWalletServiceImpl implements DWalletService {
                 //链上请求
                 result = commonService.ETHTransfer(UID, tokenAmount, gasPrice, addressFrom, addressTo, CodeRepresentation.ETH_TOKEN_TYPE_BGS);
                 //链上转账请求失败
-                if (result.getCode() == 0) {
+                if (result.getCode() == CodeRepresentation.CODE_FAIL) {
                     return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                }
+                //拿到nonce和txHash
+                try {
+                    nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                    txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                } catch (Exception e) {
+                    return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                 }
                 //请求成功则记录一笔交易记录
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
                 if (res.isGenerated()) {
-                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                    canGenETHValidationRecord = commonService.canGenETHValidationRecord(UID, txHash, nonce);
+                    if (!canGenETHValidationRecord) {
+                        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
+                    }
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
                 }
                 break;
         }
@@ -221,6 +248,7 @@ public class DWalletServiceImpl implements DWalletService {
         int status = CodeRepresentation.LOCK_STAUTS_ONPROFIT;
         boolean genLockedRecord;
         RecordResult res;
+        boolean canGenETHValidationRecord;
         switch (tokenType) {
             //转入eth钱包
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -244,8 +272,19 @@ public class DWalletServiceImpl implements DWalletService {
                 if (!res.isGenerated()) {
                     System.out.println(UID + ":生成锁仓付费交易记录失败");
                 } else {
-                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                    int nonce;
+                    String txHash;
+                    try {
+                        nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                        txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                    } catch (Exception e) {
+                        return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
+                    }
+                    canGenETHValidationRecord = commonService.canGenETHValidationRecord(UID, txHash, nonce);
+                    if (!canGenETHValidationRecord) {
+                        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
+                    }
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
                 }
                 break;
             //转入eos钱包
@@ -295,8 +334,19 @@ public class DWalletServiceImpl implements DWalletService {
                 if (!res.isGenerated()) {
                     System.out.println(UID + ":生成锁仓付费交易记录失败");
                 } else {
-                    String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                    int nonce;
+                    String txHash;
+                    try {
+                        nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                        txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                    } catch (Exception e) {
+                        return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
+                    }
+                    canGenETHValidationRecord = commonService.canGenETHValidationRecord(UID, txHash, nonce);
+                    if (!canGenETHValidationRecord) {
+                        return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_LOCK_CODE_0_STATUS_0, null);
+                    }
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
                 }
                 break;
         }
@@ -424,16 +474,40 @@ public class DWalletServiceImpl implements DWalletService {
     @Override
     public ResponseDWalletBill listDetailDWalletInfo(String UID, Integer tokenType, Integer type) {
         //根据货币类型拿到对应的地址、余额、锁仓余额
-        List<CommonWalletInfo> wallets = new ArrayList<CommonWalletInfo>();
-        CommonWalletInfo eth = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
+        List<ResponseDWalletBillWalletEntry> wallets = new ArrayList<ResponseDWalletBillWalletEntry>();
         //EOS钱包需要特判
         if (commonService.hasEOSWallet(UID)) {
             CommonWalletInfo eos = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
-            wallets.add(eos);
+            ResponseDWalletBillWalletEntry entry = new ResponseDWalletBillWalletEntry(
+                    eos.getTokenType(),
+                    eos.getTokenName(),
+                    eos.getTokenAddress(),
+                    eos.getBalance(),
+                    eos.getTokenPrice() * eos.getBalance(),
+                    eos.getLockedAmount()
+            );
+            wallets.add(entry);
         }
+        CommonWalletInfo eth = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
         CommonWalletInfo bgs = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
-        wallets.add(eth);
-        wallets.add(bgs);
+        ResponseDWalletBillWalletEntry ethWallet = new ResponseDWalletBillWalletEntry(
+                eth.getTokenType(),
+                eth.getTokenName(),
+                eth.getTokenAddress(),
+                eth.getBalance(),
+                eth.getTokenPrice() * eth.getBalance(),
+                eth.getLockedAmount()
+        );
+        ResponseDWalletBillWalletEntry bgsWallet = new ResponseDWalletBillWalletEntry(
+                bgs.getTokenType(),
+                bgs.getTokenName(),
+                bgs.getTokenAddress(),
+                bgs.getBalance(),
+                bgs.getTokenPrice() * bgs.getBalance(),
+                bgs.getLockedAmount()
+        );
+        wallets.add(ethWallet);
+        wallets.add(bgsWallet);
         int listCount = 0;
         List<ResponseDWalletBillEntry> bills = new ArrayList<ResponseDWalletBillEntry>();
         //条件查询
@@ -464,11 +538,20 @@ public class DWalletServiceImpl implements DWalletService {
         TransferExample.Criteria criteria = transferExample.createCriteria();
         criteria.andUidEqualTo(UID);
         criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
+        List<Byte> offChainRecord = new ArrayList<>();
+        offChainRecord.addAll(Arrays.asList(
+                CodeRepresentation.TRANSFER_TYPE_REGISTERBGS,
+                CodeRepresentation.TRANSFER_TYPE_INVITINGBGS,
+                CodeRepresentation.TRANSFER_TYPE_LOCKPROFIT,
+                CodeRepresentation.TRANSFER_TYPE_AGENTPROFIT,
+                CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL
+        ));
+        criteria.andTransfertypeNotIn(offChainRecord);
         ArrayList<Byte> list = new ArrayList<Byte>();
         switch (type) {
             case CodeRepresentation.LISTDETAILDWALLET_LOCK:
                 list.add(CodeRepresentation.TRANSFER_TYPE_PAYLOCK);
-                list.add(CodeRepresentation.TRANSFER_TYPE_LOCKPROFIT);
+//                list.add(CodeRepresentation.TRANSFER_TYPE_LOCKPROFIT);
                 criteria.andTransfertypeIn(list);
                 break;
             case CodeRepresentation.LISTDETAILDWALLET_GAME:
@@ -482,7 +565,7 @@ public class DWalletServiceImpl implements DWalletService {
                 break;
             case CodeRepresentation.LISTDETAILDWALLET_AGENT:
                 list.add(CodeRepresentation.TRANSFER_TYPE_BUYAGENT);
-                list.add(CodeRepresentation.TRANSFER_TYPE_AGENTPROFIT);
+//                list.add(CodeRepresentation.TRANSFER_TYPE_AGENTPROFIT);
                 criteria.andTransfertypeIn(list);
                 break;
             case CodeRepresentation.LISTDETAILDWALLET_EOSSOURCE:
@@ -846,9 +929,6 @@ public class DWalletServiceImpl implements DWalletService {
             } catch (Exception e) {
                 System.out.println("生成购买代理人转账记录失败");
             }
-        } else {
-            String txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-            commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
         }
         //使邀请该用户的人获得邀请BGS奖励
         InviterExample inviterExample = new InviterExample();

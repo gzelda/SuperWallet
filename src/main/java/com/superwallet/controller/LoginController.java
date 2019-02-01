@@ -226,13 +226,13 @@ public class LoginController {
     @ResponseBody
     public SuperResult loginSendMessage(String phoneNum) {
         //判断手机号是否还未注册
-        boolean registered = loginRegisterService.isRegistered(phoneNum);
+//        boolean registered = loginRegisterService.isRegistered(phoneNum);
         SuperResult result;
         //如果没注册，返回code为0--fail，status为0--该手机号未注册无法登录
-        if (!registered) {
-            result = new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_GETIDCODE_CODE_0_STATUS_0, null);
-            return result;
-        }
+//        if (!registered) {
+//            result = new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_0, MessageRepresentation.LOGIN_GETIDCODE_CODE_0_STATUS_0, null);
+//            return result;
+//        }
         //缓存，用来后来验证验证码是否正确
         String phoneCode = CodeGenerator.smsCode();
         jedisClient.set(phoneNum, phoneCode);
@@ -260,6 +260,10 @@ public class LoginController {
         result = isValidMessageCode(phoneNum, phoneIDCode);
         //如果验证码错误
         if (result.getCode() == CodeRepresentation.CODE_FAIL) return result;
+        boolean registered = loginRegisterService.isRegistered(phoneNum);
+        if (!registered) {
+            return new SuperResult(CodeRepresentation.CODE_SUCCESS, CodeRepresentation.STATUS_1, "请求成功，自动跳转注册页面", null);
+        }
         LoginResult loginResult = loginRegisterService.loginByCode(phoneNum);
         //当登录成功时传UID
         if (loginResult.getCode() == CodeRepresentation.CODE_SUCCESS) {

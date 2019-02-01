@@ -202,6 +202,7 @@ create table ethvalidation(
     transferId bigint not null,
     hashValue varchar(100) not null,
     status int not null,
+    nonce int not null,
     createTime timestamp not null,
     primary key(UID,transferId)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

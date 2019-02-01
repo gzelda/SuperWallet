@@ -68,13 +68,6 @@ public class CWalletServiceImpl implements CWalletService {
     public List<CWalletInfo> listCWalletInfo(String UID) {
         List<CWalletInfo> list = new ArrayList<CWalletInfo>();
         CommonWalletInfo eth = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
-        //EOS钱包需要做特判
-        if (commonService.hasEOSWallet(UID)) {
-            CommonWalletInfo eos = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
-            CWalletInfo eosInfo = new CWalletInfo(eos.getTokenAddress(), eos.getcWalletAmount(),
-                    eos.getTokenPrice(), eos.getLockedAmount(), eos.getcWalletAmount());
-            list.add(eosInfo);
-        }
         CommonWalletInfo bgs = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
         CWalletInfo ethInfo = new CWalletInfo(eth.getTokenAddress(), eth.getcWalletAmount(),
                 eth.getTokenPrice(), eth.getLockedAmount(), eth.getcWalletAmount());
@@ -82,6 +75,13 @@ public class CWalletServiceImpl implements CWalletService {
                 bgs.getTokenPrice(), bgs.getLockedAmount(), bgs.getcWalletAmount());
         list.add(ethInfo);
         list.add(bgsInfo);
+        //EOS钱包需要做特判
+        if (commonService.hasEOSWallet(UID)) {
+            CommonWalletInfo eos = commonService.getMappingCWalletInfo(UID, CodeRepresentation.TOKENTYPE_EOS);
+            CWalletInfo eosInfo = new CWalletInfo(eos.getTokenAddress(), eos.getcWalletAmount(),
+                    eos.getTokenPrice(), eos.getLockedAmount(), eos.getcWalletAmount());
+            list.add(eosInfo);
+        }
         return list;
     }
 
@@ -103,6 +103,7 @@ public class CWalletServiceImpl implements CWalletService {
         Byte token = new Byte(tokenType + "");
         RecordResult res;
         String txHash;
+        int nonce;
         switch (tokenType) {
             //转入eth钱包
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -126,8 +127,13 @@ public class CWalletServiceImpl implements CWalletService {
 //                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                     }
                 }
-                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                try {
+                    nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                    txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                } catch (Exception e) {
+                    return false;
+                }
+                commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
                 break;
             //转入eos钱包
             case CodeRepresentation.TOKENTYPE_EOS:
@@ -175,8 +181,13 @@ public class CWalletServiceImpl implements CWalletService {
 //                        new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                     }
                 }
-                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                try {
+                    nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                    txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                } catch (Exception e) {
+                    return false;
+                }
+                commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
                 break;
         }
         return true;
@@ -269,9 +280,11 @@ public class CWalletServiceImpl implements CWalletService {
         //拿到申请表里的转账记录
         WithdrawmoneyKey key = new WithdrawmoneyKey(UID, WID);
         Withdrawmoney record = withdrawmoneyMapper.selectByPrimaryKey(key);
-        if (record.getStatus() == CodeRepresentation.WITHDRAW_FAIL) return false;
+        if (record == null || record.getStatus() == CodeRepresentation.WITHDRAW_FAIL) return false;
         RecordResult res;
         String txHash;
+        int nonce;
+        boolean canGenETHValidationRecord;
         switch (tokenType) {
             //ETH
             case CodeRepresentation.TOKENTYPE_ETH:
@@ -284,20 +297,24 @@ public class CWalletServiceImpl implements CWalletService {
                 if (result.getCode() == CodeRepresentation.CODE_FAIL || status == 2) {
                     //提现失败则退回金额，并记录一笔转账记录，此单作废
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
+                    record.setAuditor(auditor);
+                    record.setAudittime(new Date());
+                    record.setRemark(remark);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateETHWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
                     res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
-                //如果提现速度太快，会出现延迟，需要特殊判断
-                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                EthvalidationExample ethvalidationExample = new EthvalidationExample();
-                EthvalidationExample.Criteria criteria = ethvalidationExample.createCriteria();
-                criteria.andUidEqualTo(UID);
-                criteria.andHashvalueEqualTo(txHash);
-                List<Ethvalidation> ethvalidations = ethvalidationMapper.selectByExample(ethvalidationExample);
-                if (ethvalidations != null && ethvalidations.size() != 0) {
+                //判断是否是非法记录
+                try {
+                    nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                    txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                } catch (Exception e) {
+                    return false;
+                }
+                canGenETHValidationRecord = commonService.canGenETHValidationRecord(UID, txHash, nonce);
+                if (!canGenETHValidationRecord) {
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
@@ -308,9 +325,9 @@ public class CWalletServiceImpl implements CWalletService {
                 withdrawmoneyMapper.updateByPrimaryKey(record);
                 transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
-                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                if (res.isGenerated())
-                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                if (res.isGenerated()) {
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
+                }
                 break;
             //EOS
             case CodeRepresentation.TOKENTYPE_EOS:
@@ -323,6 +340,9 @@ public class CWalletServiceImpl implements CWalletService {
                 if (result.getCode() == CodeRepresentation.CODE_FAIL || status == 2) {
                     //提现失败则退回金额，并记录一笔转账记录，此单作废
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
+                    record.setAuditor(auditor);
+                    record.setAudittime(new Date());
+                    record.setRemark(remark);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateEOSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
@@ -349,6 +369,9 @@ public class CWalletServiceImpl implements CWalletService {
                 if (result.getCode() == CodeRepresentation.CODE_FAIL || status == 2) {
                     //提现失败则退回金额，并记录一笔转账记录，此单作废
                     record.setStatus(CodeRepresentation.WITHDRAW_FAIL);
+                    record.setAuditor(auditor);
+                    record.setAudittime(new Date());
+                    record.setRemark(remark);
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateBGSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
@@ -356,13 +379,14 @@ public class CWalletServiceImpl implements CWalletService {
                     return false;
                 }
                 //如果提现速度太快，会出现延迟，需要特殊判断
-                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
-                EthvalidationExample example = new EthvalidationExample();
-                EthvalidationExample.Criteria cri = example.createCriteria();
-                cri.andUidEqualTo(UID);
-                cri.andHashvalueEqualTo(txHash);
-                List<Ethvalidation> list = ethvalidationMapper.selectByExample(example);
-                if (list != null && list.size() != 0) {
+                try {
+                    nonce = JSONObject.parseObject(result.getData().toString()).getInteger("nonce");
+                    txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
+                } catch (Exception e) {
+                    return false;
+                }
+                canGenETHValidationRecord = commonService.canGenETHValidationRecord(UID, txHash, nonce);
+                if (!canGenETHValidationRecord) {
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
@@ -373,9 +397,8 @@ public class CWalletServiceImpl implements CWalletService {
                 withdrawmoneyMapper.updateByPrimaryKey(record);
                 transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN;
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
-                txHash = JSONObject.parseObject(result.getData().toString()).getString("txHash");
                 if (res.isGenerated()) {
-                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON);
+                    commonService.genETHValidation(UID, res.getTransferId(), txHash, CodeRepresentation.ETH_VALIDATION_ON, nonce);
                 }
                 break;
         }
@@ -475,7 +498,7 @@ public class CWalletServiceImpl implements CWalletService {
         TransferExample.Criteria criteria = transferExample.createCriteria();
         criteria.andUidEqualTo(UID);
         criteria.andTokentypeEqualTo(new Byte(tokenType + ""));
-        criteria.andTransfertypeEqualTo(CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN);
+        criteria.andTransfertypeIn(Arrays.asList(CodeRepresentation.TRANSFER_TYPE_WITHDRAW_IN, CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL));
         criteria.andStatusEqualTo(CodeRepresentation.TRANSFER_SUCCESS);
         double tokenPrice = commonService.getTokenPriceByType(tokenType);
         List<Transfer> list = transferMapper.selectByExample(transferExample);
@@ -757,6 +780,7 @@ public class CWalletServiceImpl implements CWalletService {
                 if (withDrawRecord != null || withDrawRecord.size() != 0) {
                     listCount += withDrawRecord.size();
                     result.addAll(withDrawRecord);
+                    result.addAll(withDrawProfit);
                 }
                 //拿到所有的划转进行中记录
                 if (withDrawOnProcess != null || withDrawOnProcess.size() != 0) {
@@ -794,6 +818,11 @@ public class CWalletServiceImpl implements CWalletService {
                 if (withDrawOnProcess != null || withDrawOnProcess.size() != 0) {
                     listCount += withDrawOnProcess.size();
                     result.addAll(withDrawOnProcess);
+                }
+                //拿到用户划转支出的记录
+                if (withDrawRecord != null && withDrawRecord.size() != 0) {
+                    listCount += withDrawRecord.size();
+                    result.addAll(withDrawRecord);
                 }
                 break;
             case CodeRepresentation.LISTDETAILPROFIT_REWARD:

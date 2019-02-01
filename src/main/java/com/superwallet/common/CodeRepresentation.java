@@ -166,8 +166,9 @@ public class CodeRepresentation {
     public static final int IS_INCOMING = 1;
 
     //ETH认证 0-未完成 1-已完成
-    public static final int ETH_VALIDATION_ON = 0;
-    public static final int ETH_VALIDATION_OVER = 1;
+    public static final int ETH_VALIDATION_ON = 1;
+    public static final int ETH_VALIDATION_OVER = 2;
+    public static final int ETH_VALIDATION_FAIL = 3;
 
     //redis模块
     public static final String REDIS_OPTCONF = "operationCode";

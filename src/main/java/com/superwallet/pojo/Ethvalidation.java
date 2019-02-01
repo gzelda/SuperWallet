@@ -5,6 +5,8 @@ public class Ethvalidation extends EthvalidationKey {
 
     private Integer status;
 
+    private Integer nonce;
+
     public String getHashvalue() {
         return hashvalue;
     }
@@ -19,5 +21,13 @@ public class Ethvalidation extends EthvalidationKey {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(Integer nonce) {
+        this.nonce = nonce;
     }
 }

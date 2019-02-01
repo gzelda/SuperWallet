@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.superwallet.mapper.PreinviterMapper" >
+  <resultMap id="BaseResultMap" type="com.superwallet.pojo.Preinviter" >
+    <id column="phoneNum" property="phonenum" jdbcType="VARCHAR" />
+    <result column="invitedCode" property="invitedcode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    phoneNum, invitedCode
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.superwallet.pojo.PreinviterExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from preinviter
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from preinviter
+    where phoneNum = #{phonenum,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from preinviter
+    where phoneNum = #{phonenum,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.superwallet.pojo.PreinviterExample" >
+    delete from preinviter
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.superwallet.pojo.Preinviter" >
+    insert into preinviter (phoneNum, invitedCode)
+    values (#{phonenum,jdbcType=VARCHAR}, #{invitedcode,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.superwallet.pojo.Preinviter" >
+    insert into preinviter
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="phonenum != null" >
+        phoneNum,
+      </if>
+      <if test="invitedcode != null" >
+        invitedCode,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="phonenum != null" >
+        #{phonenum,jdbcType=VARCHAR},
+      </if>
+      <if test="invitedcode != null" >
+        #{invitedcode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.superwallet.pojo.PreinviterExample" resultType="java.lang.Integer" >
+    select count(*) from preinviter
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update preinviter
+    <set >
+      <if test="record.phonenum != null" >
+        phoneNum = #{record.phonenum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.invitedcode != null" >
+        invitedCode = #{record.invitedcode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update preinviter
+    set phoneNum = #{record.phonenum,jdbcType=VARCHAR},
+      invitedCode = #{record.invitedcode,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.superwallet.pojo.Preinviter" >
+    update preinviter
+    <set >
+      <if test="invitedcode != null" >
+        invitedCode = #{invitedcode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where phoneNum = #{phonenum,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.superwallet.pojo.Preinviter" >
+    update preinviter
+    set invitedCode = #{invitedcode,jdbcType=VARCHAR}
+    where phoneNum = #{phonenum,jdbcType=VARCHAR}
+  </update>
+</mapper>

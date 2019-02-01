@@ -58,6 +58,9 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
     @Autowired
     private OptconfMapper optconfMapper;
 
+    @Autowired
+    private PreinviterMapper preinviterMapper;
+
     /**
      * 查看手机号是否已经被注册过
      *
@@ -114,17 +117,43 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
             UserbasicExample userbasicExample = new UserbasicExample();
             UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
             criteria.andInvitedcodeEqualTo(invitedCode);
-            Userbasic inviter = userbasicMapper.selectByExample(userbasicExample).get(0);
-            //用户设置邀请人信息
-            userbasic.setInviter(inviter.getUid());
-            //邀请人更新邀请的人的列表
-            //插入一条邀请人记录
-            Inviter record = new Inviter();
-            record.setInvitingtime(new Date());
-            record.setInviterid(inviter.getUid());
-            record.setBeinvitedid(uid);
-            inviterMapper.insert(record);
+            try {
+                Userbasic inviter = userbasicMapper.selectByExample(userbasicExample).get(0);
+                //用户设置邀请人信息
+                String inviterUID = inviter.getUid();
+                userbasic.setInviter(inviterUID);
+                //邀请人更新邀请的人的列表
+                //插入一条邀请人记录
+                boolean genInviterRecord = commonService.genInviterRecord(inviter.getUid(), uid);
+                if (!genInviterRecord) {
+                    System.out.println("生成邀请人记录失败");
+                }
+            } catch (Exception e) {
+                System.out.println("系统异常");
+            }
             //邀请方可以获得一笔BGS收入 更新BGS中心钱包表和生成一条交易记录 --修改为等到邀请用户成为会员才能够有BGS收入
+        } else if (invitedCode == null || invitedCode.equals("")) {
+            //如果邀请码为空，查询是否有预邀请记录
+            Preinviter preinviterRecord = preinviterMapper.selectByPrimaryKey(phoneNum);
+            //如果预邀请记录不为空
+            if (preinviterRecord != null) {
+                String inviterCode = preinviterRecord.getInvitedcode();
+                UserbasicExample userbasicExample = new UserbasicExample();
+                UserbasicExample.Criteria criteria = userbasicExample.createCriteria();
+                criteria.andInvitedcodeEqualTo(inviterCode);
+                try {
+                    Userbasic inviter = userbasicMapper.selectByExample(userbasicExample).get(0);
+                    userbasic.setInviter(inviter.getUid());
+                    //邀请人更新邀请的人的列表
+                    //插入一条邀请人记录
+                    boolean genInviterRecord = commonService.genInviterRecord(inviter.getUid(), uid);
+                    if (!genInviterRecord) {
+                        System.out.println("生成邀请人记录失败");
+                    }
+                } catch (Exception e) {
+                    System.out.println("系统异常");
+                }
+            }
         }
         boolean res = initWallet(uid);
         if (!res) {

@@ -7,24 +7,24 @@ import java.util.List;
 
 public class ResponseDWalletBill implements Serializable {
 
-    private List<CommonWalletInfo> wallets;
+    private List<ResponseDWalletBillWalletEntry> wallets;
     private int listCount;
     private List<ResponseDWalletBillEntry> bills;
 
     public ResponseDWalletBill() {
     }
 
-    public ResponseDWalletBill(List<CommonWalletInfo> wallets, int listCount, List<ResponseDWalletBillEntry> bills) {
+    public ResponseDWalletBill(List<ResponseDWalletBillWalletEntry> wallets, int listCount, List<ResponseDWalletBillEntry> bills) {
         this.wallets = wallets;
         this.listCount = listCount;
         this.bills = bills;
     }
 
-    public List<CommonWalletInfo> getWallets() {
+    public List<ResponseDWalletBillWalletEntry> getWallets() {
         return wallets;
     }
 
-    public void setWallets(List<CommonWalletInfo> wallets) {
+    public void setWallets(List<ResponseDWalletBillWalletEntry> wallets) {
         this.wallets = wallets;
     }
 
