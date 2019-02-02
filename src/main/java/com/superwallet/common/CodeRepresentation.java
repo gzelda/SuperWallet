@@ -221,13 +221,16 @@ public class CodeRepresentation {
 
 
     //超级账户的Address
-    public static final String SUPER_ETH = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
-    public static final String SUPER_BGS = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
-    public static final String SUPER_EOS = "gtygavintest";
+//    public static final String SUPER_ETH = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
+//    public static final String SUPER_BGS = "0x47B9Be7A0FC74Be3fccdECfC6d41d21D24D4a672";
+//    public static final String SUPER_EOS = "gtygavintest";
+    public static final String SUPER_ETH = "0xB1dAfcb9F1b92d63E7f0896c2b7d06309812d1A1";
+    public static final String SUPER_BGS = "0xB1dAfcb9F1b92d63E7f0896c2b7d06309812d1A1";
+    public static final String SUPER_EOS = "bgsgamesuper";
 
     //链上HTTP请求地址
-    public static final String NODE_URL_ETH = "http://3.17.163.147:4000";
-    public static final String NODE_URL_EOS = "http://3.17.163.147:3000";
+    public static final String NODE_URL_ETH = "http://13.250.97.241:4000";
+    public static final String NODE_URL_EOS = "http://13.250.97.241:3000";
     public static final String NODE_ACTION_CREATEETH = "/eth/createAccount";
     public static final String NODE_ACTION_CREATEEOS = "/eos/createAccount";
     public static final String NODE_ACTION_ALLOCATEEOSWALLET = "/eos/wallet/allocateWallet";

@@ -215,24 +215,24 @@
             <url>http://mvn.gt.igexin.com/nexus/content/repositories/releases/</url>
         </repository>
     </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>alfresco-public</id>
-            <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>alfresco-public-snapshots</id>
-            <url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>beardedgeeks-releases</id>
-            <url>http://beardedgeeks.googlecode.com/svn/repository/releases</url>
-        </pluginRepository>
-    </pluginRepositories>
+    <!--<pluginRepositories>-->
+        <!--<pluginRepository>-->
+            <!--<id>alfresco-public</id>-->
+            <!--<url>https://artifacts.alfresco.com/nexus/content/groups/public</url>-->
+        <!--</pluginRepository>-->
+        <!--<pluginRepository>-->
+            <!--<id>alfresco-public-snapshots</id>-->
+            <!--<url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>-->
+            <!--<snapshots>-->
+                <!--<enabled>true</enabled>-->
+                <!--<updatePolicy>daily</updatePolicy>-->
+            <!--</snapshots>-->
+        <!--</pluginRepository>-->
+        <!--<pluginRepository>-->
+            <!--<id>beardedgeeks-releases</id>-->
+            <!--<url>http://beardedgeeks.googlecode.com/svn/repository/releases</url>-->
+        <!--</pluginRepository>-->
+    <!--</pluginRepositories>-->
 
     <build>
         <resources>
@@ -284,14 +284,14 @@
                 <!-- 配置Tomcat插件 -->
                 <plugin>
                     <groupId>org.apache.tomcat.maven</groupId>
-                    <artifactId>tomcat8-maven-plugin</artifactId>
-                    <version>3.0-r1655215</version>
+                    <artifactId>tomcat7-maven-plugin</artifactId>
+                    <!--<version>3.0-r1655215</version>-->
                     <configuration>
                         <path>/</path>
-                        <url>http://18.222.214.253/manager/text</url>
+                        <url>http://node01/manager/text</url>
                         <!--<url>http://localhost:8080/manager/text</url>-->
                         <username>tomcat</username>
-                        <password>tomcat</password>
+                        <password>superwallet@123</password>
                     </configuration>
                 </plugin>
             </plugins>

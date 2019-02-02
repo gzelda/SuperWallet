@@ -1,309 +1,363 @@
-/*wallet项目数据库表设计*/
-drop database if exists superWallet;
-create database superWallet;
-use superWallet;
+/*
+Navicat MySQL Data Transfer
 
--- 用户基本资料表--
---status：0-未实名认证 1-已实名认证--
-drop table if exists userbasic;
-create table userbasic(
-    UID char(100) not null,
-    nickName varchar(20) not null,
-    sex tinyint not null,
-    isAgency tinyint not null,
-    headPhoto varchar(100),
-    phoneNumber char(15) not null,
-    inviter char(100),
-    status tinyint,
-    passWord varchar(100),
-    payPassWord varchar(100),
-    invitedCode varchar(100),
-    registerTime timestamp not null default now(),
-    primary key(UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+Source Server         : aws-rds-mysql
+Source Server Version : 50722
+Source Host           : superwallet.couot2aumoqo.us-east-2.rds.amazonaws.com:3306
+Source Database       : superwallet
 
---邀请人表--
-drop table if exists inviter;
-create table inviter(
-    inviterID varchar(100) not null,
-    beinvitedID varchar(100) not null,
-    invitingTime timestamp not null default now(),
-    primary key(inviterID,beinvitedID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+Target Server Type    : MYSQL
+Target Server Version : 50722
+File Encoding         : 65001
 
--- 用户状态信息表--
--- 0-允许 1-禁用 --
-drop table if exists userstatus;
-create table userstatus(
-    UID char(100) not null,
-    state tinyint,
-    updatedTime timestamp,
-    primary key(UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- 用户隐私资料表--
-drop table if exists userprivate;
-create table userprivate(
-    UID char(100) not null,
-    realName varchar(20) not null,
-    IDCardNumber char(20) not null,
-    IDCardFront blob not null,
-    IDCardBack blob not null,
-    face blob not null,
-    primary key(UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---代理人表--
-drop table if exists agent;
-create table agent(
-    UID char(100) not null,
-    createTime timestamp not null,
-    nickName varchar(50) not null,
-    sex tinyint not null,
-    phoneNumber varchar(50) not null,
-    lowerAmount int,
-    earnings double,
-    totalIncome double,
-    primary key(UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- 中心化钱包--
---canLock 0-不可以 1-可以--
--- ETH--
-drop table if exists ethtoken;
-create table ethtoken(
-    UID char(100) not null,
-    ETHAddress varchar(50),
-    amount double not null,
-    canLock tinyint not null default 0,
-    type int not null,
-    primary key(UID,type)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- EOS--
-drop table if exists eostoken;
-create table eostoken(
-    UID char(100) not null,
-    EOSAccountName varchar(50),
-    amount double not null,
-    type int not null,
-    canLock tinyint not null default 0,
-    primary key(UID,type)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- 私钥库--
---ETH私钥库--
-drop table if exists ETHPriKeyWarehouse,EOSPriKeyWarehouse;
-create table ETHPriKeyWarehouse(
-    UID char(100) not null,
-    priKey varchar(70),
-    primary key(UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---EOS私钥库--
-create table EOSPriKeyWarehouse(
-    UID char(100) not null,
-    ownerPriKey varchar(70) not null,
-    activePriKey varchar(70),
-    primary key(UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- 交易记录--
-/**
-几种转账类型：
-1.链上中心转账--链上钱包转到中心钱包
- 2.链上链上转账--链上钱包转到链上钱包
- 3.锁仓支出--链上钱包锁入中心钱包
- 4.Dapp游戏支出
- 5.购买代理人支出
- 6.买EOS的RAM支出
- 7.买EOS的CPU和NET支出
- 8.提现（最小限额）--中心钱包转到链上钱包
- 9.注册获得BGS
- 10.邀请获得BGS
- 11.锁仓获得收益
- 12.代理获得收益
+Date: 2019-02-02 13:16:42
 */
-drop table if exists transfer;
-create table transfer(
-    UID char(100) not null,
-    transferId bigint unsigned auto_increment not null,
-    source varchar(50) not null,
-    destination varchar(50) not null,
-    amount double not null,
-    transferType tinyint not null,
-    tokenType tinyint not null,
-    createdTime timestamp not null,
-    status tinyint not null,
-    primary key(transferId,UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 锁仓记录--
-/**
-status类型：
-1.收益中
-2.归仓中
-3.已结束
-*/
-drop table if exists lockwarehouse;
-create table lockwarehouse(
-    UID char(100) not null,
-    LID bigint unsigned auto_increment not null,
-    amount double not null,
-    period int unsigned not null,
-    createdTime timestamp not null,
-    tokenType int not null,
-    finalProfit double default 0,
-    status int not null default 0,
-    profitTokenType int not null,
-    primary key(LID,UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+SET FOREIGN_KEY_CHECKS=0;
 
---收益表--
-drop table if exists profit;
-create table profit(
-    UID varchar(100) not null,
-    PID bigint unsigned auto_increment not null,
-    orderID varchar(100),
-    profitType int not null,
-    createTime timestamp not null default now(),
-    profit double not null,
-    primary  key(PID,UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for appupdate
+-- ----------------------------
+DROP TABLE IF EXISTS `appupdate`;
+CREATE TABLE `appupdate` (
+  `appPath` varchar(255) NOT NULL,
+  `appVersion` varchar(255) NOT NULL,
+  `appLog` varchar(255) NOT NULL,
+  `isForce` int(11) NOT NULL,
+  `versionSize` varchar(255) NOT NULL,
+  `type` int(11) NOT NULL,
+  PRIMARY KEY (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---提现表--
-drop table if exists withdrawmoney;
-create table withdrawmoney(
-    UID char(100) not null,
-    WID char(100) not null,
-    tokenType tinyint not null,
-    amount double not null,
-    createdTime timestamp not null,
-    status tinyint not null,
-    auditor varchar(100),
-    auditTime timestamp,
-    remark varchar(255),
-    primary key(UID,WID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for bguser
+-- ----------------------------
+DROP TABLE IF EXISTS `bguser`;
+CREATE TABLE `bguser` (
+  `bid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(20) NOT NULL,
+  `realName` varchar(20) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `state` tinyint(4) NOT NULL,
+  `admin` bit(1) NOT NULL,
+  PRIMARY KEY (`bid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
---动态配置表--
-drop table if exists optconf;
-create table optconf(
-    confName varchar(30) not null,
-    confValue varchar(30) not null,
-    primary key(confName)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for bguser_role
+-- ----------------------------
+DROP TABLE IF EXISTS `bguser_role`;
+CREATE TABLE `bguser_role` (
+  `bid` bigint(20) NOT NULL,
+  `rid` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---ETH转账延迟表--
---status: 0-待完成 1-已完成 --
-drop table if exists ethvalidation;
-create table ethvalidation(
-    UID varchar(100) not null,
-    transferId bigint not null,
-    hashValue varchar(100) not null,
-    status int not null,
-    nonce int not null,
-    createTime timestamp not null,
-    primary key(UID,transferId)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for eostoken
+-- ----------------------------
+DROP TABLE IF EXISTS `eostoken`;
+CREATE TABLE `eostoken` (
+  `UID` char(100) NOT NULL,
+  `EOSAccountName` varchar(50) DEFAULT NULL,
+  `amount` double NOT NULL,
+  `type` int(11) NOT NULL,
+  `canLock` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`UID`,`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- banner--
-drop table if exists banner;
-create table banner(
-    bid bigint unsigned auto_increment not null,
-    adName varchar(100),
-    photo mediumblob,
-    textOfAd text,
-    linkOfAd text,
-    type int,
-	status tinyint not null default 0,
-    primary key(bid)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for ethtoken
+-- ----------------------------
+DROP TABLE IF EXISTS `ethtoken`;
+CREATE TABLE `ethtoken` (
+  `UID` char(100) NOT NULL,
+  `ETHAddress` varchar(50) DEFAULT NULL,
+  `amount` double NOT NULL,
+  `canLock` tinyint(4) NOT NULL DEFAULT '0',
+  `type` int(11) NOT NULL,
+  PRIMARY KEY (`UID`,`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- game list--
-drop table if exists gameList;
-create table if not exists gameList(
-    gid bigint unsigned auto_increment not null,
-    gameName varchar(50),
-    photo mediumblob,
-    text text,
-    link nvarchar(255),
-    type tinyint,
-    sort tinyint,
-    joindate timestamp not null default now(),
-    primary key(gid)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for ethvalidation
+-- ----------------------------
+DROP TABLE IF EXISTS `ethvalidation`;
+CREATE TABLE `ethvalidation` (
+  `UID` varchar(100) NOT NULL,
+  `transferId` bigint(20) NOT NULL,
+  `hashValue` varchar(100) NOT NULL,
+  `status` int(11) NOT NULL,
+  `nonce` int(11) NOT NULL,
+  PRIMARY KEY (`UID`,`transferId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- notification--
-drop table if exists notification;
-create table notification(
-    nid bigint unsigned auto_increment not null,
-    UID char(100) not null,
-    title varchar(100) not null,
-    createTime timestamp not null,
-    notice text,
-    primary key(nid,UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for feedback
+-- ----------------------------
+DROP TABLE IF EXISTS `feedback`;
+CREATE TABLE `feedback` (
+  `fid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `UID` char(100) NOT NULL,
+  `createTime` datetime NOT NULL,
+  `content` varchar(255) NOT NULL,
+  `contact` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`fid`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
 
+-- ----------------------------
+-- Table structure for gamelist
+-- ----------------------------
+DROP TABLE IF EXISTS `gamelist`;
+CREATE TABLE `gamelist` (
+  `gid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `gameName` varchar(255) DEFAULT NULL,
+  `photo` varchar(255) DEFAULT NULL,
+  `text` text,
+  `link` varchar(255) DEFAULT NULL,
+  `type` tinyint(4) DEFAULT NULL,
+  `joindate` datetime DEFAULT NULL,
+  `status` tinyint(4) DEFAULT NULL,
+  `sort` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`gid`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 
---后台操作日志--
-drop table if exists systemlog;
-create table systemlog(
-    sid bigint unsigned auto_increment not null,
-    opuserId varchar(100) not null,
-    optime timestamp not null,
-    function varchar(100) not null,
-    opusername varchar(100) not null,
-    primary key(sid,opuserId)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for inviter
+-- ----------------------------
+DROP TABLE IF EXISTS `inviter`;
+CREATE TABLE `inviter` (
+  `inviterID` varchar(100) NOT NULL,
+  `beinvitedID` varchar(100) NOT NULL,
+  `invitingTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`inviterID`,`beinvitedID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---用户反馈--
-drop table if exists feedback;
-create table feedback(
-    fid bigint unsigned auto_increment not null,
-    UID varchar(100) not null,
-    createTime timestamp not null default now(),
-    content varchar(255) not null,
-    contact varchar(30) ,
-    primary key(fid,UID)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for lockwarehouse
+-- ----------------------------
+DROP TABLE IF EXISTS `lockwarehouse`;
+CREATE TABLE `lockwarehouse` (
+  `UID` char(100) NOT NULL,
+  `LID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `amount` double NOT NULL,
+  `period` int(10) unsigned NOT NULL,
+  `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tokenType` int(11) NOT NULL,
+  `finalProfit` double DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `profitTokenType` int(11) NOT NULL,
+  PRIMARY KEY (`LID`,`UID`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
---后台管理人员--
-drop table if exists bgUser;
-create table bgUser(
-    bid bigint unsigned auto_increment not null,
-    username varchar(100) not null,
-    realName varchar(100),
-    password varchar(100) not null,
-    state tinyint not null,
-    admin tinyint not null,
-    primary key(bid)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for menu
+-- ----------------------------
+DROP TABLE IF EXISTS `menu`;
+CREATE TABLE `menu` (
+  `mid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `text` varchar(255) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `parent_id` bigint(20) DEFAULT '0',
+  PRIMARY KEY (`mid`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
 
---角色--
-drop table if exists role;
-create table role(
-    rid bigint not null,
-    sn varchar(100) not null,
-    name varchar(100),
-    primary key(rid)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for menu_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `menu_permission`;
+CREATE TABLE `menu_permission` (
+  `mid` bigint(20) NOT NULL COMMENT '菜单id',
+  `pid` bigint(20) DEFAULT NULL COMMENT '权限id'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---权限--
-drop table if exists permission;
-create table permission(
-    pid bigint unsigned auto_increment not null,
-    name varchar(100) not null,
-    resource varchar(100),
-    primary key(pid)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for notification
+-- ----------------------------
+DROP TABLE IF EXISTS `notification`;
+CREATE TABLE `notification` (
+  `nid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `UID` char(100) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `notice` text,
+  PRIMARY KEY (`nid`,`UID`)
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8;
 
---菜单--
-drop table if exists menu;
-create table menu(
-    mid bigint not null,
-    text varchar(100) not null,
-    url varchar(100),
-    parent_id bigint,
-    primary key(mid)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- ----------------------------
+-- Table structure for optconf
+-- ----------------------------
+DROP TABLE IF EXISTS `optconf`;
+CREATE TABLE `optconf` (
+  `confName` varchar(30) NOT NULL,
+  `confValue` varchar(255) NOT NULL,
+  PRIMARY KEY (`confName`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for permission
+-- ----------------------------
+DROP TABLE IF EXISTS `permission`;
+CREATE TABLE `permission` (
+  `pid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `resource` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`pid`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for preinviter
+-- ----------------------------
+DROP TABLE IF EXISTS `preinviter`;
+CREATE TABLE `preinviter` (
+  `phoneNum` varchar(30) NOT NULL,
+  `invitedCode` varchar(50) NOT NULL,
+  PRIMARY KEY (`phoneNum`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for profit
+-- ----------------------------
+DROP TABLE IF EXISTS `profit`;
+CREATE TABLE `profit` (
+  `UID` varchar(100) NOT NULL,
+  `PID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `orderID` varchar(100) DEFAULT NULL,
+  `profitType` int(11) NOT NULL,
+  `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `profit` double NOT NULL,
+  PRIMARY KEY (`PID`,`UID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for role
+-- ----------------------------
+DROP TABLE IF EXISTS `role`;
+CREATE TABLE `role` (
+  `rid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sn` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`rid`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for role_menu
+-- ----------------------------
+DROP TABLE IF EXISTS `role_menu`;
+CREATE TABLE `role_menu` (
+  `rid` bigint(20) NOT NULL,
+  `mid` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for role_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `role_permission`;
+CREATE TABLE `role_permission` (
+  `rid` bigint(20) NOT NULL,
+  `pid` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for systemlog
+-- ----------------------------
+DROP TABLE IF EXISTS `systemlog`;
+CREATE TABLE `systemlog` (
+  `sid` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `opuserId` bigint(20) NOT NULL,
+  `optime` datetime NOT NULL,
+  `ipaddr` varchar(255) DEFAULT NULL,
+  `function` varchar(255) NOT NULL,
+  `opusername` varchar(20) NOT NULL,
+  PRIMARY KEY (`sid`)
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for textlist
+-- ----------------------------
+DROP TABLE IF EXISTS `textlist`;
+CREATE TABLE `textlist` (
+  `tid` bigint(20) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `type` tinyint(4) DEFAULT NULL,
+  `text` mediumtext,
+  PRIMARY KEY (`tid`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for transfer
+-- ----------------------------
+DROP TABLE IF EXISTS `transfer`;
+CREATE TABLE `transfer` (
+  `UID` char(100) NOT NULL,
+  `transferId` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `source` varchar(50) NOT NULL,
+  `destination` varchar(50) NOT NULL,
+  `amount` double NOT NULL,
+  `transferType` tinyint(4) NOT NULL,
+  `tokenType` tinyint(4) NOT NULL,
+  `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` tinyint(4) NOT NULL,
+  PRIMARY KEY (`transferId`,`UID`)
+) ENGINE=InnoDB AUTO_INCREMENT=316 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for userbasic
+-- ----------------------------
+DROP TABLE IF EXISTS `userbasic`;
+CREATE TABLE `userbasic` (
+  `UID` char(100) NOT NULL,
+  `nickName` varchar(20) NOT NULL,
+  `sex` tinyint(4) NOT NULL,
+  `isAgency` tinyint(4) NOT NULL,
+  `headPhoto` varchar(100) DEFAULT NULL,
+  `phoneNumber` char(15) NOT NULL,
+  `inviter` char(100) DEFAULT NULL,
+  `status` tinyint(4) DEFAULT NULL,
+  `passWord` varchar(100) DEFAULT NULL,
+  `payPassWord` varchar(100) DEFAULT NULL,
+  `invitedCode` varchar(100) DEFAULT NULL,
+  `registerTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`UID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for userprivate
+-- ----------------------------
+DROP TABLE IF EXISTS `userprivate`;
+CREATE TABLE `userprivate` (
+  `UID` char(100) NOT NULL,
+  `realName` varchar(20) NOT NULL,
+  `IDCardNumber` char(20) NOT NULL,
+  `IDCardFront` blob NOT NULL,
+  `IDCardBack` blob NOT NULL,
+  `face` blob NOT NULL,
+  PRIMARY KEY (`UID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for userstatus
+-- ----------------------------
+DROP TABLE IF EXISTS `userstatus`;
+CREATE TABLE `userstatus` (
+  `UID` char(100) NOT NULL,
+  `state` tinyint(4) DEFAULT NULL,
+  `updatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`UID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for withdrawmoney
+-- ----------------------------
+DROP TABLE IF EXISTS `withdrawmoney`;
+CREATE TABLE `withdrawmoney` (
+  `UID` char(100) NOT NULL,
+  `WID` char(100) NOT NULL,
+  `tokenType` tinyint(4) NOT NULL,
+  `amount` double NOT NULL,
+  `createdTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` tinyint(4) NOT NULL,
+  `auditor` varchar(100) DEFAULT NULL,
+  `auditTime` timestamp NULL DEFAULT NULL,
+  `remark` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`UID`,`WID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

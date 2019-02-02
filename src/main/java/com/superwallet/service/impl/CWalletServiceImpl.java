@@ -303,7 +303,7 @@ public class CWalletServiceImpl implements CWalletService {
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateETHWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
-                    res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
+                    res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
                 //判断是否是非法记录
@@ -346,7 +346,7 @@ public class CWalletServiceImpl implements CWalletService {
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateEOSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
-                    commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
+                    commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
                 //申请表记录更新--涉及到钱是否返还问题
@@ -375,7 +375,7 @@ public class CWalletServiceImpl implements CWalletService {
                     withdrawmoneyMapper.updateByPrimaryKey(record);
                     updateBGSWalletAmount(UID, tokenAmount, CodeRepresentation.CWALLET_MONEY_INC);
                     transferType = CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL;
-                    commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_FAIL, addressFrom, addressTo, tokenAmount);
+                    commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_SUCCESS, addressFrom, addressTo, tokenAmount);
                     return false;
                 }
                 //如果提现速度太快，会出现延迟，需要特殊判断
@@ -780,7 +780,6 @@ public class CWalletServiceImpl implements CWalletService {
                 if (withDrawRecord != null || withDrawRecord.size() != 0) {
                     listCount += withDrawRecord.size();
                     result.addAll(withDrawRecord);
-                    result.addAll(withDrawProfit);
                 }
                 //拿到所有的划转进行中记录
                 if (withDrawOnProcess != null || withDrawOnProcess.size() != 0) {

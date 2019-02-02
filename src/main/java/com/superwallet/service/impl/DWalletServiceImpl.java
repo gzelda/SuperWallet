@@ -544,7 +544,8 @@ public class DWalletServiceImpl implements DWalletService {
                 CodeRepresentation.TRANSFER_TYPE_INVITINGBGS,
                 CodeRepresentation.TRANSFER_TYPE_LOCKPROFIT,
                 CodeRepresentation.TRANSFER_TYPE_AGENTPROFIT,
-                CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL
+                CodeRepresentation.TRANSFER_TYPE_WITHDRAW_FAIL,
+                CodeRepresentation.TRANSFER_TYPE_WITHDRAW_OUT
         ));
         criteria.andTransfertypeNotIn(offChainRecord);
         ArrayList<Byte> list = new ArrayList<Byte>();
