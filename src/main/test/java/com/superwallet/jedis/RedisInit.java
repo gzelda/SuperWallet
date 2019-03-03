@@ -26,8 +26,8 @@ public class RedisInit {
         config.setMaxWaitMillis(3000);
         config.setTestOnBorrow(true);
         config.setTestOnReturn(true);
-        JedisShardInfo info = new JedisShardInfo("3.17.79.21", 6379);
-        info.setPassword("tygavingavin");
+        JedisShardInfo info = new JedisShardInfo("18.223.112.79", 6379);
+        info.setPassword("bgsgameRedis");
         List<JedisShardInfo> list = new LinkedList<JedisShardInfo>();
         list.add(info);
         ShardedJedisPool pool = new ShardedJedisPool(config, list);
@@ -37,11 +37,11 @@ public class RedisInit {
         //驱动程序名
         String driver = "com.mysql.jdbc.Driver";
         //URL指向要访问的数据库名mydata
-        String url = "jdbc:mysql://18.222.109.30:3306/superwallet";
+        String url = "jdbc:mysql://18.217.113.241:3306/superwallet";
         //MySQL配置时的用户名
         String user = "root";
         //MySQL配置时的密码
-        String password = "Sher123@";
+        String password = "Superwallet";
         try {
             Class.forName(driver);
             con = DriverManager.getConnection(url, user, password);

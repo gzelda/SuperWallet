@@ -11,6 +11,8 @@ import com.superwallet.service.CommonService;
 import com.superwallet.service.DWalletService;
 import com.superwallet.utils.HttpUtil;
 import com.superwallet.utils.JedisClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,8 @@ public class DWalletServiceImpl implements DWalletService {
 
     @Autowired
     private EthvalidationMapper ethvalidationMapper;
+
+    private Logger logger = LogManager.getLogger(getClass().getName());
 
     /**
      * 展示链上钱包基本信息
@@ -160,9 +164,11 @@ public class DWalletServiceImpl implements DWalletService {
                 } catch (Exception e) {
                     return new SuperResult(CodeRepresentation.CODE_ERROR, CodeRepresentation.STATUS_0, MessageRepresentation.ERROR_MSG, null);
                 }
+//                System.out.println(result.getData() + "\n=======" + result.getMsg());
                 //请求成功则记录一笔交易记录
                 res = commonService.generateRecord(UID, transferType, token, CodeRepresentation.TRANSFER_ONPROCESS, addressFrom, addressTo, tokenAmount);
                 if (res.isGenerated()) {
+//                    System.out.println(txHash + ":" + nonce);
                     canGenETHValidationRecord = commonService.canGenETHValidationRecord(UID, txHash, nonce);
                     if (!canGenETHValidationRecord) {
                         return new SuperResult(CodeRepresentation.CODE_FAIL, CodeRepresentation.STATUS_1, MessageRepresentation.DWALLET_TRANSFER_CODE_0_STATUS_1, null);
@@ -604,13 +610,22 @@ public class DWalletServiceImpl implements DWalletService {
      */
     @Override
     public ResponseDWalletAssets listAssets(String UID) {
-        double allTokenAmountToRMB = 0, totalProfitToRMB;
+        double allTokenAmountToRMB = 0, totalProfitToRMB = 0;
         int listCount;
+        long start, end;
+//        start = System.currentTimeMillis();
         double eth_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_ETH);
         double eos_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_EOS);
         double bgs_tokenPrice = commonService.getTokenPriceByType(CodeRepresentation.TOKENTYPE_BGS);
+//        end = System.currentTimeMillis();
+//        logger.info("连接redis时间：" + (end - start));
+//        System.out.println("连接redis时间：" + (end - start));
+//        start = System.currentTimeMillis();
         CommonWalletInfo ethWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_ETH);
         CommonWalletInfo bgsWalletInfo = commonService.getMappingDAndCWalletInfo(UID, CodeRepresentation.TOKENTYPE_BGS);
+//        end = System.currentTimeMillis();
+//        logger.info("node请求时间：" + (end - start));
+//        System.out.println("node请求时间：" + (end - start));
         List<ResponseDWalletAssetsEntry> walletInfo = new ArrayList<ResponseDWalletAssetsEntry>();
         //TODO 收益计算
         ResponseDWalletAssetsEntry eth = new ResponseDWalletAssetsEntry(
@@ -645,11 +660,13 @@ public class DWalletServiceImpl implements DWalletService {
             );
             walletInfo.add(eos);
             allTokenAmountToRMB += eos.getTokenAmountToRMB();
+            totalProfitToRMB += eosWalletInfo.getcWalletAmount() * eos_tokenPrice;
         }
         walletInfo.add(eth);
         walletInfo.add(bgs);
         allTokenAmountToRMB = allTokenAmountToRMB + eth.getTokenAmountToRMB() + bgs.getTokenAmountToRMB();
-        totalProfitToRMB = cWalletService.listProfit(UID).getTotalProfitToRMB();
+        //获取收益等价RMB总额
+        totalProfitToRMB += ethWalletInfo.getcWalletAmount() * eth_tokenPrice + bgsWalletInfo.getcWalletAmount() * bgs_tokenPrice;
         listCount = walletInfo.size();
         ResponseDWalletAssets result = new ResponseDWalletAssets(allTokenAmountToRMB, totalProfitToRMB, listCount, walletInfo);
         return result;

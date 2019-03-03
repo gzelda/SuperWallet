@@ -11,6 +11,8 @@ import com.superwallet.utils.ByteImageConvert;
 import com.superwallet.utils.CodeGenerator;
 import com.superwallet.utils.JedisClient;
 import com.superwallet.utils.PushtoSingle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +62,8 @@ public class LoginRegisterServiceImpl implements LoginRegisterService {
 
     @Autowired
     private PreinviterMapper preinviterMapper;
+
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * 查看手机号是否已经被注册过

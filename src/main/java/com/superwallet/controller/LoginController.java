@@ -9,6 +9,8 @@ import com.superwallet.service.TokenService;
 import com.superwallet.utils.CodeGenerator;
 import com.superwallet.utils.JedisClient;
 import com.superwallet.utils.SHA1;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +41,8 @@ public class LoginController {
 
     @Autowired
     private CommonService commonService;
+
+    private Logger logger = LogManager.getLogger(getClass().getName());
 
     /**
      * 注册时获取手机验证码
@@ -190,7 +194,11 @@ public class LoginController {
     @ResponseBody
     public SuperResult loginByPassWord(String phoneNum, String passWord, HttpServletRequest request, HttpServletResponse response) {
         passWord = SHA1.encode(passWord);
+//        long start = System.currentTimeMillis();
         LoginResult loginResult = loginRegisterService.loginByPassWord(phoneNum, passWord);
+//        long end = System.currentTimeMillis();
+//        logger.info("连接mysql查询时间:" + (end - start));
+//        System.out.println("连接mysql查询时间:" + (end - start));
         //当登录成功时传phoneNum
         if (loginResult.getCode() == CodeRepresentation.CODE_SUCCESS) {
             Userbasic user = loginResult.getUser();

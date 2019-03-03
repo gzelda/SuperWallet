@@ -229,8 +229,12 @@ public class CodeRepresentation {
     public static final String SUPER_EOS = "bgsgamesuper";
 
     //链上HTTP请求地址
-    public static final String NODE_URL_ETH = "http://13.250.97.241:4000";
-    public static final String NODE_URL_EOS = "http://13.250.97.241:3000";
+//    public static final String NODE_URL_ETH = "http://13.250.97.241:4000";
+//    public static final String NODE_URL_EOS = "http://13.250.97.241:3000";
+    //    public static final String NODE_URL_ETH = "http://3.17.163.147:4000";
+//    public static final String NODE_URL_EOS = "http://3.17.163.147:3000";
+    public static final String NODE_URL_ETH = "http://3.17.76.159:4000";
+    public static final String NODE_URL_EOS = "http://3.17.76.159:3000";
     public static final String NODE_ACTION_CREATEETH = "/eth/createAccount";
     public static final String NODE_ACTION_CREATEEOS = "/eos/createAccount";
     public static final String NODE_ACTION_ALLOCATEEOSWALLET = "/eos/wallet/allocateWallet";

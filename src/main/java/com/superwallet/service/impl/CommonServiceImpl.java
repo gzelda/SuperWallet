@@ -1167,10 +1167,11 @@ public class CommonServiceImpl implements CommonService {
         if (list != null && list.size() != 0) {
             return false;
         }
-        //防止出现垃圾记录，查询是否有nonce一样的记录
+        //防止出现垃圾记录，查询是否有txHash和nonce一样的记录
         EthvalidationExample hasList = new EthvalidationExample();
         criteria = hasList.createCriteria();
         criteria.andUidEqualTo(UID);
+        criteria.andHashvalueEqualTo(txHash);
         criteria.andNonceEqualTo(nonce);
         list = ethvalidationMapper.selectByExample(hasList);
         if (list != null && list.size() != 0) {

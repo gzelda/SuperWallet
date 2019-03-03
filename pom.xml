@@ -96,6 +96,21 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-web</artifactId>
+            <version>2.1</version>
+        </dependency>
         <!-- Mybatis -->
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -288,10 +303,12 @@
                     <!--<version>3.0-r1655215</version>-->
                     <configuration>
                         <path>/</path>
-                        <url>http://node01/manager/text</url>
+                        <url>http://node/manager/text</url>
+                        <!--<url>http://aws/manager/text</url>-->
                         <!--<url>http://localhost:8080/manager/text</url>-->
                         <username>tomcat</username>
                         <password>superwallet@123</password>
+                        <!--<password>tomcat</password>-->
                     </configuration>
                 </plugin>
             </plugins>

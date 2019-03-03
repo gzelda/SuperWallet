@@ -19,6 +19,16 @@
         <param-value>classpath:spring/applicationContext*.xml</param-value>
     </context-param>
 
+    <!-- 日志配置文件路径 -->
+    <context-param>
+        <param-name>log4jConfiguration</param-name>
+        <param-value>classpath:conf/log4j2.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
+    </listener>
+
     <!-- 使用监听器加载Spring配置文件 -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -40,6 +50,18 @@
         <url-pattern>/WEB-INF/imgs/*</url-pattern>
     </servlet-mapping>
 
+    <filter>
+        <filter-name>log4jServletFilter</filter-name>
+        <filter-class>org.apache.logging.log4j.web.Log4jServletFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>log4jServletFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
 
     <!-- 解决post乱码问题 -->
     <filter>

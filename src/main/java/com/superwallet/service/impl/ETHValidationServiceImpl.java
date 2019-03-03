@@ -43,6 +43,9 @@ public class ETHValidationServiceImpl implements ETHValidationService {
         EthvalidationExample.Criteria criteria = ethvalidationExample.createCriteria();
         criteria.andStatusEqualTo(CodeRepresentation.ETH_VALIDATION_ON);
         List<Ethvalidation> list = ethvalidationMapper.selectByExample(ethvalidationExample);
+        if (list == null || list.size() == 0) {
+            return;
+        }
         //查询每个待确认订单
         String txHash;
         SuperResult result;

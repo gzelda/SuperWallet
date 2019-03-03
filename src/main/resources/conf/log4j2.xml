@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- log4j2使用说明（create By Sher    ）：
+使用方式如下：
+private static final Logger logger = LogManager.getLogger(实际类名.class.getName());
+
+2、日志说明：
+（1）请根据实际情况配置各项参数
+（2）需要注意日志文件备份数和日志文件大小，注意预留目录空间
+（3）实际部署的时候backupFilePatch变量需要修改成linux目录
+ -->
+<configuration status="error">
+    <Properties>
+        <property name="LOG_HOME">/root/logs</property>
+        <property name="ERROR_LOG_FILE_NAME">error</property>
+        <property name="INFO_LOG_FILE_NAME">info</property>
+        <property name="PATTERN">%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n</property>
+    </Properties>
+    <!--先定义所有的appender-->
+    <appenders>
+        <!--这个输出控制台的配置-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <!--<ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>-->
+            <!--这个都知道是输出日志的格式-->
+            <PatternLayout pattern="${PATTERN}"/>
+            <!--<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n" />-->
+        </Console>
+
+        <!--这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+        <RollingRandomAccessFile name="ErrorLog"
+                                 fileName="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="InfoLog"
+                                 fileName="${LOG_HOME}/${INFO_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${INFO_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}.gz">
+            <PatternLayout pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="20MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingRandomAccessFile>
+    </appenders>
+
+    <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
+    <loggers>
+        <!--建立一个默认的root的logger-->
+        <!-- 3rdparty Loggers -->
+        <logger name="org.springframework.core" level="info"></logger>
+        <logger name="org.springframework.beans" level="info"></logger>
+        <logger name="org.springframework.context" level="info"></logger>
+        <logger name="org.springframework.web" level="error"></logger>
+
+        <Logger name="com.superwallet" level="all"
+                additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="InfoLog"/>
+        </Logger>
+
+        <Root level="info" includeLocation="true">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="ErrorLog"/>
+            <appender-ref ref="InfoLog"/>
+        </Root>
+
+        <!--对应的mybatis查询日志-->
+        <!--debug对应的只到语句，而TRACE还会打印结果条数-->
+        <!--name只到dao则只是语句，而如果是org.zyyd.base.dao.mapper则会打印每行的结果-->
+        <Logger name="com.superwallet.mapper" level="DEBUG" additivity="false">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="InfoLog"/>
+        </Logger>
+    </loggers>
+</configuration>
